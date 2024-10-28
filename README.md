@@ -1,1 +1,1 @@
-# FashionMoodboardAI
+# Fashion Moodboard AI

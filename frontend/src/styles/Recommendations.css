@@ -1,0 +1,22 @@
+.recommendations {
+  background-color: #f3e8ff;
+  min-height: 100vh;
+
+  .container {
+    .title {
+      font-size: 32px;
+      font-weight: bold;
+    }
+
+    .sub-title {
+      font-size: 18px;
+    }
+
+    .rec-cards {
+      .card {
+        text-align: center;
+        border-radius: 15px;
+      }
+    }
+  }
+}

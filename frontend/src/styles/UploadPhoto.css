@@ -1,0 +1,24 @@
+.blur-background {
+  filter: blur(3px);
+  transition: filter 0.3s ease;
+}
+
+.upload-page {
+  background-color: #f3e8ff;
+
+  .title {
+    font-weight: bold;
+  }
+
+  .analysis-modal {
+    background-color: transparent;
+
+    .modal-content {
+      border-radius: 15px;
+
+      .shop-button {
+        width: auto;
+      }
+    }
+  }
+}

@@ -1,6 +1,6 @@
 import React from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
 import Navbar from "./Navbar";
+import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/Recommendations.css";
 
 function Recommendations() {
@@ -16,7 +16,9 @@ function Recommendations() {
       <div className="recommendations d-flex justify-content-center align-items-start p-4">
         <div className="container">
           <h2 className="title mb-4">Improve Your Style</h2>
-          <p className="sub-title mb-4">Your Past Fashion Recommendations</p>
+          <p className="sub-title mb-4">
+            AI Recommendations from your past Fashion
+          </p>
 
           <div className="rec-cards row g-4">
             {/* Six Recommendation Cards */}

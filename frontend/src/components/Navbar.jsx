@@ -37,7 +37,7 @@ function Navbar() {
             </li>
             <li className="nav-item">
               <a className="nav-link" href="/recommendations">
-                Recommendations
+                AI Recommendations
               </a>
             </li>
           </ul>

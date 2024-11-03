@@ -1,30 +1,30 @@
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "../styles/Login.css";
+import "../styles/SignUp.css";
 
-function Login() {
+function SignUp() {
   return (
-    <div className="login-page d-flex justify-content-center align-items-center vh-100">
+    <div className="signup-page d-flex justify-content-center align-items-center vh-100">
       <div className="card p-4 text-center">
         <h1 className="title mb-4">Fashion Moodboard AI</h1>
 
-        {/* Login with Facebook Button */}
-        <button className="login-btn btn  btn-block w-100 mb-3">
-          <i className="bi bi-facebook" />
-          <span>Login with Facebook</span>
+        {/* Sign Up with Facebook Button */}
+        <button className="signup-btn btn btn-block w-100 mb-3">
+          <i class="bi bi-facebook" />
+          <span>Sign Up with Facebook</span>
         </button>
 
         {/* Separator */}
         <div className="separator d-flex align-items-center my-3">
           <hr className="flex-grow-1" />
-          <span className="mx-2">No Account? Create one</span>
+          <span className="mx-2">Already have an account?</span>
           <hr className="flex-grow-1" />
         </div>
 
-        {/* Sign Up Button */}
-        <a href="/signup">
-          <button className="signup-btn btn btn-outline-dark w-100">
-            Sign Up
+        {/* Login Button */}
+        <a href="/login">
+          <button className="login-btn btn btn-outline-dark w-100">
+            Login
           </button>
         </a>
 
@@ -44,4 +44,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default SignUp;

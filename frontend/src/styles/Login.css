@@ -1,0 +1,23 @@
+.login-page {
+  background-color: #f3e8ff;
+
+  .card {
+    width: 400px;
+    border-radius: 15px;
+
+    h1 {
+      font-weight: bold;
+    }
+
+    .login-btn {
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      span {
+        margin-left: 10px;
+      }
+    }
+  }
+}

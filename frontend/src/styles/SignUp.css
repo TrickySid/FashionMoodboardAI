@@ -1,6 +1,6 @@
-.login-page {
+.signup-page {
   /* background-color: #f3e8ff; */
-  background-image: url("../../public/assets/blob-scene-1.svg");
+  background-image: url("../../public/assets/blob-scene-2.svg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -14,7 +14,7 @@
       font-weight: bold;
     }
 
-    .login-btn {
+    .signup-btn {
       font-weight: bold;
       display: flex;
       align-items: center;
@@ -31,7 +31,7 @@
       }
     }
 
-    .login-btn:hover {
+    .signup-btn:hover {
       background-color: #ee2f7e;
     }
 
@@ -39,13 +39,13 @@
       color: #464646;
     }
 
-    .signup-btn {
+    .login-btn {
       font-weight: bold;
       border: 1px solid #c62368;
       color: #c62368;
     }
 
-    .signup-btn:hover {
+    .login-btn:hover {
       background-color: #c62368;
       color: #fff;
     }

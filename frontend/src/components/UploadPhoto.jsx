@@ -63,7 +63,7 @@ function UploadPhoto() {
                   id="upload-photo"
                 />
                 <label htmlFor="upload-photo">
-                  <i className="bi bi-upload" />
+                  {/* <i className="bi bi-upload" /> */}
                   <div>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -80,7 +80,7 @@ function UploadPhoto() {
 
               {/* Import from Facebook Button */}
               <div className="import-photo-card card p-3 mb-4">
-                <i className="bi bi-camera"></i>
+                {/* <i className="bi bi-camera" /> */}
                 <div>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"

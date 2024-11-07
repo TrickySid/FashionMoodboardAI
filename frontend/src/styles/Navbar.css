@@ -31,4 +31,8 @@
   .signup-btn:hover {
     background-color: #323232;
   }
+
+  .logout-btn {
+    margin-left: 100px;
+  }
 }

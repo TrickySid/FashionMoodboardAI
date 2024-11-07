@@ -38,10 +38,20 @@ function UploadPhoto() {
     setShowModal(false);
   };
 
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
+
+  const handleLogin = () => {
+    setIsLoggedIn(true); // Set isLoggedIn to true on login
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false); // Set isLoggedIn to false on logout
+  };
+
   return (
     <>
       <div className={`${showModal ? "blur-background" : ""}`}>
-        <Navbar />
+        <Navbar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
         {/* Main content with conditional blur effect */}
         <div className="upload-page d-flex justify-content-center align-items-center vh-100">
           <div

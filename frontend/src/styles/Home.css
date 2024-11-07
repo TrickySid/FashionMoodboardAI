@@ -12,17 +12,23 @@
   align-items: center;
 }
 
-.text-container h1 {
-  margin: 80px;
-  font-size: 120px;
-  color: rgba(225, 225, 225, 0.01);
-  background-image: url("../../public/assets/landing-page-img.jpg");
-  background-repeat: repeat;
-  -webkit-background-clip: text;
-  animation: animate 15s ease-in-out infinite;
-  text-align: center;
-  text-transform: uppercase;
-  font-weight: 900;
+.text-container {
+  h1 {
+    margin: 60px;
+    font-size: 100px;
+    color: rgba(225, 225, 225, 0.01);
+    background-image: url("../../public/assets/landing-page-img.jpg");
+    background-repeat: repeat;
+    -webkit-background-clip: text;
+    animation: animate 15s ease-in-out infinite;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: 900;
+
+    span {
+      font-size: 80px;
+    }
+  }
 }
 
 @keyframes animate {
@@ -45,7 +51,6 @@ a {
   text-decoration: none;
 }
 
-/* From Uiverse.io by adamgiebl */
 .get-started-btn {
   background: #c62368;
   color: white;
@@ -64,34 +69,36 @@ a {
   height: 2.8em;
   padding-right: 3.3em;
   cursor: pointer;
+
+  .icon {
+    background: white;
+    margin-left: 1em;
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 2.2em;
+    width: 2.2em;
+    border-radius: 50px;
+    right: 0.3em;
+    transition: all 0.3s;
+
+    svg {
+      width: 1.1em;
+      transition: transform 0.3s;
+      color: #c62368;
+    }
+  }
 }
 
-.get-started-btn .icon {
-  background: white;
-  margin-left: 1em;
-  position: absolute;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 2.2em;
-  width: 2.2em;
-  border-radius: 50px;
-  right: 0.3em;
-  transition: all 0.3s;
-}
+.get-started-btn:hover {
+  .icon {
+    width: calc(100% - 0.6em);
 
-.get-started-btn:hover .icon {
-  width: calc(100% - 0.6em);
-}
-
-.get-started-btn .icon svg {
-  width: 1.1em;
-  transition: transform 0.3s;
-  color: #7b52b9;
-}
-
-.get-started-btn:hover .icon svg {
-  transform: translateX(0.1em);
+    svg {
+      transform: translateX(0.1em);
+    }
+  }
 }
 
 .get-started-btn:active .icon {

@@ -2,7 +2,7 @@ import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/Navbar.css";
 
-function Navbar() {
+function Navbar({ isLoggedIn, onLogout }) {
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
       <div className="container">
@@ -30,26 +30,43 @@ function Navbar() {
           id="navbarNav"
         >
           <ul className="navbar-nav">
-            <li className="nav-item upload">
-              <a className="nav-link" href="/upload">
-                Upload
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="/recommendations">
-                AI Recommendations
-              </a>
-            </li>
+            {isLoggedIn && (
+              <>
+                <li className="nav-item upload">
+                  <a className="nav-link" href="/upload">
+                    Upload
+                  </a>
+                </li>
+                <li className="nav-item">
+                  <a className="nav-link" href="/recommendations">
+                    AI Recommendations
+                  </a>
+                </li>
+              </>
+            )}
           </ul>
 
-          {/* Login and Sign Up Buttons */}
+          {/* Conditional Buttons for Login/Signup or Logout */}
           <div className="d-flex">
-            <a href="/login" className="login-btn btn btn-outline-primary me-2">
-              Login
-            </a>
-            <a href="/signup" className="signup-btn btn btn-primary">
-              Sign Up
-            </a>
+            {!isLoggedIn ? (
+              <>
+                <a
+                  href="/login"
+                  className="login-btn btn btn-outline-primary me-2"
+                >
+                  Login
+                </a>
+                <a href="/signup" className="signup-btn btn btn-primary">
+                  Sign Up
+                </a>
+              </>
+            ) : (
+              <a href="/login">
+                <button onClick={onLogout} className="logout-btn btn btn-danger ms-2">
+                  Logout
+                </button>
+              </a>
+            )}
           </div>
         </div>
       </div>

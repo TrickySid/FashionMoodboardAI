@@ -10,7 +10,11 @@ function Home() {
       <Navbar />
       <div className="home-page">
         <div class="text-container">
-          <h1>Analyze & Improve your Fashion</h1>
+          <h1>
+            Analyze Your Photos
+            <br /> <span>And</span> <br />
+            Improve your Fashion
+          </h1>
         </div>
 
         <a href="/login">

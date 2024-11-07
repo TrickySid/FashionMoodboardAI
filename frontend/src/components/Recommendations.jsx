@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Navbar from "./Navbar";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/Recommendations.css";
@@ -10,9 +10,19 @@ function Recommendations() {
     "Accessorize with gold jewelry to elevate your style",
   ];
 
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
+
+  const handleLogin = () => {
+    setIsLoggedIn(true); // Set isLoggedIn to true on login
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false); // Set isLoggedIn to false on logout
+  };
+
   return (
     <>
-      <Navbar />
+      <Navbar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
       <div className="recommendations d-flex justify-content-center align-items-start p-4">
         <div className="container">
           <h2 className="title mb-4">Improve Your Style</h2>

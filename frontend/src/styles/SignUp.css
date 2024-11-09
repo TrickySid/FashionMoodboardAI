@@ -1,6 +1,5 @@
 .signup-page {
-  /* background-color: #f3e8ff; */
-  background-image: url("../../public/assets/blob-scene-2.svg");
+  background-color: #0d0d0d;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -8,10 +7,12 @@
   .card {
     width: 32%;
     border-radius: 15px;
+    background-color: #181818;
     box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 
     h1 {
       font-weight: bold;
+      color: #cccccc;
     }
 
     .signup-btn {
@@ -19,8 +20,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: #c62368;
-      color: #fff;
+      background-color: #dcff00;
+      color: #0d0d0d;
 
       i {
         font-size: 20px;
@@ -32,22 +33,22 @@
     }
 
     .signup-btn:hover {
-      background-color: #ee2f7e;
+      background-color: #b1cc00;
     }
 
     .separator {
-      color: #464646;
+      color: #646464;
     }
 
     .login-btn {
       font-weight: bold;
-      border: 1px solid #c62368;
-      color: #c62368;
+      border: 1px solid #dcff00;
+      color: #dcff00;
     }
 
     .login-btn:hover {
-      background-color: #c62368;
-      color: #fff;
+      background-color: #dcff00;
+      color: #000;
     }
 
     .guest-btn {

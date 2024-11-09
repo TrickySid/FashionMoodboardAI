@@ -4,15 +4,23 @@
 }
 
 .upload-page {
-  background-color: #f3e8ff;
+  background-color: #0d0d0d;
+
+  .upload-import-photo-card {
+    background-color: #181818;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  }
 
   .card {
     .title {
+      color: #aeada4;
       font-weight: bold;
     }
 
     .d-flex {
       .upload-photo-card {
+        background-color: #0d0d0d;
+        color: #dcff00;
         width: 45%;
         padding: 20px;
 
@@ -24,20 +32,33 @@
           cursor: pointer;
 
           i {
+            color: #dcff00;
             font-size: 24px;
           }
         }
       }
 
       .import-photo-card {
+        background-color: #0d0d0d;
+        color: #dcff00;
         width: 45%;
         padding: 20px;
         cursor: pointer;
 
         i {
+          color: #dcff00;
           font-size: 24px;
         }
       }
+    }
+
+    .analyze-btn {
+      background-color: #dcff00;
+      color: #0d0d0d;
+    }
+
+    .analyze-btn:hover {
+      background-color: #b1cc00;
     }
   }
 

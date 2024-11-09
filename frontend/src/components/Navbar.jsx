@@ -4,7 +4,7 @@ import "../styles/Navbar.css";
 
 function Navbar({ isLoggedIn, onLogout }) {
   return (
-    <nav className="navbar navbar-expand-lg navbar-light bg-light">
+    <nav className="navbar navbar-expand-lg navbar-light">
       <div className="container">
         {/* Application Name */}
         <a className="navbar-brand" href="/">
@@ -62,8 +62,8 @@ function Navbar({ isLoggedIn, onLogout }) {
               </>
             ) : (
               <a href="/login">
-                <button onClick={onLogout} className="logout-btn btn btn-danger ms-2">
-                  Logout
+                <button onClick={onLogout} className="logout-btn btn ms-2">
+                  <i class="bi bi-box-arrow-right" />
                 </button>
               </a>
             )}

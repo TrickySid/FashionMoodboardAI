@@ -26,6 +26,7 @@ nav {
     border: 1px solid #dcff00;
     color: #dcff00;
     margin-left: 20px;
+    width: 80px;
   }
 
   .login-btn:hover {
@@ -37,6 +38,7 @@ nav {
     background-color: #dcff00;
     color: #0d0d0d;
     border: none;
+    width: 80px;
   }
 
   .signup-btn:hover {

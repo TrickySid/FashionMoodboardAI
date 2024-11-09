@@ -1,5 +1,5 @@
 .home-page {
-  background-color: #000;
+  background-color: #0d0d0d;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -15,7 +15,7 @@
 .text-container {
   h1 {
     margin: 60px;
-    font-size: 100px;
+    font-size: 90px;
     color: rgba(225, 225, 225, 0.01);
     background-image: url("../../public/assets/landing-page-img.jpg");
     background-repeat: repeat;
@@ -23,7 +23,7 @@
     animation: animate 15s ease-in-out infinite;
     text-align: center;
     text-transform: uppercase;
-    font-weight: 900;
+    font-weight: 700;
 
     span {
       font-size: 80px;
@@ -52,8 +52,8 @@ a {
 }
 
 .get-started-btn {
-  background: #c62368;
-  color: white;
+  background: #dcff00;
+  color: #0d0d0d;
   font-family: inherit;
   padding: 0.35em;
   padding-left: 1.2em;
@@ -71,7 +71,7 @@ a {
   cursor: pointer;
 
   .icon {
-    background: white;
+    background: #181818;
     margin-left: 1em;
     position: absolute;
     display: flex;
@@ -86,7 +86,7 @@ a {
     svg {
       width: 1.1em;
       transition: transform 0.3s;
-      color: #c62368;
+      color: #dcff00;
     }
   }
 }

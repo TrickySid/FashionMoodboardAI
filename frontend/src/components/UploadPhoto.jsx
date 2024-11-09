@@ -55,7 +55,7 @@ function UploadPhoto() {
         {/* Main content with conditional blur effect */}
         <div className="upload-page d-flex justify-content-center align-items-center vh-100">
           <div
-            className="card p-4"
+            className="upload-import-photo-card card p-4"
             style={{
               width: "400px",
               textAlign: "center",
@@ -73,16 +73,8 @@ function UploadPhoto() {
                   id="upload-photo"
                 />
                 <label htmlFor="upload-photo">
-                  {/* <i className="bi bi-upload" /> */}
+                  <i className="bi bi-upload" />
                   <div>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      height="28px"
-                      viewBox="0 -960 960 960"
-                      width="28px"
-                    >
-                      <path d="M440-320v-326L336-542l-56-58 200-200 200 200-56 58-104-104v326h-80ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z" />
-                    </svg>
                     <p>Upload Photo</p>
                   </div>
                 </label>
@@ -90,16 +82,8 @@ function UploadPhoto() {
 
               {/* Import from Facebook Button */}
               <div className="import-photo-card card p-3 mb-4">
-                {/* <i className="bi bi-camera" /> */}
+                <i className="bi bi-camera" />
                 <div>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    height="24px"
-                    viewBox="0 -960 960 960"
-                    width="24px"
-                  >
-                    <path d="M440-440ZM120-120q-33 0-56.5-23.5T40-200v-480q0-33 23.5-56.5T120-760h126l74-80h240v80H355l-73 80H120v480h640v-360h80v360q0 33-23.5 56.5T760-120H120Zm640-560v-80h-80v-80h80v-80h80v80h80v80h-80v80h-80ZM440-260q75 0 127.5-52.5T620-440q0-75-52.5-127.5T440-620q-75 0-127.5 52.5T260-440q0 75 52.5 127.5T440-260Zm0-80q-42 0-71-29t-29-71q0-42 29-71t71-29q42 0 71 29t29 71q0 42-29 71t-71 29Z" />
-                  </svg>
                   <p>Import from Facebook</p>
                 </div>
               </div>
@@ -108,7 +92,7 @@ function UploadPhoto() {
             {/* Analyze Fashion Button */}
             <button
               onClick={handleUpload}
-              className="btn btn-dark btn-block mt-3"
+              className="analyze-btn btn btn-block mt-3"
               style={{ fontWeight: "bold" }}
             >
               Analyze Fashion

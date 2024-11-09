@@ -1,11 +1,20 @@
+nav {
+  background-color: #0d0d0d;
+}
+
 .container {
   .navbar-brand {
     font-weight: bold;
+    color: #ccc;
   }
 
   .navbar-nav {
-    .upload {
+    .nav-item {
       margin-right: 20px;
+
+      a {
+        color: #ccc;
+      }
     }
   }
 
@@ -14,25 +23,33 @@
   }
 
   .login-btn {
-    border: 1px solid #000;
-    color: #000;
+    border: 1px solid #dcff00;
+    color: #dcff00;
     margin-left: 20px;
   }
 
   .login-btn:hover {
-    background-color: #b5b5b5;
+    background-color: #dcff00;
+    color: #0d0d0d;
   }
 
   .signup-btn {
-    background-color: #000;
+    background-color: #dcff00;
+    color: #0d0d0d;
     border: none;
   }
 
   .signup-btn:hover {
-    background-color: #323232;
+    background-color: #b1cc00;
   }
 
   .logout-btn {
-    margin-left: 100px;
+    background-color: #dcff00;
+    color: #0d0d0d;
+
+    i {
+      font-size: 18px;
+      font-weight: 800;
+    }
   }
 }

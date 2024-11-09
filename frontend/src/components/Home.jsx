@@ -1,44 +1,52 @@
-import React from "react";
+import React, { useEffect } from "react";
 // import axios from "axios";
 import Navbar from "./Navbar";
+import { images } from "./images";
+import gsap from "gsap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/Home.css";
 
-function Home() {
+const Home = () => {
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      document.querySelectorAll(".image-wrapper").forEach((image, index) => {
+        const x = (e.clientX - window.innerWidth / 2) * images[index].speed;
+        const y = (e.clientY - window.innerHeight / 2) * images[index].speed;
+        gsap.to(image, { x, y, duration: 0.75 });
+      });
+    };
+
+    const heroSection = document.querySelector(".home-page");
+    heroSection.addEventListener("mousemove", handleMouseMove);
+
+    return () => heroSection.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
   return (
     <>
       <Navbar />
-      <div className="home-page">
-        <div class="text-container">
-          <h1>
-            Analyze Your Photos
-            <br /> <span>And</span> <br />
-            Improve your Fashion
-          </h1>
-        </div>
-
+      <header class="home-page">
+        <h1>
+          Analyze and Improve <br />
+          <span>Your Fashion</span>
+        </h1>
         <a href="/login">
-          <button class="get-started-btn">
-            Get started
-            <div class="icon">
-              <svg
-                height="24"
-                width="24"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M0 0h24v24H0z" fill="none"></path>
-                <path
-                  d="M16.172 11l-5.364-5.364 1.414-1.414L20 12l-7.778 7.778-1.414-1.414L16.172 13H4v-2z"
-                  fill="currentColor"
-                ></path>
-              </svg>
-            </div>
-          </button>
+          <button className="get-started-btn">Get Started</button>
         </a>
+      </header>
+      <div id="gallery">
+        {images.map((item, index) => (
+          <div
+            key={index}
+            className="image-wrapper"
+            style={{ top: item.position.top, left: item.position.left }}
+          >
+            <img src={item.path} alt="img" />
+          </div>
+        ))}
       </div>
     </>
   );
-}
+};
 
 export default Home;

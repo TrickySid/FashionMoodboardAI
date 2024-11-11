@@ -30,9 +30,8 @@ body {
     text-decoration: none;
 
     .get-started-btn {
-      all: unset;
       letter-spacing: 1px;
-      padding: 14px 40px;
+      padding: 10px 40px;
       background-color: rgba(250, 250, 250, 0.1);
       color: #ccc;
       backdrop-filter: blur(20px);

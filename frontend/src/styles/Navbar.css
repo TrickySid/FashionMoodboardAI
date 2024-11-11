@@ -23,26 +23,43 @@ nav {
   }
 
   .login-btn {
-    border: 1px solid #dcff00;
-    color: #dcff00;
     margin-left: 20px;
-    width: 80px;
+    width: 90px;
+    letter-spacing: 1px;
+    padding: 9px 20px 10px;
+    color: #ccc;
+    backdrop-filter: blur(20px);
+    border-radius: 50px;
+    border: 1px solid rgba(250, 250, 250, 0.2);
+    cursor: pointer;
+    transition: 0.15s ease;
+    font-size: 14px;
+    font-weight: 500;
   }
 
   .login-btn:hover {
-    background-color: #dcff00;
-    color: #0d0d0d;
+    border: 1px solid #dcff00;
+    background-color: transparent;
+    color: #dcff00;
   }
 
   .signup-btn {
-    background-color: #dcff00;
-    color: #0d0d0d;
-    border: none;
-    width: 80px;
+    letter-spacing: 1px;
+    padding: 9px 20px 10px;
+    background-color: rgba(250, 250, 250, 0.1);
+    color: #ccc;
+    backdrop-filter: blur(20px);
+    border-radius: 50px;
+    border: 1px solid rgba(250, 250, 250, 0.2);
+    cursor: pointer;
+    transition: 0.15s ease;
+    font-size: 14px;
+    font-weight: 500;
   }
 
   .signup-btn:hover {
-    background-color: #b1cc00;
+    background-color: #dcff00;
+    color: #0d0d0d;
   }
 
   .logout-btn {

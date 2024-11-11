@@ -4,7 +4,12 @@
 
   .container {
     .title {
-      color: #aeada4;
+      background: linear-gradient(to right, #6a7a00, #dcff00);
+      background-size: 300px;
+      background-repeat: no-repeat;
+      color: transparent;
+      -webkit-background-clip: text;
+      background-clip: text;
       font-size: 32px;
       font-weight: bold;
     }

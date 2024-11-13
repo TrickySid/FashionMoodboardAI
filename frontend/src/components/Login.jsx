@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/Login.css";
 
@@ -9,7 +10,7 @@ function Login({ onLogin }) {
         <h1 className="title mb-4">Fashion Moodboard AI</h1>
 
         {/* Login with Facebook Button */}
-        <a href="/upload">
+        <Link to="/upload">
           <button
             className="login-btn btn btn-block w-100 mb-3"
             onClick={onLogin}
@@ -17,7 +18,7 @@ function Login({ onLogin }) {
             <i className="bi bi-facebook" />
             <span>Login with Facebook</span>
           </button>
-        </a>
+        </Link>
 
         {/* Separator */}
         <div className="separator d-flex align-items-center my-3">
@@ -27,23 +28,11 @@ function Login({ onLogin }) {
         </div>
 
         {/* Sign Up Button */}
-        <a href="/signup">
-          <button className="signup-btn btn btn-outline-dark w-100">
+        <Link to="/signup">
+          <button className="signup-btn btn btn-outline-dark w-100 mb-2">
             Sign Up
           </button>
-        </a>
-
-        {/* Separator */}
-        <div className="separator d-flex align-items-center my-3">
-          <hr className="flex-grow-1" />
-          <span className="mx-2">or</span>
-          <hr className="flex-grow-1" />
-        </div>
-
-        {/* Continue as Guest Button */}
-        <a href="/upload">
-          <button className="guest-btn btn">Continue as Guest</button>
-        </a>
+        </Link>
       </div>
     </div>
   );

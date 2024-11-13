@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { Link } from "react-router-dom";
 // import axios from "axios";
 import Navbar from "./Navbar";
 import { images } from "./images";
@@ -30,9 +31,9 @@ const Home = () => {
           Analyze and Improve <br />
           <span>Your Fashion</span>
         </h1>
-        <a href="/login">
+        <Link to="/login">
           <button className="get-started-btn">Get Started</button>
-        </a>
+        </Link>
       </header>
       <div id="gallery">
         {images.map((item, index) => (

@@ -48,7 +48,7 @@ function UploadPhoto() {
     <>
       <div className={`${showModal ? "blur-background" : ""}`}>
         <Navbar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
-        {/* Main content with conditional blur effect */}
+
         <div className="upload-page d-flex justify-content-center align-items-center vh-100">
           <div
             className="upload-import-photo-card card p-4"

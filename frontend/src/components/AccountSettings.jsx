@@ -7,28 +7,26 @@ function AccountSettings() {
   const [isLoggedIn, setIsLoggedIn] = useState(true);
 
   const handleLogout = () => {
-    setIsLoggedIn(false); // Set isLoggedIn to false on logout
+    setIsLoggedIn(false);
   };
 
-  // State to hold form inputs
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
+  //   const [currentPassword, setCurrentPassword] = useState("");
+  //   const [newPassword, setNewPassword] = useState("");
   const [profilePic, setProfilePic] = useState(null);
 
-  // Handle form submission
   const handleSaveChanges = (e) => {
     e.preventDefault();
     // Logic to save changes (e.g., API call) goes here
-    console.log("Changes saved:", { name, email, newPassword, profilePic });
+    // console.log("Changes saved:", { name, email, newPassword, profilePic });
     alert("Account settings updated successfully!");
   };
 
   return (
     <>
       <Navbar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
-      <div style={{ paddingTop: "20px", backgroundColor: "#0d0d0d" }}>
+      <div style={{ paddingTop: "100px", backgroundColor: "#0d0d0d" }}>
         <div className="account-settings-page justify-content-center align-items-start vh-100">
           <div className="container">
             <form className="settings-form" onSubmit={handleSaveChanges}>
@@ -73,7 +71,7 @@ function AccountSettings() {
               </div>
 
               {/* Email */}
-              <div className="mb-3">
+              <div className="mb-4">
                 <label htmlFor="email" className="form-label">
                   Email
                 </label>
@@ -88,7 +86,7 @@ function AccountSettings() {
               </div>
 
               {/* Current Password */}
-              <div className="mb-3">
+              {/* <div className="mb-3">
                 <label htmlFor="currentPassword" className="form-label">
                   Current Password
                 </label>
@@ -100,10 +98,10 @@ function AccountSettings() {
                   onChange={(e) => setCurrentPassword(e.target.value)}
                   placeholder="Enter your current password"
                 />
-              </div>
+              </div> */}
 
               {/* New Password */}
-              <div className="mb-4">
+              {/* <div className="mb-4">
                 <label htmlFor="newPassword" className="form-label">
                   New Password
                 </label>
@@ -115,7 +113,7 @@ function AccountSettings() {
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="Enter a new password"
                 />
-              </div>
+              </div> */}
 
               {/* Save Changes Button */}
               <button

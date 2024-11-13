@@ -1,5 +1,5 @@
 .account-settings-page {
-  background-color: #0d0d0d;
+  background: linear-gradient(#0d0d0d 0%, #222800 100%);
 
   .title {
     background: linear-gradient(to right, #6a7a00, #dcff00);
@@ -13,7 +13,7 @@
   }
 
   .settings-form {
-    background-color: #181818;
+    background: linear-gradient(45deg, #0d0d0d 0%, #1d1d1d 100%);
     border-radius: 30px;
     box-shadow: rgba(6, 24, 44, 0.4) 0px 0px 0px 2px,
       rgba(3, 10, 20, 0.65) 0px 4px 6px -1px,

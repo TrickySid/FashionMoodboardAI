@@ -61,13 +61,27 @@ nav {
     color: #0d0d0d;
   }
 
-  .logout-btn {
-    background-color: #dcff00;
-    color: #0d0d0d;
+  .dropdown {
+    .avatar-btn {
+      background-color: transparent;
+      color: #ccc;
+      border: none;
+    }
 
-    i {
-      font-size: 18px;
-      font-weight: 800;
+    .user-avatar {
+      color: #ccc;
+      font-size: 24px;
+    }
+
+    .dropdown-menu {
+      .dropdown-item {
+        background: transparent;
+
+        i {
+          font-size: 18px;
+          margin-right: 10px;
+        }
+      }
     }
   }
 }

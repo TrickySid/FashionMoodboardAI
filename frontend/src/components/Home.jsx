@@ -25,7 +25,7 @@ const Home = () => {
   return (
     <>
       <Navbar />
-      <header class="home-page">
+      <header className="home-page">
         <h1>
           Analyze and Improve <br />
           <span>Your Fashion</span>

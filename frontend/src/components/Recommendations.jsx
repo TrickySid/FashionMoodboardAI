@@ -12,10 +12,6 @@ function Recommendations() {
 
   const [isLoggedIn, setIsLoggedIn] = useState(true);
 
-  const handleLogin = () => {
-    setIsLoggedIn(true); // Set isLoggedIn to true on login
-  };
-
   const handleLogout = () => {
     setIsLoggedIn(false); // Set isLoggedIn to false on logout
   };

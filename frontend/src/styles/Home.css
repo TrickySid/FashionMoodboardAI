@@ -1,5 +1,5 @@
 body {
-  background-color: #151515;
+  background: linear-gradient(#0d0d0d 0%, #222800 100%);
   overflow: hidden;
 }
 
@@ -60,6 +60,7 @@ body {
 .image-wrapper {
   position: absolute;
   width: 240px;
+  background-color: #0d0d0d;
 
   img {
     width: 100%;

@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/SignUp.css";
 
@@ -22,23 +23,11 @@ function SignUp() {
         </div>
 
         {/* Login Button */}
-        <a href="/login">
-          <button className="login-btn btn btn-outline-dark w-100">
+        <Link to="/login">
+          <button className="login-btn btn btn-outline-dark w-100 mb-2">
             Login
           </button>
-        </a>
-
-        {/* Separator */}
-        <div className="separator d-flex align-items-center my-3">
-          <hr className="flex-grow-1" />
-          <span className="mx-2">or</span>
-          <hr className="flex-grow-1" />
-        </div>
-
-        {/* Continue as Guest Button */}
-        <a href="/upload">
-          <button className="guest-btn btn">Continue as Guest</button>
-        </a>
+        </Link>
       </div>
     </div>
   );

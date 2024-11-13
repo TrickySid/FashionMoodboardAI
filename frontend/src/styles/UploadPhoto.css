@@ -8,7 +8,9 @@
 
   .upload-import-photo-card {
     background-color: #181818;
-    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    box-shadow: rgba(6, 24, 44, 0.4) 0px 0px 0px 2px,
+      rgba(3, 10, 20, 0.65) 0px 4px 6px -1px,
+      rgba(255, 255, 255, 0.08) 0px 1px 0px inset;
   }
 
   .card {
@@ -61,21 +63,34 @@
       background-color: #b1cc00;
     }
   }
+}
 
-  .analysis-modal {
-    background-color: transparent;
+.analysis-modal {
+  background-color: transparent;
 
-    .modal-content {
-      border-radius: 15px;
+  .modal-content {
+    background-color: #f5f6ed;
+    border-radius: 15px;
 
-      .shop-button {
-        width: auto;
+    .modal-title {
+      color: #0d0d0d;
+      font-weight: 600;
+    }
+
+    .ai-recom {
+      h5 {
+        font-weight: bold;
+        color: #0d0d0d;
       }
 
-      .ai-recom {
-        h5 {
-          font-weight: bold;
+      ul {
+        li {
+          color: #0d0d0d;
         }
+      }
+
+      .shop-btn {
+        background-color: #0d0d0d;
       }
     }
   }

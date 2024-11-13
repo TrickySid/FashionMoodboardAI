@@ -40,10 +40,6 @@ function UploadPhoto() {
 
   const [isLoggedIn, setIsLoggedIn] = useState(true);
 
-  const handleLogin = () => {
-    setIsLoggedIn(true); // Set isLoggedIn to true on login
-  };
-
   const handleLogout = () => {
     setIsLoggedIn(false); // Set isLoggedIn to false on logout
   };
@@ -73,7 +69,10 @@ function UploadPhoto() {
                   id="upload-photo"
                 />
                 <label htmlFor="upload-photo">
-                  <i className="bi bi-upload" />
+                  <i
+                    className="fa-solid fa-arrow-up-from-bracket"
+                    style={{ marginBottom: "10px", marginTop: "10px" }}
+                  />
                   <div>
                     <p>Upload Photo</p>
                   </div>
@@ -82,7 +81,10 @@ function UploadPhoto() {
 
               {/* Import from Facebook Button */}
               <div className="import-photo-card card p-3 mb-4">
-                <i className="bi bi-camera" />
+                <i
+                  className="fa-regular fa-images"
+                  style={{ marginBottom: "5px", marginTop: "10px" }}
+                />
                 <div>
                   <p>Import from Facebook</p>
                 </div>
@@ -160,7 +162,7 @@ function UploadPhoto() {
 
                 {/* Shop Similar Styles Button */}
                 <button
-                  className="btn btn-dark w-100 mt-3"
+                  className="shop-btn btn btn-dark w-100 mt-3"
                   style={{ fontWeight: "bold" }}
                 >
                   Shop Similar Styles

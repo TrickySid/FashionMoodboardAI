@@ -1,15 +1,16 @@
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/Navbar.css";
+import { Link } from "react-router-dom"; // Use Link for internal navigation if using react-router
 
 function Navbar({ isLoggedIn, onLogout }) {
   return (
     <nav className="navbar navbar-expand-lg navbar-light">
       <div className="container">
         {/* Application Name */}
-        <a className="navbar-brand" href="/">
+        <Link className="navbar-brand" to="/">
           Fashion Moodboard AI
-        </a>
+        </Link>
 
         {/* Toggle button for mobile view */}
         <button
@@ -32,40 +33,72 @@ function Navbar({ isLoggedIn, onLogout }) {
           <ul className="navbar-nav">
             {isLoggedIn && (
               <>
-                <li className="nav-item upload">
-                  <a className="nav-link" href="/upload">
+                <li className="nav-item">
+                  <Link className="nav-link" to="/upload">
                     Upload
-                  </a>
+                  </Link>
                 </li>
                 <li className="nav-item">
-                  <a className="nav-link" href="/recommendations">
+                  <Link className="nav-link" to="/recommendations">
                     AI Recommendations
-                  </a>
+                  </Link>
                 </li>
               </>
             )}
           </ul>
 
-          {/* Conditional Buttons for Login/Signup or Logout */}
-          <div className="d-flex">
+          {/* Conditional Buttons for Login/Signup or Avatar Dropdown */}
+          <div className="d-flex align-items-center">
             {!isLoggedIn ? (
               <>
-                <a
-                  href="/login"
+                <Link
+                  to="/login"
                   className="login-btn btn btn-outline-primary me-2"
                 >
                   Login
-                </a>
-                <a href="/signup" className="signup-btn btn btn-primary">
+                </Link>
+                <Link to="/signup" className="signup-btn btn btn-primary">
                   Sign Up
-                </a>
+                </Link>
               </>
             ) : (
-              <a href="/login">
-                <button onClick={onLogout} className="logout-btn btn ms-2">
-                  <i class="bi bi-box-arrow-right" />
+              <div className="dropdown">
+                <button
+                  className="btn avatar-btn dropdown-toggle"
+                  type="button"
+                  id="dropdownMenuButton"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  <i className="user-avatar fa-regular fa-circle-user" />
                 </button>
-              </a>
+                <ul
+                  className="dropdown-menu dropdown-menu-end"
+                  aria-labelledby="dropdownMenuButton"
+                >
+                  <li>
+                    <Link className="dropdown-item" to="/account-settings">
+                      <i className="fa-solid fa-gear" />
+                      <span>Account Settings</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      className="dropdown-item"
+                      to="/login"
+                      style={{ marginLeft: "-20px" }}
+                    >
+                      <button
+                        onClick={onLogout}
+                        className="logout-btn btn ms-2"
+                      >
+                        <i className="fa-solid fa-right-from-bracket" />
+                        <span>Sign Out</span>
+                      </button>
+                    </Link>
+                  </li>
+                </ul>
+              </div>
             )}
           </div>
         </div>

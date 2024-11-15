@@ -141,7 +141,7 @@ function UploadPhoto() {
                       >
                         <img
                           src="/assets/placeholder.jpg"
-                          alt={`Moodboard ${index + 1}`}
+                          alt={`Img ${index + 1}`}
                           className="position-absolute top-0 start-0 w-100 h-100"
                           style={{ objectFit: "cover", borderRadius: "10px" }}
                         />

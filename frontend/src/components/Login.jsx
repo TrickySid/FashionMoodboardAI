@@ -15,8 +15,8 @@ function Login({ onLogin }) {
             className="login-btn btn btn-block w-100 mb-3"
             onClick={onLogin}
           >
-            <i className="bi bi-facebook" />
-            <span>Login with Facebook</span>
+            <i class="fa-brands fa-pinterest"></i>
+            <span>Login with Pinterest</span>
           </button>
         </Link>
 

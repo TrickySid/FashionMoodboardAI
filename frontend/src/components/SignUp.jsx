@@ -11,8 +11,8 @@ function SignUp() {
 
         {/* Sign Up with Facebook Button */}
         <button className="signup-btn btn btn-block w-100 mb-3">
-          <i class="bi bi-facebook" />
-          <span>Sign Up with Facebook</span>
+          <i class="fa-brands fa-pinterest"></i>
+          <span>Sign Up with Pinterest</span>
         </button>
 
         {/* Separator */}

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 import Navbar from "./Navbar";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/UploadPhoto.css";
@@ -10,6 +11,17 @@ function UploadPhoto() {
   const [successMessage, setSuccessMessage] = useState(false); // State for success message
   const [showRecommendations, setShowRecommendations] = useState(false); // State for recommendations
   const [loading, setLoading] = useState(false); // Loading state
+  const [fashionTips, setFashionTips] = useState([]); // Store fashion tips for each image
+  const [labelsByImage, setLabelsByImage] = useState([]); // Labels for each uploaded image
+
+  // Convert image to Base64 for API usage
+  const convertToBase64 = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result.split(",")[1]);
+      reader.onerror = (error) => reject(error);
+      reader.readAsDataURL(file);
+    });
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
@@ -20,31 +32,56 @@ function UploadPhoto() {
       return;
     }
 
-    if (files.length !== validFiles.length) {
-      alert("Only image files are allowed.");
-    }
-
     setSelectedFiles((prevFiles) => [...prevFiles, ...validFiles]);
-    setSuccessMessage(true); // Show success message
-    setTimeout(() => setSuccessMessage(false), 3000); // Hide after 3 seconds
+    setSuccessMessage(true);
+    setTimeout(() => setSuccessMessage(false), 3000);
   };
 
   const handleUpload = () => {
-    setShowModal(true); // Show modal with analysis results
+    setShowModal(true);
+  };
+
+  const handleAnalyze = async () => {
+    setLoading(true);
+
+    try {
+      const base64Images = await Promise.all(
+        selectedFiles.map((file) => convertToBase64(file))
+      );
+
+      const responses = await Promise.all(
+        base64Images.map((imageBase64) =>
+          axios.post("http://localhost:5000/analyze-image", { imageBase64 })
+        )
+      );
+
+      const labels = responses.map((response) => response.data.labels);
+      setLabelsByImage(labels);
+
+      const tips = responses.map((response) => {
+        const { labels, colors } = response.data;
+
+        // Generate tips for each photo
+        return generateFashionTips(
+          labels.map((label) => label.description),
+          colors.map((color) => color.color)
+        );
+      });
+
+      setFashionTips(tips); // Store tips for all images
+      setLoading(false);
+      setShowRecommendations(true);
+    } catch (error) {
+      console.error("Error analyzing images:", error);
+      setLoading(false);
+    }
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
     setShowRecommendations(false); // Reset recommendations state
     setLoading(false); // Reset loading state
-  };
-
-  const handleAnalyze = () => {
-    setLoading(true); // Start loading animation
-    setTimeout(() => {
-      setLoading(false); // Stop loading animation
-      setShowRecommendations(true); // Show recommendations
-    }, 10000); // Simulate 10 seconds delay
+    setLabelsByImage([]); // Reset labels state
   };
 
   const handleRemovePhoto = (index) => {
@@ -56,6 +93,9 @@ function UploadPhoto() {
     setSelectedFiles((prevFiles) =>
       prevFiles.filter((_, fileIndex) => fileIndex !== index)
     );
+    setLabelsByImage((prev) =>
+      prev.filter((_, labelIndex) => labelIndex !== index)
+    ); // Remove corresponding labels
   };
 
   const handleAddImagesInModal = (e) => {
@@ -67,15 +107,36 @@ function UploadPhoto() {
       return;
     }
 
-    if (files.length !== validFiles.length) {
-      alert("Only image files are allowed.");
-    }
-
     setSelectedFiles((prevFiles) => [...prevFiles, ...validFiles]);
   };
 
   const handleLogout = () => {
     setIsLoggedIn(false); // Set isLoggedIn to false on logout
+  };
+
+  const generateFashionTips = (labels, colors) => {
+    const tips = [];
+
+    if (labels.includes("Red"))
+      tips.push("Try adding a pop of red for confidence.");
+    if (labels.includes("Denim"))
+      tips.push("Layer with a denim jacket for a casual look.");
+    if (labels.includes("Jewelry"))
+      tips.push("Accessorize with gold jewelry to elevate your style.");
+
+    if (
+      colors.some(
+        (color) => color.red > 200 && color.green < 100 && color.blue < 100
+      )
+    ) {
+      tips.push("Red tones in your outfit bring boldness.");
+    }
+
+    return tips.length
+      ? tips
+      : [
+          "We couldn't detect specific styles. Try experimenting with bold colors!",
+        ];
   };
 
   return (
@@ -111,7 +172,7 @@ function UploadPhoto() {
               {/* Import from Pinterest Button */}
               <div className="import-photo-card card p-3 mb-4">
                 <i
-                  class="fa-brands fa-square-pinterest"
+                  className="fa-brands fa-square-pinterest"
                   style={{ marginBottom: "5px", marginTop: "10px" }}
                 />
                 <div>
@@ -210,7 +271,6 @@ function UploadPhoto() {
                           className="position-absolute top-0 start-0 w-100 h-100"
                           style={{ objectFit: "cover", borderRadius: "10px" }}
                         />
-                        {/* Remove Button */}
                         {!showRecommendations && (
                           <button
                             className="btn btn-danger btn-sm position-absolute top-0 end-0"
@@ -222,16 +282,29 @@ function UploadPhoto() {
                             }}
                           >
                             <i
-                              class="fa-solid fa-xmark"
+                              className="fa-solid fa-xmark"
                               style={{ marginTop: "-20px" }}
                             />
                           </button>
                         )}
                       </div>
+                      {/* Display Labels */}
+                      {showRecommendations && labelsByImage[index] && (
+                        <div className="labels mt-2">
+                          <h6>Detected Labels:</h6>
+                          <ul>
+                            {labelsByImage[index].map((label, labelIndex) => (
+                              <li key={labelIndex}>
+                                {label.description} -{" "}
+                                {(label.score * 100).toFixed(2)}%
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                     </div>
                   ))}
 
-                  {/* Add More Photos Button */}
                   {!showRecommendations &&
                     selectedFiles.length < 6 &&
                     !loading && (
@@ -264,7 +337,6 @@ function UploadPhoto() {
                     )}
                 </div>
 
-                {/* Analyze Button */}
                 {!showRecommendations && !loading && (
                   <button
                     className="analyze-btn btn btn-dark w-100 mt-3"
@@ -275,7 +347,6 @@ function UploadPhoto() {
                   </button>
                 )}
 
-                {/* Loading Animation */}
                 {loading && (
                   <div className="d-flex justify-content-center align-items-center mt-3">
                     <div
@@ -288,21 +359,32 @@ function UploadPhoto() {
                   </div>
                 )}
 
-                {/* Fashion Recommendations */}
                 {showRecommendations && (
                   <>
                     <div className="ai-recom">
                       <h5>AI Fashion Recommendations</h5>
-                      <ul>
-                        <li>Try adding a pop of red for confidence</li>
-                        <li>Layer with a denim jacket for a casual look</li>
-                        <li>
-                          Accessorize with gold jewelry to elevate your style
-                        </li>
-                      </ul>
+                      <div className="row row-cols-1 g-2">
+                        {selectedFiles.map((file, index) => (
+                          <div key={index}>
+                            <img
+                              src={URL.createObjectURL(file)}
+                              alt={`Uploaded Img ${index + 1}`}
+                              className="img-thumbnail mb-2"
+                              style={{
+                                width: "100px",
+                                height: "100px",
+                                objectFit: "cover",
+                              }}
+                            />
+                            <ul>
+                              {fashionTips[index]?.map((tip, tipIndex) => (
+                                <li key={tipIndex}>{tip}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-
-                    {/* Shop Similar Styles Button */}
                     <button
                       className="shop-btn btn btn-dark w-100 mt-3"
                       style={{ fontWeight: "bold" }}

@@ -13,6 +13,7 @@ function UploadPhoto() {
   const [loading, setLoading] = useState(false); // Loading state
   const [fashionTips, setFashionTips] = useState([]); // Store fashion tips for each image
   const [labelsByImage, setLabelsByImage] = useState([]); // Labels for each uploaded image
+  const [overallRecommendations, setOverallRecommendations] = useState(""); // ChatGPT recommendations
 
   // Convert image to Base64 for API usage
   const convertToBase64 = (file) =>
@@ -58,17 +59,20 @@ function UploadPhoto() {
       const labels = responses.map((response) => response.data.labels);
       setLabelsByImage(labels);
 
-      const tips = responses.map((response) => {
-        const { labels, colors } = response.data;
+      const aggregatedData = labels.map((imageLabels, index) => ({
+        image: `Image ${index + 1}`,
+        labels: imageLabels.map((label) => ({
+          description: label.description,
+          confidence: (label.score * 100).toFixed(2),
+        })),
+      }));
 
-        // Generate tips for each photo
-        return generateFashionTips(
-          labels.map((label) => label.description),
-          colors.map((color) => color.color)
-        );
-      });
+      const chatGPTResponse = await axios.post(
+        "http://localhost:5000/analyze-fashion",
+        { images: aggregatedData }
+      );
 
-      setFashionTips(tips); // Store tips for all images
+      setOverallRecommendations(chatGPTResponse.data.recommendations);
       setLoading(false);
       setShowRecommendations(true);
     } catch (error) {
@@ -79,9 +83,10 @@ function UploadPhoto() {
 
   const handleCloseModal = () => {
     setShowModal(false);
-    setShowRecommendations(false); // Reset recommendations state
-    setLoading(false); // Reset loading state
-    setLabelsByImage([]); // Reset labels state
+    setShowRecommendations(false);
+    setLoading(false);
+    setLabelsByImage([]);
+    setOverallRecommendations("");
   };
 
   const handleRemovePhoto = (index) => {
@@ -112,6 +117,33 @@ function UploadPhoto() {
 
   const handleLogout = () => {
     setIsLoggedIn(false); // Set isLoggedIn to false on logout
+  };
+
+  const generateGoogleLinks = (recommendation) => {
+    const keywords = recommendation
+      .toLowerCase()
+      .match(
+        /\b(?:dress|jewelry|shirt|blazer|shoes|pants|scarf|watch|loafers|sneakers|accessories|outfit|style)\b/g
+      );
+
+    const baseGoogleUrl = "https://www.google.com/search?q=shop+";
+
+    return keywords
+      ? [...new Set(keywords)].map((keyword, index) => {
+          const searchUrl = `${baseGoogleUrl}${encodeURIComponent(keyword)}`;
+          return (
+            <a
+              key={index}
+              href={searchUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-outline-primary btn-sm me-2 mb-2"
+            >
+              {`Search ${keyword}`}
+            </a>
+          );
+        })
+      : null;
   };
 
   const generateFashionTips = (labels, colors) => {
@@ -363,34 +395,69 @@ function UploadPhoto() {
                   <>
                     <div className="ai-recom">
                       <h5>AI Fashion Recommendations</h5>
-                      <div className="row row-cols-1 g-2">
+
+                      {/* Display images in a single line */}
+                      <div className="d-flex justify-content-center align-items-center mb-4">
                         {selectedFiles.map((file, index) => (
-                          <div key={index}>
+                          <div key={index} className="me-3">
                             <img
                               src={URL.createObjectURL(file)}
                               alt={`Uploaded Img ${index + 1}`}
-                              className="img-thumbnail mb-2"
+                              className="img-thumbnail"
                               style={{
                                 width: "100px",
                                 height: "100px",
                                 objectFit: "cover",
                               }}
                             />
-                            <ul>
-                              {fashionTips[index]?.map((tip, tipIndex) => (
-                                <li key={tipIndex}>{tip}</li>
-                              ))}
-                            </ul>
                           </div>
                         ))}
                       </div>
+
+                      <div>
+                        {overallRecommendations
+                          .split("Image")
+                          .map((section, index) => {
+                            if (section.trim() === "") return null; // Skip empty sections
+                            const [imageHeader, ...rest] = section.split("\n");
+                            const recommendations = rest.filter(
+                              (line) => line.trim() !== ""
+                            ); // Filter out empty lines
+                            return (
+                              <div key={index} className="mb-3">
+                                <h6 className="fw-bold">{`Image ${index}`}</h6>
+                                <ul>
+                                  {recommendations.map(
+                                    (recommendation, recIndex) => (
+                                      <li
+                                        key={recIndex}
+                                        style={{ listStyleType: "disc" }}
+                                      >
+                                        {recommendation
+                                          .replace(/^\d+\.\s*/, "")
+                                          .trim()}
+                                      </li>
+                                    )
+                                  )}
+                                </ul>
+
+                                <div>
+                                  {generateGoogleLinks(
+                                    recommendations.join(" ")
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                      </div>
                     </div>
+                    {/* 
                     <button
                       className="shop-btn btn btn-dark w-100 mt-3"
                       style={{ fontWeight: "bold" }}
                     >
                       Shop Similar Styles
-                    </button>
+                    </button> */}
                   </>
                 )}
               </div>

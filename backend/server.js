@@ -8,8 +8,7 @@ app.use(bodyParser.json({ limit: "10mb" })); // Support large base64 images
 app.use(cors());
 
 const GOOGLE_API_KEY = "AIzaSyDAMP-wg5uq0lyhZbIuobIMUJ9qUfNHq4w";
-const OPENAI_API_KEY =
-  "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";
+const OPENAI_API_KEY = "<openai_api_key>";
 
 // Analyze images using Google Vision API
 app.post("/analyze-image", async (req, res) => {

@@ -6,6 +6,7 @@ import Recommendations from "./components/Recommendations";
 import AccountSettings from "./components/AccountSettings";
 import Login from "./components/Login";
 import SignUp from "./components/SignUp";
+import PrivacyPolicy from "./components/PrivacyPolicy";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/account-settings" element={<AccountSettings />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
       </Routes>
     </Router>
   );

@@ -10,6 +10,9 @@ app.use(cors());
 const GOOGLE_API_KEY = "google_api_key";
 const OPENAI_API_KEY = "sk-proj-openai_api_key";
 
+app.get("/", (req, res) => {
+  res.send("Fashion Moodboard AI");
+});
 // Analyze images using Google Vision API
 app.post("/analyze-image", async (req, res) => {
   const { imageBase64 } = req.body;
@@ -101,6 +104,5 @@ Respond with clear, actionable fashion tips for the user to look better and impr
   }
 });
 
-// Start the server
-const PORT = 5000;
+const PORT = process.env.PORT || 8080; // Use the PORT environment variable or default to 8080
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -8,7 +8,7 @@ app.use(bodyParser.json({ limit: "10mb" })); // Support large base64 images
 app.use(cors());
 
 const GOOGLE_API_KEY = "google_api_key";
-const OPENAI_API_KEY = "openai_api_key_here";
+const OPENAI_API_KEY = "openai_api_key";
 
 // Analyze images using Google Vision API
 app.post("/analyze-image", async (req, res) => {

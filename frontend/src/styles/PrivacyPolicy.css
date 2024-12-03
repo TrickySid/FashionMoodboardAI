@@ -1,6 +1,7 @@
 .container-fluid {
   margin: 0 auto;
   color: #f5f6ed;
+  font-family: "Kanit", sans-serif;
 }
 
 h2 {

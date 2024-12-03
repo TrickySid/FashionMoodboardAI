@@ -30,18 +30,33 @@ function UploadPhoto() {
     const files = Array.from(e.target.files);
     const validFiles = files.filter((file) => file.type.startsWith("image/"));
 
+    // Ensure no more than 6 images are selected
     if (validFiles.length + selectedFiles.length > 6) {
       alert("You can only upload a maximum of 6 photos.");
       return;
     }
 
-    setSelectedFiles((prevFiles) => [...prevFiles, ...validFiles]);
-    setSuccessMessage(true);
-    setTimeout(() => setSuccessMessage(false), 3000);
+    const newSelectedFiles = [...selectedFiles, ...validFiles];
+    setSelectedFiles(newSelectedFiles);
+
+    // Check if there are at least 3 images selected
+    if (newSelectedFiles.length >= 3) {
+      setSuccessMessage(true);
+      setTimeout(() => setSuccessMessage(false), 3000);
+    } else {
+      setSuccessMessage(false);
+    }
   };
 
+  const [errorMessage, setErrorMessage] = useState(""); // New error state
+
   const handleUpload = () => {
-    setShowModal(true);
+    if (selectedFiles.length < 3) {
+      setErrorMessage("Please select at least 3 images."); // Set the error message
+      return; // Don't proceed further if there are less than 3 images
+    }
+    setShowModal(true); // Proceed to open modal if 3 or more images are selected
+    setErrorMessage(""); // Clear error message if the condition is satisfied
   };
 
   const handleAnalyze = async () => {
@@ -54,11 +69,32 @@ function UploadPhoto() {
 
       const responses = await Promise.all(
         base64Images.map((imageBase64) =>
-          axios.post("https://fashion-moods.wm.r.appspot.com/analyze-image", { imageBase64 })
+          axios.post("https://fashion-moods.wm.r.appspot.com/analyze-image", {
+            imageBase64,
+          })
         )
       );
 
       const labels = responses.map((response) => response.data.labels);
+
+      // Check for "document" or "paper" in any label
+      const containsDocumentOrPaper = labels.some((imageLabels) =>
+        imageLabels.some(
+          (label) =>
+            label.description.toLowerCase().includes("document") ||
+            label.description.toLowerCase().includes("paper")
+        )
+      );
+
+      if (containsDocumentOrPaper) {
+        setShowRecommendations(false);
+        setLoading(false);
+        setOverallRecommendations(
+          "There is no human in one or more images. We couldn't find you : ( \n Please upload different image(s) !"
+        );
+        return; // Stop further processing if a document or paper is detected
+      }
+
       setLabelsByImage(labels);
 
       const aggregatedData = labels.map((imageLabels, index) => ({
@@ -154,7 +190,7 @@ function UploadPhoto() {
     const keywords = recommendation
       .toLowerCase()
       .match(
-        /\b(?:dress|jewelry|shirt|blazer|shoes|pants|scarf|watch|loafers|sneakers|accessories|outfit|style)\b/g
+        /\b(?:dress|jewelry|shirt|blazer|shoes|pants|scarf|watch|loafers|sneakers|accessories|sunglasses)\b/g
       );
 
     const baseGoogleUrl = "https://www.google.com/search?q=shop+";
@@ -168,7 +204,7 @@ function UploadPhoto() {
               href={searchUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn btn-outline-primary btn-sm me-2 mb-2"
+              className="google-links btn btn-outline-primary btn-sm me-2 mb-2"
             >
               {`Shop ${keyword}`}
             </a>
@@ -203,6 +239,11 @@ function UploadPhoto() {
                   />
                   <div>
                     <p>Upload Photo</p>
+                    {errorMessage && (
+                      <div className="alert alert-danger mt-3" role="alert">
+                        {errorMessage}
+                      </div>
+                    )}
                   </div>
                 </label>
               </div>
@@ -211,7 +252,7 @@ function UploadPhoto() {
               <div className="import-photo-card card p-3 mb-4">
                 <i
                   className="fa-brands fa-square-pinterest"
-                  style={{ marginBottom: "5px", marginTop: "10px" }}
+                  style={{ marginBottom: "5px", marginTop: "20px" }}
                 />
                 <div>
                   <p>Import from Pinterest</p>
@@ -251,22 +292,16 @@ function UploadPhoto() {
             </button>
           </div>
 
-          <div
-            className="upload-note card p-3"
-            style={{
-              width: "400px",
-              borderRadius: "15px",
-            }}
-          >
+          <div className="upload-note card p-3">
             <div className="notes">
               <h5 style={{ margin: " 0 0 15px 10px" }}>Note :</h5>
               <ul>
                 <li style={{ marginBottom: "10px" }}>
                   Please upload photos with only you in it,
-                  <br /> &nbsp; &nbsp; &nbsp; we want to only see you &nbsp; : )
+                  <br /> we want to only see you : )
                 </li>
                 <li style={{ marginBottom: "10px" }}>
-                  Upload photos less than 5 MB
+                  Upload photos less than 10 MB for faster analysis
                 </li>
                 <li>Upload at least 3 photos for effective analysis</li>
               </ul>
@@ -333,25 +368,35 @@ function UploadPhoto() {
                           </button>
                         )}
                       </div>
+
                       {/* Display Labels */}
                       {showRecommendations && labelsByImage[index] && (
-                        <div className="labels mt-2">
-                          <h6>Detected Labels:</h6>
-                          <ul>
+                        <div className="detected-labels labels mt-2">
+                          <h6>Detected Labels</h6>
+                          <div className="tags-container">
                             {labelsByImage[index].map((label, labelIndex) => (
-                              <li
+                              <span
                                 key={labelIndex}
-                                style={{ marginLeft: "-45px" }}
+                                className="label-tag"
+                                title={`Confidence: ${(
+                                  label.score * 100
+                                ).toFixed(2)}%`}
                               >
-                                {label.description} -{" "}
-                                {(label.score * 100).toFixed(2)}%
-                              </li>
+                                {label.description}
+                              </span>
                             ))}
-                          </ul>
+                          </div>
                         </div>
                       )}
                     </div>
                   ))}
+
+                  {/* Display error message */}
+                  {overallRecommendations && !showRecommendations && (
+                    <div className="col-12 text-center text-danger mt-3">
+                      <p>{overallRecommendations}</p>
+                    </div>
+                  )}
 
                   {!showRecommendations &&
                     selectedFiles.length < 6 &&
@@ -430,10 +475,29 @@ function UploadPhoto() {
                                 .trim(); // Trim any remaining whitespace
                             })
                             .filter(
-                              (line) => line !== "" && !/^\s*$/.test(line)
+                              (line) =>
+                                line !== "" &&
+                                !/^\s*$/.test(line) &&
+                                !line.toLowerCase().includes("for") // Exclude "For" and empty lines
                             ); // Remove empty lines or lines with just spaces
+
+                          // If the recommendations are empty, display the fallback message
+                          if (recommendations.length === 0) {
+                            return (
+                              <div key={index} className="recoms mb-4">
+                                <h6 className="fw-bold">{`Image ${
+                                  index + 1
+                                }`}</h6>
+                                <p>
+                                  There is no human face in the image, we
+                                  couldn't find you : (
+                                </p>
+                              </div>
+                            );
+                          }
+
                           return (
-                            <div key={index} className="mb-4">
+                            <div key={index} className="recoms mb-4">
                               <h6 className="fw-bold">{`Image ${
                                 index + 1
                               }`}</h6>
@@ -442,7 +506,10 @@ function UploadPhoto() {
                                   (recommendation, recIndex) => (
                                     <li
                                       key={recIndex}
-                                      style={{ marginLeft: "-45px" }}
+                                      style={{
+                                        marginLeft: "-45px",
+                                        fontSize: "14px",
+                                      }}
                                     >
                                       {recommendation}
                                     </li>

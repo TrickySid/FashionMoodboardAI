@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { db } from "../firebase.js";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import Navbar from "./Navbar";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/UploadPhoto.css";
@@ -11,7 +13,6 @@ function UploadPhoto() {
   const [successMessage, setSuccessMessage] = useState(false); // State for success message
   const [showRecommendations, setShowRecommendations] = useState(false); // State for recommendations
   const [loading, setLoading] = useState(false); // Loading state
-  const [fashionTips, setFashionTips] = useState([]); // Store fashion tips for each image
   const [labelsByImage, setLabelsByImage] = useState([]); // Labels for each uploaded image
   const [overallRecommendations, setOverallRecommendations] = useState(""); // ChatGPT recommendations
 
@@ -72,7 +73,36 @@ function UploadPhoto() {
         { images: aggregatedData }
       );
 
-      setOverallRecommendations(chatGPTResponse.data.recommendations);
+      let recommendations = chatGPTResponse.data.recommendations;
+
+      // Ensure recommendations is a string (convert array if necessary)
+      if (typeof recommendations !== "string") {
+        if (Array.isArray(recommendations)) {
+          recommendations = recommendations.join("\n");
+        } else {
+          console.error(
+            "Recommendations format is not a string or array:",
+            recommendations
+          );
+          recommendations = ""; // Fallback to empty string
+        }
+      }
+
+      setOverallRecommendations(recommendations);
+
+      // Save recommendations to Firestore (don't store images, only the labels and recommendations)
+      await addDoc(collection(db, "userRecommendations"), {
+        userId: "exampleUserId", // Use actual user ID here
+        recommendations: {
+          images: aggregatedData.map((data) => ({
+            image: data.image, // Store only image name (like Image 1, Image 2)
+            labels: data.labels, // Store the labels (descriptions and confidence)
+          })),
+          fashionRecommendations: recommendations, // Already a string
+        },
+        timestamp: serverTimestamp(),
+      });
+
       setLoading(false);
       setShowRecommendations(true);
     } catch (error) {
@@ -117,31 +147,6 @@ function UploadPhoto() {
 
   const handleLogout = () => {
     setIsLoggedIn(false); // Set isLoggedIn to false on logout
-  };
-
-  const generateFashionTips = (labels, colors) => {
-    const tips = [];
-
-    if (labels.includes("Red"))
-      tips.push("Try adding a pop of red for confidence.");
-    if (labels.includes("Denim"))
-      tips.push("Layer with a denim jacket for a casual look.");
-    if (labels.includes("Jewelry"))
-      tips.push("Accessorize with gold jewelry to elevate your style.");
-
-    if (
-      colors.some(
-        (color) => color.red > 200 && color.green < 100 && color.blue < 100
-      )
-    ) {
-      tips.push("Red tones in your outfit bring boldness.");
-    }
-
-    return tips.length
-      ? tips
-      : [
-          "We couldn't detect specific styles. Try experimenting with bold colors!",
-        ];
   };
 
   const generateGoogleLinks = (recommendation) => {
@@ -408,7 +413,6 @@ function UploadPhoto() {
                             .map((line) => {
                               return line
                                 .replace(/^\s*[\d#*.-]+\s*/, "") // Remove leading numbers, hashtags, stars, dashes, or dots with spaces
-                                .replace(/^[\*\-]+\s*/, "") // Remove leading stars or dashes used for bullet points
                                 .replace(/^\s*\*\*\s*/, "") // Remove ** (double stars) and their spaces
                                 .replace(/[:.-]+$/, "") // Remove trailing punctuation like colons, dots, or dashes
                                 .replace(/\*\*/g, "") // Remove all instances of **

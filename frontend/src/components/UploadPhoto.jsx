@@ -408,7 +408,10 @@ function UploadPhoto() {
                             .map((line) => {
                               return line
                                 .replace(/^\s*[\d#*.-]+\s*/, "") // Remove leading numbers, hashtags, stars, dashes, or dots with spaces
+                                .replace(/^[\*\-]+\s*/, "") // Remove leading stars or dashes used for bullet points
+                                .replace(/^\s*\*\*\s*/, "") // Remove ** (double stars) and their spaces
                                 .replace(/[:.-]+$/, "") // Remove trailing punctuation like colons, dots, or dashes
+                                .replace(/\*\*/g, "") // Remove all instances of **
                                 .trim(); // Trim any remaining whitespace
                             })
                             .filter(

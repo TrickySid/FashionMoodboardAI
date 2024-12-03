@@ -116,10 +116,11 @@
           text-align: justify;
         }
       }
+    }
 
-      .shop-btn {
-        background-color: #0d0d0d;
-      }
+    .text-center {
+      color: #797979;
+      font-size: 14px;
     }
   }
 }

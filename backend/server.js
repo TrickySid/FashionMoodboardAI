@@ -8,7 +8,8 @@ app.use(bodyParser.json({ limit: "10mb" })); // Support large base64 images
 app.use(cors());
 
 const GOOGLE_API_KEY = "google_api_key";
-const OPENAI_API_KEY = "sk-proj-openai_api_key";
+
+const OPENAI_API_KEY = "openai_api_key";
 
 app.get("/", (req, res) => {
   res.send("Fashion Moodboard AI");

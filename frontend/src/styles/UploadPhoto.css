@@ -6,20 +6,23 @@
 .upload-page {
   background: linear-gradient(#0d0d0d 0%, #222800 100%);
   font-family: "Kanit", sans-serif;
+  padding: 100px 0;
 
   .upload-import-photo-card {
     background-color: #181818;
     box-shadow: rgba(6, 24, 44, 0.4) 0px 0px 0px 2px,
       rgba(3, 10, 20, 0.65) 0px 4px 6px -1px,
       rgba(255, 255, 255, 0.08) 0px 1px 0px inset;
-    width: 400px;
+    width: 27%;
     text-align: center;
     border-radius: 15px;
+    margin-top: 20px;
   }
 
   .card {
     .title {
       color: #aeada4;
+      font-size: 32px;
       font-weight: bold;
     }
 
@@ -28,7 +31,6 @@
         background-color: #0d0d0d;
         color: #dcff00;
         width: 45%;
-        padding: 20px;
 
         input {
           display: none;
@@ -48,7 +50,6 @@
         background-color: #0d0d0d;
         color: #dcff00;
         width: 45%;
-        padding: 20px;
         cursor: pointer;
 
         i {
@@ -72,10 +73,14 @@
 
 .upload-note {
   background: linear-gradient(45deg, #0d0d0d 0%, #1d1d1d 100%);
+  /* font-size: 13px; */
+  width: 27%;
+  border-radius: 15px;
 
   .notes {
     h5 {
       color: #aeada4;
+      font-weight: bold;
     }
 
     ul {
@@ -103,6 +108,58 @@
 
     .labels {
       font-size: 13px;
+
+      h6 {
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      ul {
+        li {
+          margin-left: -45px;
+          font-size: 13px;
+        }
+      }
+
+      /* CSS for the labels tags */
+      .tags-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+
+        .label-tag {
+          background-color: #222800;
+          color: #f5f6ed;
+          padding: 5px 10px;
+          border-radius: 20px;
+          font-size: 12px;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+        }
+
+        .label-tag:hover {
+          background-color: #3d4700;
+        }
+
+        /* Tooltip for confidence score */
+        .label-tag::after {
+          content: attr(title);
+          position: absolute;
+          background-color: rgba(0, 0, 0, 0.75);
+          color: #fff;
+          padding: 5px;
+          border-radius: 5px;
+          font-size: 12px;
+          visibility: hidden;
+          opacity: 0;
+          transition: opacity 0.2s;
+        }
+
+        .label-tag:hover::after {
+          visibility: visible;
+          opacity: 1;
+        }
+      }
     }
 
     .ai-recom {
@@ -110,23 +167,22 @@
         font-weight: bold;
         color: #0d0d0d;
       }
-
-      ul {
-        list-style-type: disc;
-        padding-left: 20px;
-
-        li {
-          color: #0d0d0d;
-          list-style-type: disc;
-          text-align: justify;
-        }
-      }
     }
 
     .text-center {
       color: #797979;
-      font-size: 14px;
+      font-size: 12px;
       font-family: "Kanit", sans-serif;
     }
   }
+}
+
+.google-links {
+  border-radius: 40px;
+  padding: 5px 10px;
+}
+
+.google-links:hover {
+  background-color: #222800;
+  border: none;
 }

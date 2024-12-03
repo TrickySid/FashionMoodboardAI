@@ -119,33 +119,6 @@ function UploadPhoto() {
     setIsLoggedIn(false); // Set isLoggedIn to false on logout
   };
 
-  const generateGoogleLinks = (recommendation) => {
-    const keywords = recommendation
-      .toLowerCase()
-      .match(
-        /\b(?:dress|jewelry|shirt|blazer|shoes|pants|scarf|watch|loafers|sneakers|accessories|outfit|style)\b/g
-      );
-
-    const baseGoogleUrl = "https://www.google.com/search?q=shop+";
-
-    return keywords
-      ? [...new Set(keywords)].map((keyword, index) => {
-          const searchUrl = `${baseGoogleUrl}${encodeURIComponent(keyword)}`;
-          return (
-            <a
-              key={index}
-              href={searchUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-outline-primary btn-sm me-2 mb-2"
-            >
-              {`Search ${keyword}`}
-            </a>
-          );
-        })
-      : null;
-  };
-
   const generateFashionTips = (labels, colors) => {
     const tips = [];
 
@@ -169,6 +142,33 @@ function UploadPhoto() {
       : [
           "We couldn't detect specific styles. Try experimenting with bold colors!",
         ];
+  };
+
+  const generateGoogleLinks = (recommendation) => {
+    const keywords = recommendation
+      .toLowerCase()
+      .match(
+        /\b(?:dress|jewelry|shirt|blazer|shoes|pants|scarf|watch|loafers|sneakers|accessories|outfit|style)\b/g
+      );
+
+    const baseGoogleUrl = "https://www.google.com/search?q=shop+";
+
+    return keywords
+      ? [...new Set(keywords)].map((keyword, index) => {
+          const searchUrl = `${baseGoogleUrl}${encodeURIComponent(keyword)}`;
+          return (
+            <a
+              key={index}
+              href={searchUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-outline-primary btn-sm me-2 mb-2"
+            >
+              {`Shop ${keyword}`}
+            </a>
+          );
+        })
+      : null;
   };
 
   return (
@@ -395,69 +395,69 @@ function UploadPhoto() {
                   <>
                     <div className="ai-recom">
                       <h5>AI Fashion Recommendations</h5>
+                    </div>
 
-                      {/* Display images in a single line */}
-                      <div className="d-flex justify-content-center align-items-center mb-4">
-                        {selectedFiles.map((file, index) => (
-                          <div key={index} className="me-3">
-                            <img
-                              src={URL.createObjectURL(file)}
-                              alt={`Uploaded Img ${index + 1}`}
-                              className="img-thumbnail"
-                              style={{
-                                width: "100px",
-                                height: "100px",
-                                objectFit: "cover",
-                              }}
-                            />
-                          </div>
-                        ))}
-                      </div>
-
-                      <div>
-                        {overallRecommendations
-                          .split("Image")
-                          .map((section, index) => {
-                            if (section.trim() === "") return null; // Skip empty sections
-                            const [imageHeader, ...rest] = section.split("\n");
-                            const recommendations = rest.filter(
-                              (line) => line.trim() !== ""
-                            ); // Filter out empty lines
-                            return (
-                              <div key={index} className="mb-3">
-                                <h6 className="fw-bold">{`Image ${index}`}</h6>
-                                <ul>
-                                  {recommendations.map(
-                                    (recommendation, recIndex) => (
-                                      <li
-                                        key={recIndex}
-                                        style={{ listStyleType: "disc" }}
-                                      >
-                                        {recommendation
-                                          .replace(/^\d+\.\s*/, "")
-                                          .trim()}
-                                      </li>
-                                    )
-                                  )}
-                                </ul>
-
-                                <div>
-                                  {generateGoogleLinks(
-                                    recommendations.join(" ")
-                                  )}
-                                </div>
+                    <div>
+                      {overallRecommendations
+                        .split("Image") // Split by "Image" sections
+                        .filter((section) => section.trim() !== "") // Remove empty sections
+                        .slice(1, selectedFiles.length + 1) // Match uploaded images
+                        .map((section, index) => {
+                          const recommendations = section
+                            .split("\n") // Split recommendations into lines
+                            .map((line) => {
+                              return line
+                                .replace(/^\s*[\d#*.-]+\s*/, "") // Remove leading numbers, hashtags, stars, dashes, or dots with spaces
+                                .replace(/[:.-]+$/, "") // Remove trailing punctuation like colons, dots, or dashes
+                                .trim(); // Trim any remaining whitespace
+                            })
+                            .filter(
+                              (line) => line !== "" && !/^\s*$/.test(line)
+                            ); // Remove empty lines or lines with just spaces
+                          return (
+                            <div key={index} className="mb-4">
+                              <h6 className="fw-bold">{`Image ${
+                                index + 1
+                              }`}</h6>
+                              <ul style={{ listStyleType: "disc" }}>
+                                {recommendations.map(
+                                  (recommendation, recIndex) => (
+                                    <li key={recIndex}>{recommendation}</li>
+                                  )
+                                )}
+                              </ul>
+                              <div>
+                                {generateGoogleLinks(recommendations.join(" "))}{" "}
+                                {/* Generate search links */}
                               </div>
-                            );
-                          })}
+                            </div>
+                          );
+                        })}
+
+                      <p className="text-center">
+                        Recommendations may be blank or have noise at times.
+                        <br />
+                        You can re-analyze the images to get more accurate
+                        results.
+                      </p>
+
+                      {/* Add a Reanalyze Button */}
+                      <div className="d-flex justify-content-center mt-3">
+                        <button
+                          onClick={() => {
+                            // Clear output and show loading animation
+                            setShowRecommendations(false);
+                            setOverallRecommendations(""); // Clear recommendations
+                            setLabelsByImage([]); // Clear labels
+                            setLoading(true); // Show loading spinner
+                            handleAnalyze(); // Reanalyze
+                          }}
+                          className="reanalyze-btn btn btn-dark w-100"
+                        >
+                          Reanalyze
+                        </button>
                       </div>
                     </div>
-                    {/* 
-                    <button
-                      className="shop-btn btn btn-dark w-100 mt-3"
-                      style={{ fontWeight: "bold" }}
-                    >
-                      Shop Similar Styles
-                    </button> */}
                   </>
                 )}
               </div>

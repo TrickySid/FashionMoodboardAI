@@ -53,7 +53,7 @@ function UploadPhoto() {
 
       const responses = await Promise.all(
         base64Images.map((imageBase64) =>
-          axios.post("http://localhost:5000/analyze-image", { imageBase64 })
+          axios.post("https://fashion-moods.wm.r.appspot.com/analyze-image", { imageBase64 })
         )
       );
 
@@ -69,7 +69,7 @@ function UploadPhoto() {
       }));
 
       const chatGPTResponse = await axios.post(
-        "http://localhost:5000/analyze-fashion",
+        "https://fashion-moods.wm.r.appspot.com/analyze-fashion",
         { images: aggregatedData }
       );
 

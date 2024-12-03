@@ -7,9 +7,12 @@ const app = express();
 app.use(bodyParser.json({ limit: "10mb" })); // Support large base64 images
 app.use(cors());
 
-const GOOGLE_API_KEY = "google_api_key";
-const OPENAI_API_KEY = "openai_api_key";
+const GOOGLE_API_KEY = "AIzaSyBeN0X4qOe3la5wms3iHYBeLpotXXwmj8E";
+const OPENAI_API_KEY = "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";
 
+app.get("/", (req, res) => {
+  res.send("Fashion Moodboard AI");
+});
 // Analyze images using Google Vision API
 app.post("/analyze-image", async (req, res) => {
   const { imageBase64 } = req.body;
@@ -101,6 +104,5 @@ Respond with clear, actionable fashion tips for the user to look better and impr
   }
 });
 
-// Start the server
-const PORT = 5000;
+const PORT = process.env.PORT || 8080; // Use the PORT environment variable or default to 8080
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

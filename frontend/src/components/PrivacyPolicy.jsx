@@ -145,7 +145,7 @@ const PrivacyPolicy = () => {
       </p>
       <ul>
         <li>
-          <strong>Email:</strong> sbangar2@horizon.csueastbay.edu
+          <strong>Email:</strong> sbakre@horizon.csueastbay.edu
         </li>
         <li>
           <strong>Address:</strong> 25200 Carlos Bee Blvd, Hayward, CA - 94542

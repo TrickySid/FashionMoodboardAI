@@ -339,7 +339,10 @@ function UploadPhoto() {
                           <h6>Detected Labels:</h6>
                           <ul>
                             {labelsByImage[index].map((label, labelIndex) => (
-                              <li key={labelIndex}>
+                              <li
+                                key={labelIndex}
+                                style={{ marginLeft: "-45px" }}
+                              >
                                 {label.description} -{" "}
                                 {(label.score * 100).toFixed(2)}%
                               </li>
@@ -437,7 +440,12 @@ function UploadPhoto() {
                               <ul style={{ listStyleType: "disc" }}>
                                 {recommendations.map(
                                   (recommendation, recIndex) => (
-                                    <li key={recIndex}>{recommendation}</li>
+                                    <li
+                                      key={recIndex}
+                                      style={{ marginLeft: "-45px" }}
+                                    >
+                                      {recommendation}
+                                    </li>
                                   )
                                 )}
                               </ul>

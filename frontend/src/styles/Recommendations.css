@@ -30,11 +30,13 @@
         text-align: center;
         border-radius: 15px;
 
-        ul {
-          li {
-            color: #f5f6ed;
-          }
+        .rec-text {
+          color: #f5f6ed;
         }
+      }
+
+      .nothing {
+        color: #f5f6ed;
       }
     }
   }

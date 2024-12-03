@@ -255,7 +255,7 @@ function UploadPhoto() {
               <ul>
                 <li style={{ marginBottom: "10px" }}>
                   Please upload photos with only you in it,
-                  <br /> we want to only see you &nbsp; : )
+                  <br /> &nbsp; &nbsp; &nbsp; we want to only see you &nbsp; : )
                 </li>
                 <li style={{ marginBottom: "10px" }}>
                   Upload photos less than 5 MB

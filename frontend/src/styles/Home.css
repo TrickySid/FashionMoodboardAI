@@ -1,6 +1,5 @@
 body {
   background: linear-gradient(#0d0d0d 0%, #222800 100%);
-  overflow: hidden;
 }
 
 .home-page {
@@ -55,6 +54,7 @@ body {
   top: 0;
   left: 0;
   z-index: -1;
+  overflow: hidden;
 }
 
 .image-wrapper {

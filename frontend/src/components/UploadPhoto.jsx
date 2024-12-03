@@ -1,38 +1,51 @@
-import React, { useState } from "react";
-import axios from "axios";
-import { db } from "../firebase.js";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import Navbar from "./Navbar";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "../styles/UploadPhoto.css";
-import { Link } from "react-router-dom";
+// Import necessary libraries and components
+import React, { useState } from "react"; // Import React and useState for state management
+import axios from "axios"; // Import axios for making HTTP requests
+import { db } from "../firebase.js"; // Import Firestore database
+import { collection, addDoc, serverTimestamp } from "firebase/firestore"; // Import Firestore functions
+import Navbar from "./Navbar"; // Import Navbar component
+import "bootstrap/dist/css/bootstrap.min.css"; // Import Bootstrap CSS
+import "../styles/UploadPhoto.css"; // Import custom CSS
+import { Link } from "react-router-dom"; // Import Link for navigation
 
+/**
+ * UploadPhoto component for handling photo uploads and analysis
+ */
 function UploadPhoto() {
+  // State variables for managing component state
   const [selectedFiles, setSelectedFiles] = useState([]); // Track all selected files
   const [showModal, setShowModal] = useState(false); // State for modal visibility
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(true); // State for user login status
   const [successMessage, setSuccessMessage] = useState(false); // State for success message
-  const [showRecommendations, setShowRecommendations] = useState(false); // State for recommendations
+  const [showRecommendations, setShowRecommendations] = useState(false); // State for recommendations visibility
   const [loading, setLoading] = useState(false); // Loading state
-  const [labelsByImage, setLabelsByImage] = useState([]); // Labels for each uploaded image
-  const [overallRecommendations, setOverallRecommendations] = useState(""); // ChatGPT recommendations
+  const [labelsByImage, setLabelsByImage] = useState([]); // Store labels for each uploaded image
+  const [overallRecommendations, setOverallRecommendations] = useState(""); // Store overall fashion recommendations
 
-  // Convert image to Base64 for API usage
+  /**
+   * Convert image to Base64 for API usage
+   * @param {File} file - Image file to convert
+   * @returns {Promise<string>} Base64 encoded image string
+   */
   const convertToBase64 = (file) =>
     new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = () => resolve(reader.result.split(",")[1]);
+      reader.onload = () => resolve(reader.result.split(",")[1]); // Extract Base64 content
       reader.onerror = (error) => reject(error);
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(file); // Read file as data URL
     });
 
+  /**
+   * Handle file selection
+   * @param {ChangeEvent} e - Event triggered by file selection
+   */
   const handleFileChange = (e) => {
-    const files = Array.from(e.target.files);
-    const validFiles = files.filter((file) => file.type.startsWith("image/"));
+    const files = Array.from(e.target.files); // Convert FileList to array
+    const validFiles = files.filter((file) => file.type.startsWith("image/")); // Filter for image files
 
     // Ensure no more than 6 images are selected
     if (validFiles.length + selectedFiles.length > 6) {
-      alert("You can only upload a maximum of 6 photos.");
+      alert("You can only upload a maximum of 6 photos."); // Limit file selection
       return;
     }
 
@@ -50,67 +63,47 @@ function UploadPhoto() {
 
   const [errorMessage, setErrorMessage] = useState(""); // New error state
 
+  /**
+   * Handle upload button click
+   */
   const handleUpload = () => {
-    if (selectedFiles.length < 3) {
-      setErrorMessage("Please select at least 3 images."); // Set the error message
-      return; // Don't proceed further if there are less than 3 images
-    }
-    setShowModal(true); // Proceed to open modal if 3 or more images are selected
-    setErrorMessage(""); // Clear error message if the condition is satisfied
+    setShowModal(true);
   };
 
+  /**
+   * Handle image analysis
+   */
   const handleAnalyze = async () => {
-    setLoading(true);
+    setLoading(true); // Set loading state
 
     try {
       const base64Images = await Promise.all(
-        selectedFiles.map((file) => convertToBase64(file))
+        selectedFiles.map((file) => convertToBase64(file)) // Convert files to Base64
       );
 
       const responses = await Promise.all(
         base64Images.map((imageBase64) =>
-          axios.post("https://fashion-moods.wm.r.appspot.com/analyze-image", {
-            imageBase64,
-          })
+          axios.post("https://fashion-moods.wm.r.appspot.com/analyze-image", { imageBase64 })
         )
       );
 
       const labels = responses.map((response) => response.data.labels);
-
-      // Check for "document" or "paper" in any label
-      const containsDocumentOrPaper = labels.some((imageLabels) =>
-        imageLabels.some(
-          (label) =>
-            label.description.toLowerCase().includes("document") ||
-            label.description.toLowerCase().includes("paper")
-        )
-      );
-
-      if (containsDocumentOrPaper) {
-        setShowRecommendations(false);
-        setLoading(false);
-        setOverallRecommendations(
-          "There is no human in one or more images. We couldn't find you : ( \n Please upload different image(s) !"
-        );
-        return; // Stop further processing if a document or paper is detected
-      }
-
       setLabelsByImage(labels);
 
       const aggregatedData = labels.map((imageLabels, index) => ({
-        image: `Image ${index + 1}`,
+        image: `Image ${index + 1}`, // Assign image name
         labels: imageLabels.map((label) => ({
-          description: label.description,
-          confidence: (label.score * 100).toFixed(2),
+          description: label.description, // Label description
+          confidence: (label.score * 100).toFixed(2), // Confidence score
         })),
       }));
 
       const chatGPTResponse = await axios.post(
         "https://fashion-moods.wm.r.appspot.com/analyze-fashion",
-        { images: aggregatedData }
+        { images: aggregatedData } // Send aggregated data to backend
       );
 
-      let recommendations = chatGPTResponse.data.recommendations;
+      let recommendations = chatGPTResponse.data.recommendations; // Extract recommendations
 
       // Ensure recommendations is a string (convert array if necessary)
       if (typeof recommendations !== "string") {
@@ -125,7 +118,7 @@ function UploadPhoto() {
         }
       }
 
-      setOverallRecommendations(recommendations);
+      setOverallRecommendations(recommendations); // Update state with recommendations
 
       // Save recommendations to Firestore (don't store images, only the labels and recommendations)
       await addDoc(collection(db, "userRecommendations"), {
@@ -148,52 +141,48 @@ function UploadPhoto() {
     }
   };
 
+  /**
+   * Handle modal close
+   */
   const handleCloseModal = () => {
-    setShowModal(false);
-    setShowRecommendations(false);
-    setLoading(false);
-    setLabelsByImage([]);
-    setOverallRecommendations("");
+    setShowModal(false); // Hide modal
+    setShowRecommendations(false); // Hide recommendations
+    setLoading(false); // Reset loading state
+    setLabelsByImage([]); // Clear labels
+    setOverallRecommendations(""); // Clear recommendations
   };
 
+  /**
+   * Handle photo removal
+   * @param {number} index - Index of photo to remove
+   */
   const handleRemovePhoto = (index) => {
     if (selectedFiles.length <= 3) {
-      alert("You must keep at least 3 photos.");
+      alert("You must keep at least 3 photos."); // Ensure minimum photo count
       return;
     }
 
     setSelectedFiles((prevFiles) =>
-      prevFiles.filter((_, fileIndex) => fileIndex !== index)
+      prevFiles.filter((_, fileIndex) => fileIndex !== index) // Remove photo by index
     );
     setLabelsByImage((prev) =>
-      prev.filter((_, labelIndex) => labelIndex !== index)
-    ); // Remove corresponding labels
+      prev.filter((_, labelIndex) => labelIndex !== index) // Remove corresponding labels
+    );
   };
 
-  const handleAddImagesInModal = (e) => {
-    const files = Array.from(e.target.files);
-    const validFiles = files.filter((file) => file.type.startsWith("image/"));
-
-    if (validFiles.length + selectedFiles.length > 6) {
-      alert("You can only upload a maximum of 6 photos.");
-      return;
-    }
-
-    setSelectedFiles((prevFiles) => [...prevFiles, ...validFiles]);
-  };
-
-  const handleLogout = () => {
-    setIsLoggedIn(false); // Set isLoggedIn to false on logout
-  };
-
+  /**
+   * Generate Google search links for recommendations
+   * @param {string} recommendation - Recommendation text
+   * @returns {JSX.Element} Google search link elements
+   */
   const generateGoogleLinks = (recommendation) => {
     const keywords = recommendation
       .toLowerCase()
       .match(
-        /\b(?:dress|jewelry|shirt|blazer|shoes|pants|scarf|watch|loafers|sneakers|accessories|sunglasses)\b/g
+        /\b(?:dress|jewelry|shirt|blazer|shoes|pants|scarf|watch|loafers|sneakers|accessories|outfit|style)\b/g
       );
 
-    const baseGoogleUrl = "https://www.google.com/search?q=shop+";
+    if (!keywords) return null;
 
     return keywords
       ? [...new Set(keywords)].map((keyword, index) => {
@@ -204,7 +193,7 @@ function UploadPhoto() {
               href={searchUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="google-links btn btn-outline-primary btn-sm me-2 mb-2"
+              className="btn btn-outline-primary btn-sm me-2 mb-2"
             >
               {`Shop ${keyword}`}
             </a>
@@ -214,13 +203,11 @@ function UploadPhoto() {
   };
 
   return (
-    <>
-      <div className={`${showModal ? "blur-background" : ""}`}>
-        <Navbar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
+    <div className="upload-photo">
+      <Navbar isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
 
-        <div className="upload-page d-flex flex-column justify-content-center align-items-center vh-100">
-          <div className="upload-import-photo-card card p-4 mb-4">
-            <h2 className="title mb-4">Show us your style</h2>
+      <div className="container mt-5">
+        <h2 className="text-center mb-4">Upload Your Photos</h2>
 
             <div className="d-flex justify-content-around">
               {/* Upload Photo Button */}
@@ -239,11 +226,6 @@ function UploadPhoto() {
                   />
                   <div>
                     <p>Upload Photo</p>
-                    {errorMessage && (
-                      <div className="alert alert-danger mt-3" role="alert">
-                        {errorMessage}
-                      </div>
-                    )}
                   </div>
                 </label>
               </div>
@@ -252,29 +234,17 @@ function UploadPhoto() {
               <div className="import-photo-card card p-3 mb-4">
                 <i
                   className="fa-brands fa-square-pinterest"
-                  style={{ marginBottom: "5px", marginTop: "20px" }}
+                  style={{ marginBottom: "5px", marginTop: "10px" }}
                 />
                 <div>
                   <p>Import from Pinterest</p>
                 </div>
-              </div>
+              ))}
             </div>
 
-            <p
-              className="text-center"
-              style={{ fontSize: "14px", color: "#fff" }}
-            >
-              View our <Link to="/privacy">Privacy Policy</Link> here
-            </p>
-
-            {/* Success Message */}
             {successMessage && (
-              <div
-                className="alert alert-success mt-3"
-                role="alert"
-                style={{ width: "100%" }}
-              >
-                Images uploaded successfully!
+              <div className="alert alert-success mt-3">
+                Photos uploaded successfully!
               </div>
             )}
 
@@ -292,16 +262,22 @@ function UploadPhoto() {
             </button>
           </div>
 
-          <div className="upload-note card p-3">
+          <div
+            className="upload-note card p-3"
+            style={{
+              width: "400px",
+              borderRadius: "15px",
+            }}
+          >
             <div className="notes">
               <h5 style={{ margin: " 0 0 15px 10px" }}>Note :</h5>
               <ul>
                 <li style={{ marginBottom: "10px" }}>
                   Please upload photos with only you in it,
-                  <br /> we want to only see you : )
+                  <br /> &nbsp; &nbsp; &nbsp; we want to only see you &nbsp; : )
                 </li>
                 <li style={{ marginBottom: "10px" }}>
-                  Upload photos less than 10 MB for faster analysis
+                  Upload photos less than 5 MB
                 </li>
                 <li>Upload at least 3 photos for effective analysis</li>
               </ul>
@@ -368,35 +344,25 @@ function UploadPhoto() {
                           </button>
                         )}
                       </div>
-
                       {/* Display Labels */}
                       {showRecommendations && labelsByImage[index] && (
-                        <div className="detected-labels labels mt-2">
-                          <h6>Detected Labels</h6>
-                          <div className="tags-container">
+                        <div className="labels mt-2">
+                          <h6>Detected Labels:</h6>
+                          <ul>
                             {labelsByImage[index].map((label, labelIndex) => (
-                              <span
+                              <li
                                 key={labelIndex}
-                                className="label-tag"
-                                title={`Confidence: ${(
-                                  label.score * 100
-                                ).toFixed(2)}%`}
+                                style={{ marginLeft: "-45px" }}
                               >
-                                {label.description}
-                              </span>
+                                {label.description} -{" "}
+                                {(label.score * 100).toFixed(2)}%
+                              </li>
                             ))}
-                          </div>
+                          </ul>
                         </div>
                       )}
                     </div>
                   ))}
-
-                  {/* Display error message */}
-                  {overallRecommendations && !showRecommendations && (
-                    <div className="col-12 text-center text-danger mt-3">
-                      <p>{overallRecommendations}</p>
-                    </div>
-                  )}
 
                   {!showRecommendations &&
                     selectedFiles.length < 6 &&
@@ -432,11 +398,10 @@ function UploadPhoto() {
 
                 {!showRecommendations && !loading && (
                   <button
-                    className="analyze-btn btn btn-dark w-100 mt-3"
+                    className="btn btn-primary"
                     onClick={handleAnalyze}
-                    style={{ fontWeight: "bold" }}
                   >
-                    Analyze
+                    Start Analysis
                   </button>
                 )}
 
@@ -475,29 +440,10 @@ function UploadPhoto() {
                                 .trim(); // Trim any remaining whitespace
                             })
                             .filter(
-                              (line) =>
-                                line !== "" &&
-                                !/^\s*$/.test(line) &&
-                                !line.toLowerCase().includes("for") // Exclude "For" and empty lines
+                              (line) => line !== "" && !/^\s*$/.test(line)
                             ); // Remove empty lines or lines with just spaces
-
-                          // If the recommendations are empty, display the fallback message
-                          if (recommendations.length === 0) {
-                            return (
-                              <div key={index} className="recoms mb-4">
-                                <h6 className="fw-bold">{`Image ${
-                                  index + 1
-                                }`}</h6>
-                                <p>
-                                  There is no human face in the image, we
-                                  couldn't find you : (
-                                </p>
-                              </div>
-                            );
-                          }
-
                           return (
-                            <div key={index} className="recoms mb-4">
+                            <div key={index} className="mb-4">
                               <h6 className="fw-bold">{`Image ${
                                 index + 1
                               }`}</h6>
@@ -506,10 +452,7 @@ function UploadPhoto() {
                                   (recommendation, recIndex) => (
                                     <li
                                       key={recIndex}
-                                      style={{
-                                        marginLeft: "-45px",
-                                        fontSize: "14px",
-                                      }}
+                                      style={{ marginLeft: "-45px" }}
                                     >
                                       {recommendation}
                                     </li>
@@ -554,9 +497,9 @@ function UploadPhoto() {
             </div>
           </div>
         </div>
-      )}
-    </>
+      </div>
+    </div>
   );
 }
 
-export default UploadPhoto;
+export default UploadPhoto; // Export component for use in other parts of the application

@@ -5,6 +5,7 @@ import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import Navbar from "./Navbar";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/UploadPhoto.css";
+import { Link } from "react-router-dom";
 
 function UploadPhoto() {
   const [selectedFiles, setSelectedFiles] = useState([]); // Track all selected files
@@ -217,6 +218,13 @@ function UploadPhoto() {
                 </div>
               </div>
             </div>
+
+            <p
+              className="text-center"
+              style={{ fontSize: "14px", color: "#fff" }}
+            >
+              View our <Link to="/privacy">Privacy Policy</Link> here
+            </p>
 
             {/* Success Message */}
             {successMessage && (

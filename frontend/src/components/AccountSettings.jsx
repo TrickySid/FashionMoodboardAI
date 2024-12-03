@@ -28,7 +28,7 @@ function AccountSettings() {
       <Navbar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
       <div style={{ paddingTop: "100px", backgroundColor: "#0d0d0d" }}>
         <div className="account-settings-page justify-content-center align-items-start vh-100">
-          <div className="container">
+          <div className="container-fluid">
             <form className="settings-form" onSubmit={handleSaveChanges}>
               <h4 className="title mb-3">Account Settings</h4>
               {/* Profile Picture */}

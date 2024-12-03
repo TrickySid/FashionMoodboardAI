@@ -3,7 +3,9 @@ nav {
   font-family: "Kanit", sans-serif;
 }
 
-.container {
+.container-fluid {
+  padding: 0 150px 0;
+
   .navbar-brand {
     font-weight: bold;
     color: #ccc;

@@ -5,6 +5,7 @@ import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import Navbar from "./Navbar";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/UploadPhoto.css";
+import { Link } from "react-router-dom";
 
 function UploadPhoto() {
   const [selectedFiles, setSelectedFiles] = useState([]); // Track all selected files
@@ -218,6 +219,13 @@ function UploadPhoto() {
               </div>
             </div>
 
+            <p
+              className="text-center"
+              style={{ fontSize: "14px", color: "#fff" }}
+            >
+              View our <Link to="/privacy">Privacy Policy</Link> here
+            </p>
+
             {/* Success Message */}
             {successMessage && (
               <div
@@ -255,7 +263,7 @@ function UploadPhoto() {
               <ul>
                 <li style={{ marginBottom: "10px" }}>
                   Please upload photos with only you in it,
-                  <br /> we want to only see you &nbsp; : )
+                  <br /> &nbsp; &nbsp; &nbsp; we want to only see you &nbsp; : )
                 </li>
                 <li style={{ marginBottom: "10px" }}>
                   Upload photos less than 5 MB

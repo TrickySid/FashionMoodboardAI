@@ -3,7 +3,9 @@
   min-height: 100vh;
   font-family: "Kanit", sans-serif;
 
-  .container {
+  .container-fluid {
+    padding: 0 150px 0;
+
     .title {
       background: linear-gradient(to right, #6a7a00, #dcff00);
       background-size: 300px;

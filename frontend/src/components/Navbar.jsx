@@ -6,8 +6,7 @@ import "../styles/Navbar.css";
 function Navbar({ isLoggedIn, onLogout }) {
   return (
     <nav className="navbar navbar-expand-lg navbar-light">
-      <div className="container">
-        {/* Application Name */}
+      <div className="container-fluid">
         <Link className="navbar-brand" to="/">
           Fashion Moodboard AI
         </Link>
@@ -76,12 +75,12 @@ function Navbar({ isLoggedIn, onLogout }) {
                   className="dropdown-menu dropdown-menu-end"
                   aria-labelledby="dropdownMenuButton"
                 >
-                  <li>
+                  {/* <li>
                     <Link className="dropdown-item" to="/account-settings">
                       <i className="fa-solid fa-gear" />
                       <span>Account Settings</span>
                     </Link>
-                  </li>
+                  </li> */}
                   <li>
                     <Link
                       className="dropdown-item"

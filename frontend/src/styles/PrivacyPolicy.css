@@ -1,11 +1,11 @@
-.container {
-  max-width: 800px;
+.container-fluid {
   margin: 0 auto;
+  color: #f5f6ed;
 }
 
 h2 {
   font-size: 2.5rem;
-  color: #343a40;
+  color: #aeada4;
 }
 
 ul {

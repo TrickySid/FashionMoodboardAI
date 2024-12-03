@@ -53,7 +53,7 @@ function Recommendations() {
     <>
       <Navbar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
       <div className="recommendations d-flex justify-content-center align-items-start p-4">
-        <div className="container">
+        <div className="container-fluid">
           <h2 className="title mb-4">Improve Your Style</h2>
           <p className="sub-title mb-4">
             AI Recommendations from your past Fashion

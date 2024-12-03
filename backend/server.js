@@ -7,8 +7,10 @@ const app = express();
 app.use(bodyParser.json({ limit: "10mb" })); // Support large base64 images
 app.use(cors());
 
-const GOOGLE_API_KEY = "google_api_key";
-const OPENAI_API_KEY = "openai_api_key";
+const GOOGLE_API_KEY = "google_api_key"; // "(first-letter)IzaSyDAMP-wg5uq0lyhZbIuobIMUJ9qUfNHq4w"
+
+// "jFom7v2fFfjh_uBJDBi4aLqPxzC5hwavVB8ltH7gGlc6ydDijWn-S6h87FHO0IkyAYeZ5nXEfxT3BlbkFJo2dDMILEE25AoJRR_3TGaXqaDkuTF8NfGOfAMm9dkWoJFG8NMP1lzVp3NIt_mbcCy-rgFF2K0(first-letter)"
+const OPENAI_API_KEY = "sk-proj-openai_api_key";
 
 // Analyze images using Google Vision API
 app.post("/analyze-image", async (req, res) => {

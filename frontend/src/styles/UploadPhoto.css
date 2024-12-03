@@ -82,6 +82,7 @@
       li {
         color: #f5f6ed;
         opacity: 0.8;
+        margin-left: -40px;
       }
     }
   }
@@ -125,6 +126,7 @@
     .text-center {
       color: #797979;
       font-size: 14px;
+      font-family: "Kanit", sans-serif;
     }
   }
 }

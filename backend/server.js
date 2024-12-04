@@ -4,14 +4,14 @@ const bodyParser = require("body-parser"); // Import body-parser for parsing JSO
 const axios = require("axios"); // Import axios for making HTTP requests
 const cors = require("cors"); // Import CORS to allow cross-origin requests
 
-const admin = require('firebase-admin');
-require('dotenv').config();
+const admin = require("firebase-admin");
+require("dotenv").config();
 
 admin.initializeApp({
   credential: admin.credential.cert({
     projectId: process.env.FIREBASE_PROJECT_ID,
     clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-    privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+    privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
   }),
 });
 // Create an Express application
@@ -19,9 +19,12 @@ const app = express();
 app.use(bodyParser.json({ limit: "10mb" })); // Middleware to parse JSON with a size limit
 app.use(cors()); // Enable CORS for all routes
 
-const GOOGLE_API_KEY =  process.env.GOOGLE_API_KEY;
+const GOOGLE_API_KEY = "google_api_key";
 
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const OPENAI_API_KEY = "openai_api_key";
+
+const CLIENT_ID =
+  "52814765259-iik4mbjput3qocfos4gbuiujsm352p8u.apps.googleusercontent.com";
 
 // Root route to check server status
 app.get("/", (req, res) => {
@@ -125,7 +128,7 @@ Respond with clear, actionable fashion tips for the user to look better and impr
 });
 
 // Signup route
-app.post('/signup', async (req, res) => {
+app.post("/signup", async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -133,24 +136,28 @@ app.post('/signup', async (req, res) => {
       email,
       password,
     });
-    res.status(201).send({ message: 'User created successfully', userId: userRecord.uid });
+    res
+      .status(201)
+      .send({ message: "User created successfully", userId: userRecord.uid });
   } catch (error) {
-    console.error('Error creating new user:', error);
+    console.error("Error creating new user:", error);
     res.status(400).send({ error: error.message });
   }
 });
 
 // Login route
-app.post('/login', async (req, res) => {
+app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
     const user = await admin.auth().getUserByEmail(email);
     const token = await admin.auth().createCustomToken(user.uid);
-    res.status(200).send({ message: 'Login successful', token, email: user.email });
+    res
+      .status(200)
+      .send({ message: "Login successful", token, email: user.email });
   } catch (error) {
-    console.error('Error during login:', error);
-    res.status(401).send({ error: 'Invalid email or password' });
+    console.error("Error during login:", error);
+    res.status(401).send({ error: "Invalid email or password" });
   }
 });
 

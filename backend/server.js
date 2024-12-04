@@ -24,7 +24,7 @@ const GOOGLE_API_KEY = "google_api_key";
 const OPENAI_API_KEY = "openai_api_key";
 
 const CLIENT_ID =
-  "52814765259-iik4mbjput3qocfos4gbuiujsm352p8u.apps.googleusercontent.com";
+  "http://52814765259-7c2sab3ad08eu52rpklsfk21t9udpqnb.apps.googleusercontent.com";
 
 // Root route to check server status
 app.get("/", (req, res) => {

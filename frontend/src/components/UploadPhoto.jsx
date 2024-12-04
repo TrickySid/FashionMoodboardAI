@@ -5,7 +5,7 @@ import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import Navbar from "./Navbar";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/UploadPhoto.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function UploadPhoto() {
   const [selectedFiles, setSelectedFiles] = useState([]); // Track all selected files
@@ -17,6 +17,11 @@ function UploadPhoto() {
   const [labelsByImage, setLabelsByImage] = useState([]); // Labels for each uploaded image
   const [overallRecommendations, setOverallRecommendations] = useState(""); // ChatGPT recommendations
   const [user, setUser] = useState({}); // User object
+  const [googlePhotos, setGooglePhotos] = useState([]); // Store Google Photos
+  const [selectedGooglePhotos, setSelectedGooglePhotos] = useState([]); // Selected photos
+  const [showGooglePhotosModal, setShowGooglePhotosModal] = useState(false); // Modal visibility
+  const [authToken, setAuthToken] = useState(""); // Google Auth Token
+  const navigate = useNavigate();
 
   // Convert image to Base64 for API usage
   const convertToBase64 = (file) =>
@@ -70,7 +75,7 @@ function UploadPhoto() {
 
       const responses = await Promise.all(
         base64Images.map((imageBase64) =>
-          axios.post("https://fashion-moods.wm.r.appspot.com/analyze-image", {
+          axios.post("http://localhost:8080/analyze-image", {
             imageBase64,
           })
         )
@@ -107,7 +112,7 @@ function UploadPhoto() {
       }));
 
       const chatGPTResponse = await axios.post(
-        "https://fashion-moods.wm.r.appspot.com/analyze-fashion",
+        "http://localhost:8080/analyze-fashion",
         { images: aggregatedData }
       );
 
@@ -214,12 +219,101 @@ function UploadPhoto() {
       : null;
   };
 
+  const [photos, setPhotos] = useState([]); // To hold fetched photos
+
+  // Fetch Google Photos using the API
+  const fetchGooglePhotos = async () => {
+    try {
+      const response = await axios.get(
+        "https://photoslibrary.googleapis.com/v1/mediaItems?pageSize=25",
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
+      console.log(response.data); // Log the response to see if it contains the data
+      setGooglePhotos(response.data.mediaItems || []);
+    } catch (error) {
+      console.error("Error fetching Google Photos:", error);
+      alert("Error fetching photos: " + error.response?.data?.error?.message);
+    }
+  };
+
+  // Handle Google Login and Fetch Photos
+  const handleGoogleLogin = async () => {
+    try {
+      // Replace this with your logic to get the Google OAuth token
+      const token = localStorage.getItem("authToken"); // Example token storage
+      if (!token) {
+        alert("Please log in with Google to access your photos.");
+        navigate("/login");
+        return;
+      }
+      setAuthToken(token);
+      await fetchGooglePhotos();
+      setShowGooglePhotosModal(true); // Show the modal with photos
+    } catch (error) {
+      console.error("Error during Google login:", error);
+    }
+  };
+
+  // Handle Photo Selection
+  const handlePhotoSelect = (photo) => {
+    if (selectedGooglePhotos.includes(photo)) {
+      setSelectedGooglePhotos(
+        selectedGooglePhotos.filter((item) => item.id !== photo.id)
+      );
+    } else {
+      setSelectedGooglePhotos([...selectedGooglePhotos, photo]);
+    }
+  };
+
+  // Add Selected Google Photos to Local Selected Files
+  const handleAddGooglePhotos = () => {
+    console.log("Selected Photos:", selectedGooglePhotos);
+    setShowGooglePhotosModal(false);
+  };
+
+  const handleGooglePhotoSelect = (photo) => {
+    if (selectedGooglePhotos.includes(photo)) {
+      setSelectedGooglePhotos(
+        selectedGooglePhotos.filter((item) => item !== photo)
+      );
+    } else {
+      setSelectedGooglePhotos([...selectedGooglePhotos, photo]);
+    }
+  };
+
+  const handleSelectedGooglePhotos = async (selectedPhotos) => {
+    if (selectedPhotos.length > 0) {
+      setLoading(true);
+
+      try {
+        const selectedImages = await Promise.all(
+          selectedPhotos.map(async (photo) => {
+            // Optionally, convert the selected Google photos to base64 or upload them to Firebase
+            const base64 = await fetch(photo.baseUrl + "=w200-h200-c-k")
+              .then((res) => res.blob())
+              .then((blob) => convertToBase64(blob));
+
+            return base64; // Return the base64 or blob data for uploading
+          })
+        );
+
+        // Proceed with uploading or analyzing the selected images
+        console.log("Selected images in base64:", selectedImages);
+      } catch (error) {
+        console.error("Error uploading Google photos:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
 
   return (
     <>
       <div className={`${showModal ? "blur-background" : ""}`}>
-        <Navbar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
-
         <div className="upload-page d-flex flex-column justify-content-center align-items-center vh-100">
           <div className="upload-import-photo-card card p-4 mb-4">
             <h2 className="title mb-4">Show us your style</h2>
@@ -250,8 +344,49 @@ function UploadPhoto() {
                 </label>
               </div>
 
-              
+              {/* Import from Pinterest Button */}
+              <div className="import-photo-card card p-3 mb-4">
+                <i
+                  className="fa-brands fa-google"
+                  style={{ marginBottom: "5px", marginTop: "20px" }}
+                />
+                <div>
+                  <p onClick={handleGoogleLogin}>Import from Google Photos</p>
+                </div>
+              </div>
             </div>
+
+            {/* Modal to Display Google Photos */}
+            {showGooglePhotosModal && (
+              <div className="google-photos-modal">
+                <div className="modal-content">
+                  <h3>Select Photos from Google Photos</h3>
+                  <div className="photo-gallery">
+                    {googlePhotos.map((photo) => (
+                      <div
+                        key={photo.id}
+                        className={`photo-item ${
+                          selectedGooglePhotos.includes(photo) ? "selected" : ""
+                        }`}
+                        onClick={() => handlePhotoSelect(photo)}
+                      >
+                        <img
+                          src={`${photo.baseUrl}=w200-h200-c`}
+                          alt={photo.filename}
+                          className="photo-thumbnail"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <button onClick={handleAddGooglePhotos}>
+                    Add Selected Photos
+                  </button>
+                  <button onClick={() => setShowGooglePhotosModal(false)}>
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
 
             <p
               className="text-center"
@@ -540,7 +675,6 @@ function UploadPhoto() {
                           Reanalyze
                         </button>
                       </div>
-                     
                     </div>
                   </>
                 )}

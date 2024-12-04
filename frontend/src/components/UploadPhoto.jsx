@@ -16,6 +16,7 @@ function UploadPhoto() {
   const [loading, setLoading] = useState(false); // Loading state
   const [labelsByImage, setLabelsByImage] = useState([]); // Labels for each uploaded image
   const [overallRecommendations, setOverallRecommendations] = useState(""); // ChatGPT recommendations
+  const [user, setUser] = useState({}); // User object
 
   // Convert image to Base64 for API usage
   const convertToBase64 = (file) =>
@@ -129,7 +130,7 @@ function UploadPhoto() {
 
       // Save recommendations to Firestore (don't store images, only the labels and recommendations)
       await addDoc(collection(db, "userRecommendations"), {
-        userId: "exampleUserId", // Use actual user ID here
+        userId: localStorage.getItem("userEmail"), // Use actual user ID here
         recommendations: {
           images: aggregatedData.map((data) => ({
             image: data.image, // Store only image name (like Image 1, Image 2)
@@ -213,6 +214,34 @@ function UploadPhoto() {
       : null;
   };
 
+  const handleSaveRecommendations = async (recommendations) => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      alert("User not authenticated");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:8080/save-recommendations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ recommendations, userId: user.uid }),
+      });
+
+      if (response.ok) {
+        alert("Recommendations saved successfully!");
+      } else {
+        alert("Failed to save recommendations.");
+      }
+    } catch (error) {
+      console.error("Error saving recommendations:", error);
+      alert("Failed to save recommendations.");
+    }
+  };
+
   return (
     <>
       <div className={`${showModal ? "blur-background" : ""}`}>
@@ -248,16 +277,7 @@ function UploadPhoto() {
                 </label>
               </div>
 
-              {/* Import from Pinterest Button */}
-              <div className="import-photo-card card p-3 mb-4">
-                <i
-                  className="fa-brands fa-square-pinterest"
-                  style={{ marginBottom: "5px", marginTop: "20px" }}
-                />
-                <div>
-                  <p>Import from Pinterest</p>
-                </div>
-              </div>
+              
             </div>
 
             <p
@@ -547,6 +567,7 @@ function UploadPhoto() {
                           Reanalyze
                         </button>
                       </div>
+                     
                     </div>
                   </>
                 )}

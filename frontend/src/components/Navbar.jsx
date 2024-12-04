@@ -75,12 +75,12 @@ function Navbar({ isLoggedIn, onLogout }) {
                   className="dropdown-menu dropdown-menu-end"
                   aria-labelledby="dropdownMenuButton"
                 >
-                  {/* <li>
+                  <li>
                     <Link className="dropdown-item" to="/account-settings">
                       <i className="fa-solid fa-gear" />
-                      <span>Account Settings</span>
+                      <span>{localStorage.getItem("userEmail")}</span>
                     </Link>
-                  </li> */}
+                  </li>
                   <li>
                     <Link
                       className="dropdown-item"

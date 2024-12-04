@@ -3,23 +3,15 @@ const express = require("express"); // Import Express framework
 const bodyParser = require("body-parser"); // Import body-parser for parsing JSON requests
 const axios = require("axios"); // Import axios for making HTTP requests
 const cors = require("cors"); // Import CORS to allow cross-origin requests
-const admin = require('firebase-admin'); // Import Firebase Admin SDK
-const serviceAccount = require('/Users/daipayanhati/Desktop/Personal Projects/Assignment/Web systems/FashionMoodboardAI/backend/fashion-mood-frontend-firebase-adminsdk-c2vgh-b9a86142ff.json');
-require('dotenv').config();
-
-// Initialize Firebase Admin SDK
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  projectId: 'fashion-mood-frontend',
-});
 
 // Create an Express application
 const app = express();
 app.use(bodyParser.json({ limit: "10mb" })); // Middleware to parse JSON with a size limit
 app.use(cors()); // Enable CORS for all routes
 
-const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const GOOGLE_API_KEY = "google_api_key";
+
+const OPENAI_API_KEY = "openai_api_key";
 
 // Root route to check server status
 app.get("/", (req, res) => {
@@ -119,38 +111,6 @@ Respond with clear, actionable fashion tips for the user to look better and impr
       error.response?.data || error.message
     );
     res.status(500).json({ error: "Failed to generate recommendations" }); // Handle errors
-  }
-});
-
-
-
-// Signup route
-app.post('/signup', async (req, res) => {
-  const { email, password } = req.body;
-
-  try {
-    const userRecord = await admin.auth().createUser({
-      email,
-      password,
-    });
-    res.status(201).send({ message: 'User created successfully', userId: userRecord.uid });
-  } catch (error) {
-    console.error('Error creating new user:', error);
-    res.status(400).send({ error: error.message });
-  }
-});
-
-// Login route
-app.post('/login', async (req, res) => {
-  const { email, password } = req.body;
-
-  try {
-    const user = await admin.auth().getUserByEmail(email);
-    const token = await admin.auth().createCustomToken(user.uid);
-    res.status(200).send({ message: 'Login successful', token, email: user.email });
-  } catch (error) {
-    console.error('Error during login:', error);
-    res.status(401).send({ error: 'Invalid email or password' });
   }
 });
 

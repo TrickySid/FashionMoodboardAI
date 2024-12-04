@@ -31,11 +31,13 @@ function App() {
   const handleLogin = (userData) => {
     setUser(userData); // Update state with user data
     localStorage.setItem("user", JSON.stringify(userData)); // Store user data in localStorage
+    localStorage.setItem("authToken", userData.token); // Store the JWT token
   };
 
   const handleLogout = () => {
     setUser(null); // Clear user data
     localStorage.removeItem("user"); // Remove from localStorage
+    localStorage.removeItem("authToken"); // Remove the JWT token
   };
 
   return (

@@ -22,5 +22,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+.env
 
 fashion-mood-frontend-firebase-adminsdk-c2vgh-b9a86142ff.json

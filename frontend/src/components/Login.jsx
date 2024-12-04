@@ -34,11 +34,11 @@ function Login({ onLogin }) {
         alert("Login successful!");
         navigate("/"); // Redirect to dashboard or home page
       } else {
-        alert("Login failed!");
+        alert("Login failed, Please check your email or password!");
       }
     } catch (error) {
       console.error("Error during login:", error);
-      alert("Login failed!");
+      alert("Login failed, Please check your email or password!");
     }
   };
 
@@ -149,6 +149,12 @@ function Login({ onLogin }) {
             <span>Login with Google</span>
           </button>
         </GoogleLogin>
+
+        {/* Login with Pinterest Button */}
+        <button className="login-btn btn btn-block w-100 mt-3 mb-3">
+          <i className="fa-brands fa-pinterest"></i>
+          <span>Login with Pinterest</span>
+        </button>
 
         <div className="separator d-flex align-items-center my-3">
           <hr className="flex-grow-1" />

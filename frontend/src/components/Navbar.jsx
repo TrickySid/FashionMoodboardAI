@@ -1,9 +1,17 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/Navbar.css";
 
-function Navbar({ isLoggedIn, onLogout }) {
+function Navbar({ isLoggedIn, user, onLogout }) {
+  const navigate = useNavigate(); // Hook to navigate programmatically
+
+  // Handle logout logic
+  const handleLogout = () => {
+    onLogout(); // Clear user data
+    navigate("/login"); // Redirect to login page after logout
+  };
+
   return (
     <nav className="navbar navbar-expand-lg navbar-light">
       <div className="container-fluid">
@@ -46,7 +54,7 @@ function Navbar({ isLoggedIn, onLogout }) {
             )}
           </ul>
 
-          {/* Conditional Buttons for Login/Signup or Avatar Dropdown */}
+          {/* Conditional Rendering for Login/Signup or Avatar Dropdown */}
           <div className="d-flex align-items-center">
             {!isLoggedIn ? (
               <>
@@ -69,7 +77,17 @@ function Navbar({ isLoggedIn, onLogout }) {
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
                 >
-                  <i className="user-avatar fa-regular fa-circle-user" />
+                  {/* Display user profile image if available */}
+                  {user?.profileImage ? (
+                    <img
+                      src={user.profileImage}
+                      alt="User Avatar"
+                      className="user-avatar rounded-circle"
+                      style={{ width: "30px", height: "30px" }}
+                    />
+                  ) : (
+                    <i className="fa-regular fa-circle-user" />
+                  )}
                 </button>
                 <ul
                   className="dropdown-menu dropdown-menu-end"
@@ -78,23 +96,18 @@ function Navbar({ isLoggedIn, onLogout }) {
                   <li>
                     <Link className="dropdown-item" to="/account-settings">
                       <i className="fa-solid fa-gear" />
-                      <span>{localStorage.getItem("userEmail")}</span>
+                      <span>Account Settings</span>
                     </Link>
                   </li>
                   <li>
-                    <Link
-                      className="dropdown-item"
-                      to="/login"
-                      style={{ marginLeft: "-20px" }}
+                    {/* Directly call handleLogout */}
+                    <button
+                      onClick={handleLogout}
+                      className="dropdown-item btn ms-2"
                     >
-                      <button
-                        onClick={onLogout}
-                        className="logout-btn btn ms-2"
-                      >
-                        <i className="fa-solid fa-right-from-bracket" />
-                        <span>Sign Out</span>
-                      </button>
-                    </Link>
+                      <i className="fa-solid fa-right-from-bracket" />
+                      <span>Sign Out</span>
+                    </button>
                   </li>
                 </ul>
               </div>

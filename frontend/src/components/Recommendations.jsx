@@ -3,7 +3,14 @@ import Navbar from "./Navbar";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/Recommendations.css";
 import { db } from "../firebase"; // Import Firestore
-import { collection, query, getDocs, orderBy, limit, where } from "firebase/firestore"; // Import necessary Firestore functions
+import {
+  collection,
+  query,
+  getDocs,
+  orderBy,
+  limit,
+  where,
+} from "firebase/firestore"; // Import necessary Firestore functions
 
 function Recommendations() {
   const [recommendations, setRecommendations] = useState([]);
@@ -38,9 +45,9 @@ function Recommendations() {
         // Map through the documents and extract the data
         const userRecommendations = snapshot.docs.map((doc) => doc.data());
         const filterRecomendations = userRecommendations.filter((reco) => {
-            return reco.userId === localStorage.getItem("userEmail");
-        })
-      
+          return reco.userId === localStorage.getItem("userEmail");
+        });
+
         // console.log(userRecommendations)
         setRecommendations(filterRecomendations);
       } catch (error) {
@@ -57,7 +64,6 @@ function Recommendations() {
 
   return (
     <>
-      <Navbar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
       <div className="recommendations d-flex justify-content-center align-items-start p-4">
         <div className="container-fluid">
           <h2 className="title mb-4">Improve Your Style</h2>

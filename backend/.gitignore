@@ -1,6 +1,11 @@
 <<<<<<< HEAD
 .env
+<<<<<<< HEAD
 =======
 .env
 fashion-mood-frontend-firebase-adminsdk-c2vgh-b9a86142ff.json
 >>>>>>> 0f6cea5 (Authenication)
+=======
+fashion-mood-frontend-firebase-adminsdk-c2vgh-b9a86142ff.json
+app.yaml
+>>>>>>> 2d72579 (Authentication and Proteced Routes)

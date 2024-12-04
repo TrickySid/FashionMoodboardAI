@@ -214,33 +214,6 @@ function UploadPhoto() {
       : null;
   };
 
-  const handleSaveRecommendations = async (recommendations) => {
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      alert("User not authenticated");
-      return;
-    }
-
-    try {
-      const response = await fetch("http://localhost:8080/save-recommendations", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ recommendations, userId: user.uid }),
-      });
-
-      if (response.ok) {
-        alert("Recommendations saved successfully!");
-      } else {
-        alert("Failed to save recommendations.");
-      }
-    } catch (error) {
-      console.error("Error saving recommendations:", error);
-      alert("Failed to save recommendations.");
-    }
-  };
 
   return (
     <>

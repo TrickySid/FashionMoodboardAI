@@ -1,8 +1,6 @@
 .login-page {
   background: linear-gradient(90deg, #272d00 0%, #0d0d0d 100%);
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  overflow-y: hidden;
   font-family: "Kanit", sans-serif;
 
   .card {

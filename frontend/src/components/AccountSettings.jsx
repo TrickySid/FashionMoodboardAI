@@ -25,7 +25,6 @@ function AccountSettings() {
 
   return (
     <>
-      <Navbar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
       <div style={{ paddingTop: "100px", backgroundColor: "#0d0d0d" }}>
         <div className="account-settings-page justify-content-center align-items-start vh-100">
           <div className="container-fluid">

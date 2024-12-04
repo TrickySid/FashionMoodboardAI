@@ -3,7 +3,7 @@ import Navbar from "./Navbar";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/Recommendations.css";
 import { db } from "../firebase"; // Import Firestore
-import { collection, query, getDocs, orderBy, limit } from "firebase/firestore"; // Import necessary Firestore functions
+import { collection, query, getDocs, orderBy, limit, where } from "firebase/firestore"; // Import necessary Firestore functions
 
 function Recommendations() {
   const [recommendations, setRecommendations] = useState([]);
@@ -27,6 +27,7 @@ function Recommendations() {
         // Create a query for the userRecommendations collection, ordered by timestamp (descending)
         const recQuery = query(
           collection(db, "userRecommendations"), // Access the "userRecommendations" collection
+
           orderBy("timestamp", "desc"), // Order by timestamp (descending)
           limit(6) // Limit to 6 most recent documents
         );
@@ -36,7 +37,12 @@ function Recommendations() {
 
         // Map through the documents and extract the data
         const userRecommendations = snapshot.docs.map((doc) => doc.data());
-        setRecommendations(userRecommendations);
+        const filterRecomendations = userRecommendations.filter((reco) => {
+            return reco.userId === localStorage.getItem("userEmail");
+        })
+      
+        // console.log(userRecommendations)
+        setRecommendations(filterRecomendations);
       } catch (error) {
         console.error("Error fetching recommendations:", error);
       }

@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import axios from "axios";
 import { db } from "../firebase.js";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import Navbar from "./Navbar";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/UploadPhoto.css";
 import { Link, useNavigate } from "react-router-dom";

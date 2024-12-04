@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 // import axios from "axios";
-import Navbar from "./Navbar";
 import { images } from "./images";
 import gsap from "gsap";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -25,7 +24,6 @@ const Home = () => {
 
   return (
     <>
-      <Navbar />
       <header className="home-page">
         <h1>
           Analyze and Improve <br />

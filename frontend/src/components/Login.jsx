@@ -27,13 +27,25 @@ function Login({ onLogin }) {
         }
       );
 
+      // Log the full response object for better debugging
+      console.log("Response Status:", response.status);
+      const responseData = await response.json();
+      console.log("Backend Response:", responseData);
+
       if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem("authToken", data.token); // Store token in local storage
-        localStorage.setItem("userEmail", data.email); // Store email in local storage
-        alert("Login successful!");
-        navigate("/"); // Redirect to dashboard or home page
+        // Ensure the response contains the necessary fields
+        if (responseData.token && responseData.email) {
+          localStorage.setItem("authToken", responseData.token); // Store token
+          localStorage.setItem("userEmail", responseData.email); // Store email
+          alert("Login successful!");
+          navigate("/"); // Redirect after login
+        } else {
+          console.error("Unexpected response format", responseData);
+          alert("Login failed, unexpected response format!");
+        }
       } else {
+        // If the response is not OK (e.g., 401 Unauthorized), log the response data
+        console.error("Login failed", responseData);
         alert("Login failed, Please check your email or password!");
       }
     } catch (error) {
@@ -63,9 +75,6 @@ function Login({ onLogin }) {
     // Pass the user data to the parent component
     onLogin(userData);
 
-    // Fetch Google Photos once the user is logged in
-    await fetchGooglePhotos(credential);
-
     // Redirect to the /upload page after successful login
     navigate("/upload");
   };
@@ -77,23 +86,6 @@ function Login({ onLogin }) {
     const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
     const decodedData = JSON.parse(window.atob(base64));
     return decodedData;
-  };
-
-  // Fetch Google Photos after login
-  const fetchGooglePhotos = async (token) => {
-    const apiUrl = "https://photoslibrary.googleapis.com/v1/albums"; // Google Photos API endpoint
-    const res = await fetch(apiUrl, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      setGooglePhotos(data.albums); // Set photos into the state
-    } else {
-      console.error("Failed to fetch photos:", res);
-    }
   };
 
   // Handle Google login error
@@ -142,7 +134,6 @@ function Login({ onLogin }) {
           onSuccess={handleGoogleLogin}
           onError={handleGoogleLoginError}
           useOneTap
-          scope="https://www.googleapis.com/auth/photoslibrary.readonly"
         >
           <button className="login-btn btn btn-block w-100 mb-3">
             <i className="fa-brands fa-google"></i>

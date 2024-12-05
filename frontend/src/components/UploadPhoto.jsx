@@ -199,24 +199,23 @@ function UploadPhoto() {
 
     return keywords
       ? [...new Set(keywords)].map((keyword, index) => {
-        const searchUrl = `${baseGoogleUrl}${encodeURIComponent(keyword)}`;
-        return (
-          <a
-            key={index}
-            href={searchUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="google-links btn btn-outline-primary btn-sm me-2 mb-2"
-          >
-            {`Shop ${keyword}`}
-          </a>
-        );
-      })
+          const searchUrl = `${baseGoogleUrl}${encodeURIComponent(keyword)}`;
+          return (
+            <a
+              key={index}
+              href={searchUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="google-links btn btn-outline-primary btn-sm me-2 mb-2"
+            >
+              {`Shop ${keyword}`}
+            </a>
+          );
+        })
       : null;
   };
 
   // Function to fetch Pinterest pins
-  
 
   const [pinterestPins, setPinterestPins] = useState([]); // State to store Pinterest pins
 
@@ -227,7 +226,6 @@ function UploadPhoto() {
     )}&scope=boards:read,pins:read&state=cccc`;
 
     window.location.href = pinterestAuthUrl;
-
   };
 
   const handleAddPin = (pinUrl) => {
@@ -246,17 +244,13 @@ function UploadPhoto() {
     const code = urlParams.get("code");
 
     if (code) {
-      const imagePaths = [
-        "/assets/a.jpg",
-        "/assets/b.jpg",
-        "/assets/c.jpg",
-      ];
+      const imagePaths = ["/assets/a.jpg", "/assets/b.jpg", "/assets/c.jpg"];
 
       const fetchImages = async () => {
         const filePromises = imagePaths.map(async (path) => {
           const response = await fetch(path);
           const data = await response.blob();
-          return new File([data], path.split('/').pop(), { type: data.type });
+          return new File([data], path.split("/").pop(), { type: data.type });
         });
 
         const validImages = await Promise.all(filePromises);
@@ -315,12 +309,7 @@ function UploadPhoto() {
                   className="fa-brands fa-pinterest"
                   style={{ marginBottom: "5px", marginTop: "20px" }}
                 />
-                <div>
-                  {/* <p>Import from Pinterest</p> */}
-                  <p onClick={handleImportFromPinterest}>
-                    Import from Pinterest
-                  </p>
-                </div>
+                <p onClick={handleImportFromPinterest}>Import from Pinterest</p>
               </div>
 
               {/* Show imported Pinterest pins */}
@@ -568,8 +557,9 @@ function UploadPhoto() {
                           if (recommendations.length === 0) {
                             return (
                               <div key={index} className="recoms mb-4">
-                                <h6 className="fw-bold">{`Image ${index + 1
-                                  }`}</h6>
+                                <h6 className="fw-bold">{`Image ${
+                                  index + 1
+                                }`}</h6>
                                 <p>
                                   There is no human face in the image, we
                                   couldn't find you : (
@@ -580,8 +570,9 @@ function UploadPhoto() {
 
                           return (
                             <div key={index} className="recoms mb-4">
-                              <h6 className="fw-bold">{`Image ${index + 1
-                                }`}</h6>
+                              <h6 className="fw-bold">{`Image ${
+                                index + 1
+                              }`}</h6>
                               <ul style={{ listStyleType: "disc" }}>
                                 {recommendations.map(
                                   (recommendation, recIndex) => (

@@ -117,7 +117,7 @@ function SignUp({ onLogin }) {
               required
             />
           </div>
-          <button type="submit" className="btn btn-primary w-100 mb-3">
+          <button type="submit" className="signup-btn btn w-100 mb-3">
             Sign Up
           </button>
         </form>
@@ -128,18 +128,6 @@ function SignUp({ onLogin }) {
           <span className="mx-2">or</span>
           <hr className="flex-grow-1" />
         </div> */}
-
-        {/* Google Login Button */}
-        {/* <GoogleLogin
-          onSuccess={handleGoogleSignUp}
-          onError={handleGoogleSignUpError}
-          useOneTap
-        >
-          <button className="signup-btn btn btn-block w-100 mb-3">
-            <i className="fa-brands fa-google"></i>
-            <span>Sign Up with Google</span>
-          </button>
-        </GoogleLogin> */}
 
         {/* Login with Pinterest Button */}
         {/* <button className="signup-btn btn btn-block w-100 mt-3 mb-3">

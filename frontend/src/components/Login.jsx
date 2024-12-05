@@ -29,13 +29,16 @@ function Login({ onLogin }) {
     e.preventDefault();
 
     try {
-      const response = await fetch("https://fashion-moods.wm.r.appspot.com/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      const response = await fetch(
+        "https://fashion-moods.wm.r.appspot.com/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password }),
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -56,7 +59,9 @@ function Login({ onLogin }) {
   // Redirect user to Pinterest login
   const handlePinterestLogin = async () => {
     try {
-      const response = await fetch("https://fashion-moods.wm.r.appspot.com/pinterest/auth");
+      const response = await fetch(
+        "https://fashion-moods.wm.r.appspot.com/pinterest/auth"
+      );
       const { authUrl } = await response.json();
       window.location.href = authUrl; // Redirect to Pinterest OAuth
     } catch (error) {
@@ -90,7 +95,7 @@ function Login({ onLogin }) {
               required
             />
           </div>
-          <button type="submit" className="btn btn-primary w-100 mb-3">
+          <button type="submit" className="login-btn btn w-100 mb-3">
             Login
           </button>
         </form>

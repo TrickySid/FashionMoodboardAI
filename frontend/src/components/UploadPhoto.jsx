@@ -214,6 +214,45 @@ function UploadPhoto() {
       : null;
   };
 
+  // Function to fetch Pinterest pins
+  const fetchPinterestPins = async (accessToken) => {
+    try {
+      const response = await axios.get(
+        `https://api.pinterest.com/v1/me/pins/`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      // Parse the data returned
+      const pins = response.data.data.map((pin) => pin.image.original.url);
+      setPinterestPins(pins); // Store pins in state
+    } catch (error) {
+      console.error("Error fetching Pinterest pins:", error);
+    }
+  };
+
+  const [pinterestPins, setPinterestPins] = useState([]); // State to store Pinterest pins
+
+  // Function to open Pinterest and fetch pins
+  const handleImportFromPinterest = async () => {
+    const accessToken = "user_access_token"; // Get from OAuth response
+    await fetchPinterestPins(accessToken);
+  };
+
+  const handleAddPin = (pinUrl) => {
+    // Convert the Pinterest image URL to a file object
+    const file = {
+      name: `Pin ${selectedFiles.length + 1}`,
+      type: "image/jpeg", // or other type depending on image
+      url: pinUrl,
+    };
+
+    setSelectedFiles((prevFiles) => [...prevFiles, file]);
+  };
+
   return (
     <>
       <div className={`${showModal ? "blur-background" : ""}`}>
@@ -254,9 +293,31 @@ function UploadPhoto() {
                   style={{ marginBottom: "5px", marginTop: "20px" }}
                 />
                 <div>
-                  <p>Import from Pinterest</p>
+                  {/* <p>Import from Pinterest</p> */}
+                  <button onClick={handleImportFromPinterest}>
+                    Import from Pinterest
+                  </button>
                 </div>
               </div>
+
+              {/* Show imported Pinterest pins */}
+              {pinterestPins.length > 0 && (
+                <div className="pinterest-pins-gallery">
+                  {pinterestPins.map((pin, index) => (
+                    <img
+                      key={index}
+                      src={pin}
+                      alt={`Pinterest Pin ${index}`}
+                      onClick={() => handleAddPin(pin)} // handleAddPin is where you add selected image to the upload list
+                      style={{
+                        width: "100px",
+                        height: "100px",
+                        cursor: "pointer",
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
 
             <p

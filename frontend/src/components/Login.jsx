@@ -29,7 +29,7 @@ function Login({ onLogin }) {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:8080/login", {
+      const response = await fetch("https://fashion-moods.wm.r.appspot.com/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -56,7 +56,7 @@ function Login({ onLogin }) {
   // Redirect user to Pinterest login
   const handlePinterestLogin = async () => {
     try {
-      const response = await fetch("http://localhost:8080/pinterest/auth");
+      const response = await fetch("https://fashion-moods.wm.r.appspot.com/pinterest/auth");
       const { authUrl } = await response.json();
       window.location.href = authUrl; // Redirect to Pinterest OAuth
     } catch (error) {

@@ -22,9 +22,6 @@ const app = express();
 app.use(bodyParser.json({ limit: "10mb" })); // Middleware to parse JSON with a size limit
 app.use(cors()); // Enable CORS for all routes
 
-const GOOGLE_API_KEY = "GOOGLE_API_KEY";
-
-const OPENAI_API_KEY = "OPENAI_API_KEY";
 
 const CLIENT_ID =
   "http://52814765259-7c2sab3ad08eu52rpklsfk21t9udpqnb.apps.googleusercontent.com";
@@ -215,7 +212,7 @@ app.get("/pinterest/callback", async (req, res) => {
     console.log("Pinterest OAuth success:", { access_token, refresh_token });
 
     // Construct the redirect URL for the frontend after successful authentication
-    const redirectUrl = `${process.env.CLIENT_FRONTEND_URL}/upload?access_token=${access_token}&refresh_token=${refresh_token}`;
+    const redirectUrl = `https://fashion-mood-frontend.web.app/upload?access_token=${access_token}&refresh_token=${refresh_token}`;
 
     console.log("Redirecting to frontend with URL:", redirectUrl);
 

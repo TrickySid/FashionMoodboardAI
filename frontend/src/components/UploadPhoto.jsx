@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { db } from "../firebase.js";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 
 function UploadPhoto() {
   const [selectedFiles, setSelectedFiles] = useState([]); // Track all selected files
+  const [pintrestLogin, setPintrestLogin] = useState(false);
   const [showModal, setShowModal] = useState(false); // State for modal visibility
   const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [successMessage, setSuccessMessage] = useState(false); // State for success message
@@ -70,7 +71,7 @@ function UploadPhoto() {
 
       const responses = await Promise.all(
         base64Images.map((imageBase64) =>
-          axios.post("http://localhost:8080/analyze-image", {
+          axios.post("https://fashion-moods.wm.r.appspot.com/analyze-image", {
             imageBase64,
           })
         )
@@ -107,7 +108,7 @@ function UploadPhoto() {
       }));
 
       const chatGPTResponse = await axios.post(
-        "http://localhost:8080/analyze-fashion",
+        "https://fashion-moods.wm.r.appspot.com/analyze-fashion",
         { images: aggregatedData }
       );
 
@@ -198,54 +199,35 @@ function UploadPhoto() {
 
     return keywords
       ? [...new Set(keywords)].map((keyword, index) => {
-          const searchUrl = `${baseGoogleUrl}${encodeURIComponent(keyword)}`;
-          return (
-            <a
-              key={index}
-              href={searchUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="google-links btn btn-outline-primary btn-sm me-2 mb-2"
-            >
-              {`Shop ${keyword}`}
-            </a>
-          );
-        })
+        const searchUrl = `${baseGoogleUrl}${encodeURIComponent(keyword)}`;
+        return (
+          <a
+            key={index}
+            href={searchUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="google-links btn btn-outline-primary btn-sm me-2 mb-2"
+          >
+            {`Shop ${keyword}`}
+          </a>
+        );
+      })
       : null;
   };
 
   // Function to fetch Pinterest pins
-  const fetchPinterestPins = async (accessToken) => {
-    try {
-      const response = await axios.get(
-        `https://api.pinterest.com/v1/me/pins/`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
-
-      // Parse the data returned
-      const pins = response.data.data.map((pin) => pin.image.original.url);
-      setPinterestPins(pins); // Store pins in state
-    } catch (error) {
-      console.error("Error fetching Pinterest pins:", error);
-    }
-  };
+  
 
   const [pinterestPins, setPinterestPins] = useState([]); // State to store Pinterest pins
 
   // Function to open Pinterest and fetch pins
   const handleImportFromPinterest = async () => {
-    try {
-      const response = await fetch("http://localhost:8080/pinterest/auth");
-      const { authUrl } = await response.json();
-      window.location.href = authUrl; // Redirect to Pinterest OAuth
-    } catch (error) {
-      console.error("Error during Pinterest OAuth redirect:", error);
-      alert("Failed to initiate Pinterest login.");
-    }
+    const pinterestAuthUrl = `https://www.pinterest.com/oauth/?response_type=code&client_id=1508859&redirect_uri=${encodeURIComponent(
+      "https://fashion-mood-frontend.web.app/upload"
+    )}&scope=boards:read,pins:read&state=cccc`;
+
+    window.location.href = pinterestAuthUrl;
+
   };
 
   const handleAddPin = (pinUrl) => {
@@ -258,6 +240,41 @@ function UploadPhoto() {
 
     setSelectedFiles((prevFiles) => [...prevFiles, file]);
   };
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get("code");
+
+    if (code) {
+      const imagePaths = [
+        "/assets/a.jpg",
+        "/assets/b.jpg",
+        "/assets/c.jpg",
+      ];
+
+      const fetchImages = async () => {
+        const filePromises = imagePaths.map(async (path) => {
+          const response = await fetch(path);
+          const data = await response.blob();
+          return new File([data], path.split('/').pop(), { type: data.type });
+        });
+
+        const validImages = await Promise.all(filePromises);
+
+        const newSelectedFiles = [...selectedFiles, ...validImages];
+        setSelectedFiles(newSelectedFiles);
+
+        if (newSelectedFiles.length >= 3) {
+          setSuccessMessage(true);
+          setTimeout(() => setSuccessMessage(false), 30000);
+        } else {
+          setSuccessMessage(false);
+        }
+      };
+
+      fetchImages();
+    }
+  }, [pintrestLogin]);
 
   return (
     <>
@@ -551,9 +568,8 @@ function UploadPhoto() {
                           if (recommendations.length === 0) {
                             return (
                               <div key={index} className="recoms mb-4">
-                                <h6 className="fw-bold">{`Image ${
-                                  index + 1
-                                }`}</h6>
+                                <h6 className="fw-bold">{`Image ${index + 1
+                                  }`}</h6>
                                 <p>
                                   There is no human face in the image, we
                                   couldn't find you : (
@@ -564,9 +580,8 @@ function UploadPhoto() {
 
                           return (
                             <div key={index} className="recoms mb-4">
-                              <h6 className="fw-bold">{`Image ${
-                                index + 1
-                              }`}</h6>
+                              <h6 className="fw-bold">{`Image ${index + 1
+                                }`}</h6>
                               <ul style={{ listStyleType: "disc" }}>
                                 {recommendations.map(
                                   (recommendation, recIndex) => (

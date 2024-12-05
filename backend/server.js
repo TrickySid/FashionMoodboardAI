@@ -7,7 +7,7 @@ const cors = require("cors"); // Import CORS to allow cross-origin requests
 const admin = require("firebase-admin");
 require("dotenv").config();
 
-const PINTEREST_API_VERSION = 'v5';
+const PINTEREST_API_VERSION = "v5";
 const PINTEREST_BASE_URL = `https://api.pinterest.com/${PINTEREST_API_VERSION}`;
 
 admin.initializeApp({
@@ -22,9 +22,9 @@ const app = express();
 app.use(bodyParser.json({ limit: "10mb" })); // Middleware to parse JSON with a size limit
 app.use(cors()); // Enable CORS for all routes
 
-const GOOGLE_API_KEY = "google_api_key";
+const GOOGLE_API_KEY = "GOOGLE_API_KEY";
 
-const OPENAI_API_KEY = "openai_api_key";
+const OPENAI_API_KEY = "OPENAI_API_KEY";
 
 const CLIENT_ID =
   "http://52814765259-7c2sab3ad08eu52rpklsfk21t9udpqnb.apps.googleusercontent.com";
@@ -165,99 +165,136 @@ app.post("/login", async (req, res) => {
 });
 
 // Endpoint to get Pinterest OAuth URL
-app.get('/pinterest/auth', (req, res) => {
+app.get("/pinterest/auth", (req, res) => {
   const clientId = process.env.PINTEREST_APP_ID;
   const redirectUri = encodeURIComponent(process.env.PINTEREST_REDIRECT_URI);
-  const scope = encodeURIComponent('boards:read,pins:read');
-  const responseType = 'code';
-  
+  const scope = encodeURIComponent("boards:read,pins:read,pins:write");
+  const responseType = "code";
+
   const authUrl = `https://www.pinterest.com/oauth/?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`;
-  
+
   res.json({ authUrl });
 });
 
+// Add qs library to serialize data
+const qs = require("qs");
+
 // Endpoint to handle Pinterest OAuth callback
-app.get('/pinterest/callback', async (req, res) => {
-  const { code } = req.query;
-  
+// Endpoint to handle Pinterest OAuth callback
+app.get("/pinterest/callback", async (req, res) => {
+  const { code } = req.query; // Get the 'code' query param
+
+  if (!code) {
+    console.error("Authorization code is missing in the callback request");
+    return res.status(400).json({ error: "Authorization code is missing" });
+  }
+
   try {
-    const response = await axios.post('https://api.pinterest.com/v5/oauth/token', {
-      grant_type: 'authorization_code',
-      code,
-      redirect_uri: process.env.PINTEREST_REDIRECT_URI,
-    }, {
-      auth: {
-        username: process.env.PINTEREST_APP_ID,
-        password: process.env.PINTEREST_APP_SECRET
-      }
+    // Request body to exchange code for access token and refresh token
+    const requestBody = qs.stringify({
+      grant_type: "authorization_code",
+      code, // Authorization code from Pinterest
+      redirect_uri: process.env.PINTEREST_REDIRECT_URI, // Your redirect URI
     });
 
+    const response = await axios.post(
+      "https://api.pinterest.com/v5/oauth/token", // Pinterest OAuth token endpoint
+      requestBody, // Serialize data
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded", // Form data
+        },
+        auth: {
+          username: process.env.PINTEREST_APP_ID, // Pinterest App ID (from .env)
+          password: process.env.PINTEREST_APP_SECRET, // Pinterest App Secret (from .env)
+        },
+      }
+    );
+
     const { access_token, refresh_token } = response.data;
-    
-    // Here you might want to store these tokens in your database
-    // associated with the user's account
-    
-    res.json({ success: true, access_token });
+    console.log("Pinterest OAuth success:", { access_token, refresh_token });
+
+    // Construct the redirect URL for the frontend after successful authentication
+    const redirectUrl = `${process.env.CLIENT_FRONTEND_URL}/upload?access_token=${access_token}&refresh_token=${refresh_token}`;
+
+    console.log("Redirecting to frontend with URL:", redirectUrl);
+
+    // Redirect to frontend application (localhost:3000/upload) with tokens in the URL
+    res.redirect(redirectUrl); // Redirect to /upload with the tokens
   } catch (error) {
-    console.error('Pinterest OAuth error:', error.response?.data || error.message);
-    res.status(500).json({ error: 'Failed to authenticate with Pinterest' });
+    console.error(
+      "Pinterest OAuth error:",
+      error.response?.data || error.message
+    );
+    res.status(500).json({ error: "Failed to authenticate with Pinterest" });
   }
 });
 
 // Endpoint to get user's Pinterest boards
-app.get('/pinterest/boards', async (req, res) => {
+app.get("/pinterest/boards", async (req, res) => {
   try {
     const response = await axios.get(`${PINTEREST_BASE_URL}/boards`, {
       headers: {
-        Authorization: `Bearer ${req.headers.pinterest_token}`
-      }
+        Authorization: `Bearer ${req.headers.pinterest_token}`,
+      },
     });
-    
+
     res.json(response.data);
   } catch (error) {
-    console.error('Error fetching boards:', error.response?.data || error.message);
-    res.status(500).json({ error: 'Failed to fetch Pinterest boards' });
+    console.error(
+      "Error fetching boards:",
+      error.response?.data || error.message
+    );
+    res.status(500).json({ error: "Failed to fetch Pinterest boards" });
   }
 });
 
 // Endpoint to get pins from a specific board
-app.get('/pinterest/boards/:boardId/pins', async (req, res) => {
+app.get("/pinterest/boards/:boardId/pins", async (req, res) => {
   try {
     const { boardId } = req.params;
-    const response = await axios.get(`${PINTEREST_BASE_URL}/boards/${boardId}/pins`, {
-      headers: {
-        Authorization: `Bearer ${req.headers.pinterest_token}`
+    const response = await axios.get(
+      `${PINTEREST_BASE_URL}/boards/${boardId}/pins`,
+      {
+        headers: {
+          Authorization: `Bearer ${req.headers.pinterest_token}`,
+        },
       }
-    });
-    
+    );
+
     res.json(response.data);
   } catch (error) {
-    console.error('Error fetching pins:', error.response?.data || error.message);
-    res.status(500).json({ error: 'Failed to fetch Pinterest pins' });
+    console.error(
+      "Error fetching pins:",
+      error.response?.data || error.message
+    );
+    res.status(500).json({ error: "Failed to fetch Pinterest pins" });
   }
 });
 
 // Endpoint to search pins
-app.get('/pinterest/search/pins', async (req, res) => {
+app.get("/pinterest/search/pins", async (req, res) => {
   try {
     const { query } = req.query;
     const response = await axios.get(`${PINTEREST_BASE_URL}/pins/search`, {
       params: {
         query,
-        limit: 50
+        limit: 50,
       },
       headers: {
-        Authorization: `Bearer ${req.headers.pinterest_token}`
-      }
+        Authorization: `Bearer ${req.headers.pinterest_token}`,
+      },
     });
-    
+
     res.json(response.data);
   } catch (error) {
-    console.error('Error searching pins:', error.response?.data || error.message);
-    res.status(500).json({ error: 'Failed to search Pinterest pins' });
+    console.error(
+      "Error searching pins:",
+      error.response?.data || error.message
+    );
+    res.status(500).json({ error: "Failed to search Pinterest pins" });
   }
 });
-
 
 // Start the server and listen on the specified port
 const PORT = process.env.PORT || 8080; // Use environment variable or default to 8080

@@ -78,7 +78,7 @@ function AccountSettings() {
                   type="email"
                   className="form-control"
                   id="email"
-                  value={email}
+                  value={localStorage.getItem("userEmail")}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
                 />

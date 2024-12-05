@@ -11,25 +11,36 @@ import Navbar from "./components/Navbar";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);  // Add loading state
 
   useEffect(() => {
     const handleStorageChange = () => {
-      console.log("Storage changed");
       const token = localStorage.getItem("authToken");
-      setIsAuthenticated(!!token);
+      console.log("Current token:", token);
+      if (!token) {
+        console.log("No token found");
+        setIsAuthenticated(false);
+      } else {
+        console.log("Token found");
+        setIsAuthenticated(true);
+      }
+      setLoading(false);  // Set loading to false after we check auth
     };
 
-    // Check authentication status on component mount
+    // Initial check
     handleStorageChange();
 
     // Add event listener for storage changes
     window.addEventListener("storage", handleStorageChange);
 
-    // Clean up event listener on component unmount
     return () => {
       window.removeEventListener("storage", handleStorageChange);
     };
   }, []);
+
+  useEffect(() => {
+    console.log("isAuthenticated updated:", isAuthenticated);
+  }, [isAuthenticated]);
 
   const handleLogout = () => {
     localStorage.removeItem("authToken");
@@ -37,8 +48,18 @@ function App() {
   };
 
   const ProtectedRoute = ({ children }) => {
+    console.log("Protected Route Check - isAuthenticated:", isAuthenticated);
+    
+    if (loading) {
+      return <div>Loading...</div>;  // Show loading state while checking auth
+    }
+    
     return isAuthenticated ? children : <Navigate to="/login" />;
   };
+
+  if (loading) {
+    return <div>Loading...</div>;  // Show loading state while checking auth
+  }
 
   return (
     <Router>

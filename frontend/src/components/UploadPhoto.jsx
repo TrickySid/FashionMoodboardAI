@@ -300,9 +300,9 @@ function UploadPhoto() {
                 />
                 <div>
                   {/* <p>Import from Pinterest</p> */}
-                  <button onClick={handleImportFromPinterest}>
+                  <p onClick={handleImportFromPinterest}>
                     Import from Pinterest
-                  </button>
+                  </p>
                 </div>
               </div>
 

@@ -130,7 +130,7 @@ function SignUp({ onLogin }) {
         </div>
 
         {/* Google Login Button */}
-        <GoogleLogin
+        {/* <GoogleLogin
           onSuccess={handleGoogleSignUp}
           onError={handleGoogleSignUpError}
           useOneTap
@@ -139,7 +139,7 @@ function SignUp({ onLogin }) {
             <i className="fa-brands fa-google"></i>
             <span>Sign Up with Google</span>
           </button>
-        </GoogleLogin>
+        </GoogleLogin> */}
 
         {/* Login with Pinterest Button */}
         <button className="signup-btn btn btn-block w-100 mt-3 mb-3">

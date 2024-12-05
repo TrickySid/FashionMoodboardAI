@@ -238,8 +238,14 @@ function UploadPhoto() {
 
   // Function to open Pinterest and fetch pins
   const handleImportFromPinterest = async () => {
-    const accessToken = "user_access_token"; // Get from OAuth response
-    await fetchPinterestPins(accessToken);
+    try {
+      const response = await fetch("http://localhost:8080/pinterest/auth");
+      const { authUrl } = await response.json();
+      window.location.href = authUrl; // Redirect to Pinterest OAuth
+    } catch (error) {
+      console.error("Error during Pinterest OAuth redirect:", error);
+      alert("Failed to initiate Pinterest login.");
+    }
   };
 
   const handleAddPin = (pinUrl) => {

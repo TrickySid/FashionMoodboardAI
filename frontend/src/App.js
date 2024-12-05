@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from "react-router-dom";
 import Home from "./components/Home";
 import UploadPhoto from "./components/UploadPhoto";
 import Recommendations from "./components/Recommendations";
@@ -42,6 +47,10 @@ function App() {
     console.log("isAuthenticated updated:", isAuthenticated);
   }, [isAuthenticated]);
 
+  useEffect(() => {
+    console.log("isAuthenticated updated:", isAuthenticated);
+  }, [isAuthenticated]);
+
   const handleLogout = () => {
     localStorage.removeItem("authToken");
     setIsAuthenticated(false);
@@ -63,7 +72,9 @@ function App() {
 
   return (
     <Router>
-      {isAuthenticated && <Navbar isLoggedIn={isAuthenticated} onLogout={handleLogout} />}
+      {isAuthenticated && (
+        <Navbar isLoggedIn={isAuthenticated} onLogout={handleLogout} />
+      )}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route

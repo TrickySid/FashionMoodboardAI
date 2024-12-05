@@ -29,7 +29,7 @@ function Login({ onLogin }) {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:8080/login", {
+      const response = await fetch("https://fashion-moods.wm.r.appspot.com/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -56,7 +56,7 @@ function Login({ onLogin }) {
   // Redirect user to Pinterest login
   const handlePinterestLogin = async () => {
     try {
-      const response = await fetch("http://localhost:8080/pinterest/auth");
+      const response = await fetch("https://fashion-moods.wm.r.appspot.com/pinterest/auth");
       const { authUrl } = await response.json();
       window.location.href = authUrl; // Redirect to Pinterest OAuth
     } catch (error) {
@@ -95,20 +95,21 @@ function Login({ onLogin }) {
           </button>
         </form>
 
-        <div className="separator d-flex align-items-center my-3">
+        {/* <div className="separator d-flex align-items-center my-3">
           <hr className="flex-grow-1" />
           <span className="mx-2">or</span>
           <hr className="flex-grow-1" />
         </div>
 
         {/* Login with Pinterest Button */}
+        {/* <button className="login-btn btn btn-block w-100 mt-3 mb-3">
         <button
           onClick={handlePinterestLogin}
           className="login-btn btn btn-block w-100 mt-3 mb-3"
         >
           <i className="fa-brands fa-pinterest"></i>
           <span>Login with Pinterest</span>
-        </button>
+        </button> */}
 
         <div className="separator d-flex align-items-center my-3">
           <hr className="flex-grow-1" />

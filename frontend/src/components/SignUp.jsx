@@ -123,11 +123,11 @@ function SignUp({ onLogin }) {
         </form>
 
         {/* Separator */}
-        <div className="separator d-flex align-items-center my-3">
+        {/* <div className="separator d-flex align-items-center my-3">
           <hr className="flex-grow-1" />
           <span className="mx-2">or</span>
           <hr className="flex-grow-1" />
-        </div>
+        </div> */}
 
         {/* Google Login Button */}
         {/* <GoogleLogin
@@ -142,10 +142,10 @@ function SignUp({ onLogin }) {
         </GoogleLogin> */}
 
         {/* Login with Pinterest Button */}
-        <button className="signup-btn btn btn-block w-100 mt-3 mb-3">
+        {/* <button className="signup-btn btn btn-block w-100 mt-3 mb-3">
           <i className="fa-brands fa-pinterest"></i>
           <span>Sign Up with Pinterest</span>
-        </button>
+        </button>  */}
 
         {/* Separator */}
         <div className="separator d-flex align-items-center my-3">

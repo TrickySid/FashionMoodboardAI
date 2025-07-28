@@ -72,7 +72,7 @@ function Recommendations() {
             {/* Loop through recommendations */}
             {recommendations.length > 0 ? (
               recommendations.map((recommendation, index) => (
-                <div key={index} className="col-12 col-md-6 col-lg-6">
+                <div key={index} className="col-12 col-md-4 col-lg-6">
                   <div className="card p-3">
                     <div className="text-start">
                       {/* Display fashion recommendations without list items or numbers */}

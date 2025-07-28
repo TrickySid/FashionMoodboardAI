@@ -1,0 +1,39 @@
+.account-settings-page {
+  background: linear-gradient(#0d0d0d 0%, #222800 100%);
+  font-family: "Kanit", sans-serif;
+
+  .title {
+    background: linear-gradient(to right, #6a7a00, #dcff00);
+    background-size: 300px;
+    background-repeat: no-repeat;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    font-size: 32px;
+    font-weight: bold;
+  }
+
+  .settings-form {
+    background: linear-gradient(45deg, #0d0d0d 0%, #1d1d1d 100%);
+    border-radius: 30px;
+    box-shadow: rgba(6, 24, 44, 0.4) 0px 0px 0px 2px,
+      rgba(3, 10, 20, 0.65) 0px 4px 6px -1px,
+      rgba(255, 255, 255, 0.08) 0px 1px 0px inset;
+    margin: 0 30%;
+    padding: 20px 30px 30px;
+
+    label {
+      color: #747570;
+    }
+
+    .save-changes-btn {
+      background-color: #dcff00;
+      border: none;
+      color: #0d0d0d;
+    }
+
+    .save-changes-btn:hover {
+      background-color: #b1cc00;
+    }
+  }
+}

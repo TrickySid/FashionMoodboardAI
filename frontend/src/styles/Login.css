@@ -1,0 +1,61 @@
+.login-page {
+  background: linear-gradient(90deg, #272d00 0%, #0d0d0d 100%);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  font-family: "Kanit", sans-serif;
+
+  .card {
+    width: 32%;
+    border-radius: 15px;
+    background: linear-gradient(45deg, #0d0d0d 0%, #1d1d1d 100%);
+    box-shadow: rgba(6, 24, 44, 0.4) 0px 0px 0px 2px,
+      rgba(3, 10, 20, 0.65) 0px 4px 6px -1px,
+      rgba(255, 255, 255, 0.08) 0px 1px 0px inset;
+
+    h1 {
+      font-weight: bold;
+      color: #ccc;
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    .login-btn {
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #dcff00;
+      color: #0d0d0d;
+
+      i {
+        font-size: 20px;
+      }
+
+      span {
+        margin-left: 10px;
+      }
+    }
+
+    .login-btn:hover {
+      background-color: #b1cc00;
+    }
+
+    .separator {
+      color: #646464;
+    }
+
+    .signup-btn {
+      font-weight: bold;
+      border: 1px solid #dcff00;
+      color: #dcff00;
+    }
+
+    .signup-btn:hover {
+      background-color: #dcff00;
+      color: #000;
+    }
+  }
+}

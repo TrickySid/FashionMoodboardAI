@@ -1,0 +1,130 @@
+.blur-background {
+  filter: blur(3px);
+  transition: filter 0.3s ease;
+}
+
+.upload-page {
+  background: linear-gradient(#0d0d0d 0%, #222800 100%);
+  font-family: "Kanit", sans-serif;
+
+  .upload-import-photo-card {
+    background-color: #181818;
+    box-shadow: rgba(6, 24, 44, 0.4) 0px 0px 0px 2px,
+      rgba(3, 10, 20, 0.65) 0px 4px 6px -1px,
+      rgba(255, 255, 255, 0.08) 0px 1px 0px inset;
+    width: 400px;
+    text-align: center;
+    border-radius: 15px;
+  }
+
+  .card {
+    .title {
+      color: #aeada4;
+      font-weight: bold;
+    }
+
+    .d-flex {
+      .upload-photo-card {
+        background-color: #0d0d0d;
+        color: #dcff00;
+        width: 45%;
+        padding: 20px;
+
+        input {
+          display: none;
+        }
+
+        label {
+          cursor: pointer;
+
+          i {
+            color: #dcff00;
+            font-size: 24px;
+          }
+        }
+      }
+
+      .import-photo-card {
+        background-color: #0d0d0d;
+        color: #dcff00;
+        width: 45%;
+        padding: 20px;
+        cursor: pointer;
+
+        i {
+          color: #dcff00;
+          font-size: 24px;
+        }
+      }
+    }
+
+    .analyze-btn {
+      background-color: #dcff00;
+      color: #0d0d0d;
+      font-weight: bold;
+    }
+
+    .analyze-btn:hover {
+      background-color: #b1cc00;
+    }
+  }
+}
+
+.upload-note {
+  background: linear-gradient(45deg, #0d0d0d 0%, #1d1d1d 100%);
+
+  .notes {
+    h5 {
+      color: #aeada4;
+    }
+
+    ul {
+      li {
+        color: #f5f6ed;
+        opacity: 0.8;
+      }
+    }
+  }
+}
+
+.analysis-modal {
+  background-color: transparent;
+  font-family: "Kanit", sans-serif;
+
+  .modal-content {
+    background-color: #f5f6ed;
+    border-radius: 15px;
+
+    .modal-title {
+      color: #0d0d0d;
+      font-weight: 600;
+    }
+
+    .labels {
+      font-size: 13px;
+    }
+
+    .ai-recom {
+      h5 {
+        font-weight: bold;
+        color: #0d0d0d;
+      }
+
+      ul {
+        list-style-type: disc;
+        padding-left: 20px;
+
+        li {
+          color: #0d0d0d;
+          list-style-type: disc;
+          text-align: justify;
+        }
+      }
+    }
+
+    .text-center {
+      color: #797979;
+      font-size: 14px;
+    }
+  }
+}

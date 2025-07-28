@@ -1,0 +1,74 @@
+nav {
+  background-color: #0d0d0d;
+  font-family: "Kanit", sans-serif;
+}
+
+.navbar-brand {
+  font-weight: bold;
+  color: #ccc !important;
+  margin-left: 20px;
+  font-size: 1.4rem;
+}
+
+.nav-item {
+  margin-right: 30px;
+}
+
+.nav-link {
+  color: #ccc !important;
+  font-size: 1rem;
+}
+
+.d-flex {
+  gap: 30px;
+}
+
+.login-btn,
+.signup-btn {
+  letter-spacing: 1px;
+  padding: 9px 20px 10px;
+  color: #ccc;
+  backdrop-filter: blur(20px);
+  border-radius: 50px;
+  border: 1px solid rgba(250, 250, 250, 0.2);
+  cursor: pointer;
+  transition: 0.15s ease;
+  font-size: 14px;
+  font-weight: 500;
+  margin-left: 10px;
+}
+
+.login-btn:hover {
+  border: 1px solid #dcff00;
+  background-color: transparent;
+  color: #dcff00;
+}
+
+.signup-btn {
+  background-color: rgba(250, 250, 250, 0.1);
+}
+
+.signup-btn:hover {
+  background-color: #dcff00;
+  color: #0d0d0d;
+}
+
+.avatar-btn {
+  background-color: transparent;
+  color: #ccc;
+  border: none;
+}
+
+.user-avatar {
+  color: #ccc;
+  font-size: 24px;
+}
+
+.dropdown-menu .dropdown-item {
+  background: transparent;
+}
+
+.dropdown-menu .dropdown-item i {
+  font-size: 18px;
+  margin-right: 10px;
+}

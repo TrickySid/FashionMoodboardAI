@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "../styles/Login.css";
 import { auth } from "../firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "../styles/Login.css";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -16,7 +16,6 @@ function Login() {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       localStorage.setItem("authToken", await userCredential.user.getIdToken());
       localStorage.setItem("userEmail", userCredential.user.email);
-      alert("Login successful!");
       window.dispatchEvent(new Event("storage"));
       navigate("/upload");
     } catch (error) {

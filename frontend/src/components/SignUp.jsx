@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "../styles/SignUp.css";
 import { auth } from "../firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "../styles/SignUp.css";
 
 function SignUp() {
   const [email, setEmail] = useState("");

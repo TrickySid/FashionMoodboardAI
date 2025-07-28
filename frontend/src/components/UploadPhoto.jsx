@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { db } from "../firebase.js";
+import { db, auth } from "../firebase.js";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import Navbar from "./Navbar";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -91,8 +91,15 @@ function UploadPhoto() {
       setOverallRecommendations(recommendations);
 
       // Save recommendations to Firestore (don't store images, only the labels and recommendations)
+      if (!auth.currentUser) {
+        alert("You must be logged in to save recommendations.");
+        setLoading(false);
+        return;
+      }
+
       await addDoc(collection(db, "userRecommendations"), {
-        userId: "exampleUserId", // Use actual user ID here
+        userId: auth.currentUser.uid, // Use the actual logged-in user's UID
+        email: auth.currentUser.email,
         recommendations: {
           images: aggregatedData.map((data) => ({
             image: data.image, // Store only image name (like Image 1, Image 2)
@@ -107,6 +114,7 @@ function UploadPhoto() {
       setShowRecommendations(true);
     } catch (error) {
       console.error("Error analyzing images:", error);
+      alert("Error saving recommendations: " + error.message);
       setLoading(false);
     }
   };

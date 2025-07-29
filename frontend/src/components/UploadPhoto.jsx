@@ -53,7 +53,7 @@ function UploadPhoto() {
 
       const responses = await Promise.all(
         base64Images.map((imageBase64) =>
-          axios.post("http://localhost:5000/analyze-image", { imageBase64 })
+          axios.post(`${process.env.REACT_APP_API_URL}/analyze-image`, { imageBase64 })
         )
       );
 
@@ -69,9 +69,10 @@ function UploadPhoto() {
       }));
 
       const chatGPTResponse = await axios.post(
-        "http://localhost:5000/analyze-fashion",
+        `${process.env.REACT_APP_API_URL}/analyze-fashion`,
         { images: aggregatedData }
       );
+
 
       let recommendations = chatGPTResponse.data.recommendations;
 

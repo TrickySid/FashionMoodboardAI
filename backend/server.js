@@ -10,7 +10,7 @@ app.use(bodyParser.json({ limit: "10mb" }));
 app.use(cors());
 
 // Use routes from routes.js
-app.use("/", routes);
+app.use("/", routes)
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 

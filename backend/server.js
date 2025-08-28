@@ -7,7 +7,10 @@ const routes = require("./routes");
 
 const app = express();
 app.use(bodyParser.json({ limit: "10mb" }));
-app.use(cors());
+app.use(cors({
+  origin: "*", // or explicitly "https://fashion-moodboard-ai-a955c.web.app"
+  methods: ["POST", "GET", "OPTIONS"],
+}));
 
 // Use routes from routes.js
 app.use("/", routes)

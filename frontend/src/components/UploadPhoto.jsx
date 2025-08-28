@@ -113,7 +113,7 @@ function UploadPhoto() {
         recommendations: {
           images: aggregatedData.map((data) => ({
             image: data.image, // Store only image name (like Image 1, Image 2)
-            labels: data.labels, // Store the labels (descriptions and confidence)
+            labels: data.labels // Store the labels (descriptions and confidence)
           })),
           fashionRecommendations: recommendations, // Already a string
         },

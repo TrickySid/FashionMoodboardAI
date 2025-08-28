@@ -43,6 +43,8 @@ Respond with clear, actionable fashion tips for the user to look better and impr
 `;
 
   try {
+    console.log("Using OpenAI key prefix:", OPENAI_API_KEY?.slice(0, 5)); // To NOT log the full key
+
     const response = await axios.post(
       "https://api.openai.com/v1/chat/completions",
       {

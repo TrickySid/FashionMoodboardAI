@@ -12,6 +12,7 @@ coverage/
 build/
 frontend/build/
 backend/build/
+.firebase/
 
 # misc
 .DS_Store

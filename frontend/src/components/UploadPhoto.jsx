@@ -60,13 +60,22 @@ function UploadPhoto() {
       const labels = responses.map((response) => response.data.labels);
       setLabelsByImage(labels);
 
-      const aggregatedData = labels.map((imageLabels, index) => ({
+      console.log("Label responses:", labels);
+      
+      // Aggregate data for ChatGPT
+      const aggregatedData = (labels || []).map((imageLabels, index) => ({
         image: `Image ${index + 1}`,
-        labels: imageLabels.map((label) => ({
-          description: label.description,
-          confidence: (label.score * 100).toFixed(2),
+        labels: (imageLabels || []).map((label) => ({
+          description: label.description || "Unknown",
+          confidence: label.score ? (label.score * 100).toFixed(2) : "0.00",
         })),
       }));
+
+      if (!aggregatedData.length || aggregatedData.some(img => !img.labels || !img.labels.length)) {
+        alert("Some image labels are missing. Please try again or reupload.");
+        setLoading(false);
+        return;
+      }
 
       const chatGPTResponse = await axios.post(
         `${process.env.REACT_APP_API_URL}/analyze-fashion`,

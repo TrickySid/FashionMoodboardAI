@@ -9,7 +9,7 @@ const app = express();
 
 app.use(bodyParser.json({ limit: "10mb" }));
 app.use(cors({
-  origin: "*", // You can restrict this to specific origins in production
+  origin: "*", // Use "https://your-app.web.app" in production if needed
   methods: ["POST", "GET", "OPTIONS"],
 }));
 
@@ -18,11 +18,16 @@ app.use("/", routes);
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
+// Log key presence at server start
+console.log("ENV CHECK: OPENAI_API_KEY is", !!OPENAI_API_KEY);
+console.log("ENV CHECK: key prefix:", OPENAI_API_KEY?.slice(0, 5));
+
 // Generate fashion recommendations using ChatGPT
 app.post("/analyze-fashion", async (req, res) => {
   const { images } = req.body;
 
   if (!images || !Array.isArray(images)) {
+    console.warn("Invalid input for /analyze-fashion:", req.body);
     return res.status(400).json({ error: "Invalid input data" });
   }
 
@@ -44,8 +49,6 @@ Respond with clear, actionable fashion tips for the user to look better and impr
 `;
 
   try {
-    console.log("Using OpenAI key prefix:", OPENAI_API_KEY?.slice(0, 5));
-
     const response = await axios.post(
       "https://api.openai.com/v1/chat/completions",
       {
@@ -63,7 +66,7 @@ Respond with clear, actionable fashion tips for the user to look better and impr
       }
     );
 
-    console.log("OpenAI response:", JSON.stringify(response.data, null, 2));
+    console.log("OpenAI raw response:", JSON.stringify(response.data, null, 2));
 
     const recommendations =
       response?.data?.choices?.[0]?.message?.content?.trim() || "";
@@ -78,7 +81,7 @@ Respond with clear, actionable fashion tips for the user to look better and impr
   } catch (error) {
     console.error(
       "Error generating recommendations:",
-      error?.response?.data || error.message || "Unknown"
+      error?.response?.data || error.message || error
     );
     res.status(500).json({ error: "Failed to generate recommendations" });
   }

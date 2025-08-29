@@ -78,7 +78,7 @@ function UploadPhoto() {
       }
 
       const chatGPTResponse = await axios.post(
-        `${process.env.REACT_APP_API_URL}/analyze-fashion`,
+        `https://fashion-backend-956137897855.us-central1.run.app/analyze-fashion`,
         { images: aggregatedData }
       );
 

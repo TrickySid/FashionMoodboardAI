@@ -6,14 +6,15 @@ const cors = require("cors");
 const routes = require("./routes");
 
 const app = express();
+
 app.use(bodyParser.json({ limit: "10mb" }));
 app.use(cors({
-  origin: "*", // or explicitly "https://fashion-moodboard-ai-a955c.web.app"
+  origin: "*", // You can restrict this to specific origins in production
   methods: ["POST", "GET", "OPTIONS"],
 }));
 
 // Use routes from routes.js
-app.use("/", routes)
+app.use("/", routes);
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
@@ -43,7 +44,7 @@ Respond with clear, actionable fashion tips for the user to look better and impr
 `;
 
   try {
-    console.log("Using OpenAI key prefix:", OPENAI_API_KEY?.slice(0, 5)); // To NOT log the full key
+    console.log("Using OpenAI key prefix:", OPENAI_API_KEY?.slice(0, 5));
 
     const response = await axios.post(
       "https://api.openai.com/v1/chat/completions",
@@ -62,12 +63,22 @@ Respond with clear, actionable fashion tips for the user to look better and impr
       }
     );
 
-    const recommendations = response.data.choices[0].message.content.trim();
+    console.log("OpenAI response:", JSON.stringify(response.data, null, 2));
+
+    const recommendations =
+      response?.data?.choices?.[0]?.message?.content?.trim() || "";
+
+    if (!recommendations) {
+      console.error("OpenAI returned empty recommendations.");
+      return res.status(500).json({ error: "OpenAI returned no content" });
+    }
+
     res.status(200).json({ recommendations });
+
   } catch (error) {
     console.error(
       "Error generating recommendations:",
-      error.response?.data || error.message
+      error?.response?.data || error.message || "Unknown"
     );
     res.status(500).json({ error: "Failed to generate recommendations" });
   }

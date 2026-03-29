@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 import { db, auth } from "../firebase";
 import { collection, query, getDocs, orderBy, limit, where } from "firebase/firestore";
@@ -7,6 +8,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/Recommendations.css";
 
 function Recommendations() {
+  const navigate = useNavigate();
   const [recommendations, setRecommendations] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(true);
 
@@ -80,6 +82,7 @@ function Recommendations() {
       } else {
         setIsLoggedIn(false);
         setRecommendations([]);
+        navigate("/login");
       }
     });
 

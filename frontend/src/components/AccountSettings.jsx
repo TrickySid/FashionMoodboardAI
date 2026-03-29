@@ -1,10 +1,28 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
+import { auth } from "../firebase";
+import { onAuthStateChanged } from "firebase/auth";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/AccountSettings.css";
 
 function AccountSettings() {
+  const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(true);
+
+  // Route guard: redirect to login if not authenticated
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        navigate("/login");
+      } else {
+        setIsLoggedIn(true);
+      }
+    });
+    // Note: onAuthStateChanged is imported from firebase/auth, ensure it's available
+    return unsubscribe;
+  }, [navigate]);
+  
 
   const handleLogout = () => {
     setIsLoggedIn(false);

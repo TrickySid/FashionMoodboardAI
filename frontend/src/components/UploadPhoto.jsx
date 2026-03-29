@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { db, auth, storage } from "../firebase.js";
+import { onAuthStateChanged } from "firebase/auth";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { ref as ref_storage, uploadBytes, getDownloadURL } from "firebase/storage";
 import Navbar from "./Navbar";
@@ -175,6 +176,18 @@ function UploadPhoto() {
   const handleLogout = () => {
     setIsLoggedIn(false); // Set isLoggedIn to false on logout
   };
+
+  // Route guard: redirect to login if user is not authenticated
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        navigate("/login");
+      } else {
+        setIsLoggedIn(true);
+      }
+    });
+    return unsubscribe;
+  }, [navigate]);
 
   const generateGoogleLinks = (recommendation) => {
     const keywords = recommendation

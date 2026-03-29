@@ -1,13 +1,22 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 // import axios from "axios";
 import Navbar from "./Navbar";
+import { auth } from "../firebase";
+import { onAuthStateChanged } from "firebase/auth";
 import { images } from "./images";
 import gsap from "gsap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/Home.css";
 
 const Home = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setIsLoggedIn(!!user);
+    });
+    return unsubscribe;
+  }, []);
   useEffect(() => {
     const handleMouseMove = (e) => {
       document.querySelectorAll(".image-wrapper").forEach((image, index) => {
@@ -44,9 +53,9 @@ const Home = () => {
             Analyze and Improve <br />
             <span>Your Fashion</span>
           </h1>
-          <Link to="/login">
-            <button className="get-started-btn">Get Started</button>
-          </Link>
+        <Link to={isLoggedIn ? "/upload" : "/login"}>
+          <button className="get-started-btn">Get Started</button>
+        </Link>
         </div>
       </header>
     </>

@@ -1,8 +1,42 @@
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/Navbar.css";
+import { useEffect, useState } from "react";
+import { auth } from "../firebase";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 
 function Navbar({ isLoggedIn, onLogout }) {
+  const [currentUser, setCurrentUser] = useState(null);
+  const navigate = useNavigate();
+
+  // Sync with Firebase auth state
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+      // If the user logs out in another tab, ensure we redirect appropriately
+      if (!user) {
+        // If user is not logged in, do not force navigate here; router pages will guard
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Local derived login state (fallback if no observer yet)
+  const isUserLoggedIn = !!currentUser;
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      // Let the onAuthStateChanged listener propagate login state change
+      if (typeof onLogout === "function") {
+        onLogout();
+      }
+      navigate("/login");
+    } catch (e) {
+      console.error("Logout failed", e);
+    }
+  };
+
   return (
     <nav className="navbar navbar-expand-lg">
       <div className="container-fluid d-flex justify-content-between align-items-center px-4">
@@ -13,7 +47,7 @@ function Navbar({ isLoggedIn, onLogout }) {
 
         {/* Right: Nav links and buttons */}
         <div className="d-flex align-items-center">
-          {isLoggedIn && (
+          {isUserLoggedIn && (
             <>
               <NavLink className="nav-link" to="/upload">
                 Upload
@@ -23,7 +57,7 @@ function Navbar({ isLoggedIn, onLogout }) {
               </NavLink>
             </>
           )}
-          {!isLoggedIn ? (
+          {!isUserLoggedIn ? (
             <>
               <Link to="/login" className="login-btn btn btn-outline-primary ms-2">
                 Login
@@ -57,14 +91,16 @@ function Navbar({ isLoggedIn, onLogout }) {
                   <hr className="dropdown-divider" />
                 </li>
                 <li>
-                  <Link 
-                    className="dropdown-item d-flex align-items-center menu-item text-danger" 
-                    to="/login"
-                    onClick={onLogout}
+                  <button
+                    className="dropdown-item d-flex align-items-center menu-item text-danger"
+                    onClick={async (e) => {
+                      e.preventDefault();
+                      await handleLogout();
+                    }}
                   >
                     <i className="fa-solid fa-right-from-bracket" />
                     <span>Sign Out</span>
-                  </Link>
+                  </button>
                 </li>
               </ul>
             </div>

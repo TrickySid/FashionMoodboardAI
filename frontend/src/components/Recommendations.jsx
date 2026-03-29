@@ -23,38 +23,66 @@ function Recommendations() {
       if (line.trim().startsWith(targetPrefix)) {
         // Remove "Image X:" or "Image X :"
         const content = line.replace(new RegExp(`^${targetPrefix}\\s*[:\\-]\\s*`), "").trim();
-        // Since UploadPhoto joins array with ", ", we can vaguely split by ", " followed by a capital letter or just split by ", "
-        // But to be safe and clean, let's just return it as a list of sentences by splitting smartly or returning as one block.
-        // Let's split by '. ' to get distinct sentences, or just return the block.
-        return content.split(/(?<=\.)\s+/).filter(Boolean); // split by period-space
+        // Return content as a list of sentences by splitting smartly
+        return content.split(/(?<=\.)\s+/).filter(Boolean);
       }
     }
     return [text]; // Fallback
   };
 
-  const generateGoogleLinks = (text) => {
+  const renderEditorialSelection = (text) => {
     if (!text) return null;
+    
+    // Extracted colors with broader fashion palette
+    const colorNames = text.match(/\b(?:black|white|red|navy|blue|green|beige|tan|grey|gray|cream|burgundy|maroon|gold|silver|charcoal|olive|teal|peach|crimson|khaki|lavender|mint|coral|mustard)\b/gi) || ["black", "charcoal", "grey"];
+    const uniqueColors = [...new Set(colorNames.map(c => c.toLowerCase()))].slice(0, 5);
+
+    // Fashion keywords
     const keywords = text.toLowerCase().match(
-      /\b(?:dress|jewelry|shirt|blazer|shoes|pants|scarf|watch|loafers|sneakers|accessories|outfit|style|jacket|coat|boots)\b/g
+      /\b(?:dress|jewelry|shirt|blazer|shoes|pants|scarf|watch|loafers|sneakers|jacket|coat|boots|outfit|heels|bag|accessories|accessory)\b/g
     );
     const baseGoogleUrl = "https://www.google.com/search?q=shop+";
-    
-    if (!keywords) return null;
-    
-    return [...new Set(keywords)].map((keyword, index) => {
-      const searchUrl = `${baseGoogleUrl}${encodeURIComponent(keyword)}`;
-      return (
-        <a
-          key={index}
-          href={searchUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="shop-keyword-btn"
-        >
-          {`Shop ${keyword}`}
-        </a>
-      );
-    });
+
+    return (
+      <div className="editorial-selection">
+        <div className="selection-header">
+          <div className="selection-label-group">
+            <span className="selection-label">Editorial Selection</span>
+            <div className="color-strip">
+              {uniqueColors.map((color, i) => (
+                <div key={i} className={`color-dot color-${color}`} style={{ backgroundColor: color }} title={color} />
+              ))}
+            </div>
+          </div>
+        </div>
+        
+        <div className="curated-tags">
+          {keywords && [...new Set(keywords)].map((keyword, index) => (
+            <a
+              key={index}
+              href={`${baseGoogleUrl}${encodeURIComponent(keyword)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="curated-tag"
+            >
+              <i className="fa-solid fa-magnifying-glass tag-icon"></i>
+              {keyword}
+            </a>
+          ))}
+          {!keywords && (
+             <a
+              href={`${baseGoogleUrl}styling+outfit`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="curated-tag"
+            >
+              <i className="fa-solid fa-sparkles tag-icon"></i>
+              Full Look
+            </a>
+          )}
+        </div>
+      </div>
+    );
   };
 
   useEffect(() => {
@@ -143,8 +171,8 @@ function Recommendations() {
                                 ))}
                               </div>
                               
-                              <div className="shop-links mt-4">
-                                {generateGoogleLinks(fullRecString)}
+                              <div className="curated-section mt-4">
+                                {renderEditorialSelection(fullRecString)}
                               </div>
                             </div>
                           </div>

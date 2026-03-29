@@ -1,61 +1,115 @@
 .login-page {
-  background: linear-gradient(90deg, #272d00 0%, #0d0d0d 100%);
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  font-family: "Kanit", sans-serif;
+  background: var(--bg-color);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-main);
 
-  .card {
-    width: 32%;
-    border-radius: 15px;
-    background: linear-gradient(45deg, #0d0d0d 0%, #1d1d1d 100%);
-    box-shadow: rgba(6, 24, 44, 0.4) 0px 0px 0px 2px,
-      rgba(3, 10, 20, 0.65) 0px 4px 6px -1px,
-      rgba(255, 255, 255, 0.08) 0px 1px 0px inset;
+  .login-card {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    width: 90%;
+    max-width: 450px;
+    padding: 3rem;
+    border-radius: 28px;
+    text-align: center;
+    box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.7);
 
-    h1 {
-      font-weight: bold;
-      color: #ccc;
+    .brand-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--accent-color);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 0.5rem;
+      display: block;
     }
 
-    a {
-      text-decoration: none;
+    h2.title {
+      font-size: 3rem;
+      font-weight: 900;
+      color: var(--text-primary);
+      text-transform: uppercase;
+      letter-spacing: -0.04em;
+      margin-bottom: 2.5rem;
+      line-height: 1;
+    }
+
+    .form-control {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      color: var(--text-primary);
+      padding: 14px 20px;
+      font-size: 1rem;
+      margin-bottom: 1.5rem;
+      transition: var(--transition-smooth);
+
+      &:focus {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 4px rgba(220, 255, 0, 0.1);
+        outline: none;
+      }
+
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.3);
+      }
     }
 
     .login-btn {
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: #dcff00;
-      color: #0d0d0d;
+      background: var(--accent-color);
+      color: var(--bg-color);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 16px;
+      border-radius: 12px;
+      border: none;
+      margin-top: 1rem;
+      transition: var(--transition-smooth);
 
-      i {
-        font-size: 20px;
+      &:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.1);
+        box-shadow: 0 10px 25px rgba(220, 255, 0, 0.2);
       }
-
-      span {
-        margin-left: 10px;
-      }
-    }
-
-    .login-btn:hover {
-      background-color: #b1cc00;
     }
 
     .separator {
-      color: #646464;
+      margin: 2rem 0;
+      span {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      hr {
+        border-color: rgba(255, 255, 255, 0.1);
+        opacity: 1;
+      }
     }
 
-    .signup-btn {
-      font-weight: bold;
-      border: 1px solid #dcff00;
-      color: #dcff00;
-    }
+    .signup-link-btn {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: var(--text-primary);
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 12px;
+      border-radius: 12px;
+      transition: var(--transition-smooth);
+      width: 100%;
+      text-decoration: none;
+      display: inline-block;
 
-    .signup-btn:hover {
-      background-color: #dcff00;
-      color: #000;
+      &:hover {
+        border-color: var(--accent-color);
+        color: var(--accent-color);
+        background: rgba(220, 255, 0, 0.05);
+      }
     }
   }
 }

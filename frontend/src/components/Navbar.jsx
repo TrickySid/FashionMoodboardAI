@@ -1,26 +1,26 @@
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/Navbar.css";
 
 function Navbar({ isLoggedIn, onLogout }) {
   return (
-    <nav className="navbar navbar-expand-lg navbar-light">
+    <nav className="navbar navbar-expand-lg">
       <div className="container-fluid d-flex justify-content-between align-items-center px-4">
         {/* Left: Brand */}
         <Link className="navbar-brand" to="/">
-          Fashion Moodboard AI
+          FASHION MOODBOARD <span className="ai-text">AI</span>
         </Link>
 
         {/* Right: Nav links and buttons */}
         <div className="d-flex align-items-center">
           {isLoggedIn && (
             <>
-              <Link className="nav-link" to="/upload">
+              <NavLink className="nav-link" to="/upload">
                 Upload
-              </Link>
-              <Link className="nav-link" to="/recommendations">
+              </NavLink>
+              <NavLink className="nav-link" to="/recommendations">
                 AI Recommendations
-              </Link>
+              </NavLink>
             </>
           )}
           {!isLoggedIn ? (
@@ -35,7 +35,7 @@ function Navbar({ isLoggedIn, onLogout }) {
           ) : (
             <div className="dropdown ms-2">
               <button
-                className="btn avatar-btn dropdown-toggle"
+                className="avatar-btn dropdown-toggle"
                 type="button"
                 id="dropdownMenuButton"
                 data-bs-toggle="dropdown"
@@ -48,20 +48,22 @@ function Navbar({ isLoggedIn, onLogout }) {
                 aria-labelledby="dropdownMenuButton"
               >
                 <li>
-                  <Link className="dropdown-item" to="/account-settings">
+                  <Link className="dropdown-item d-flex align-items-center menu-item" to="/account-settings">
                     <i className="fa-solid fa-gear" />
                     <span>Account Settings</span>
                   </Link>
                 </li>
                 <li>
-                  <Link className="dropdown-item" to="/login">
-                    <button
-                      onClick={onLogout}
-                      className="logout-btn btn ms-2"
-                    >
-                      <i className="fa-solid fa-right-from-bracket" />
-                      <span>Sign Out</span>
-                    </button>
+                  <hr className="dropdown-divider" />
+                </li>
+                <li>
+                  <Link 
+                    className="dropdown-item d-flex align-items-center menu-item text-danger" 
+                    to="/login"
+                    onClick={onLogout}
+                  >
+                    <i className="fa-solid fa-right-from-bracket" />
+                    <span>Sign Out</span>
                   </Link>
                 </li>
               </ul>

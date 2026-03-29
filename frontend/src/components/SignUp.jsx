@@ -27,11 +27,11 @@ function SignUp() {
   };
 
   return (
-    <div className="signup-page d-flex justify-content-center align-items-center vh-100">
-      <div className="card p-4 text-center">
-        <h1 className="title mb-4">Fashion Moodboard AI</h1>
+    <div className="signup-page">
+      <div className="signup-card">
+        <h1 className="title">Fashion Moodboard AI</h1>
         <form className="signup-form" onSubmit={handleSubmit}>
-          <div className="form-group mb-3">
+          <div className="form-group">
             <input
               type="email"
               className="form-control"
@@ -41,7 +41,7 @@ function SignUp() {
               required
             />
           </div>
-          <div className="form-group mb-3">
+          <div className="form-group">
             <input
               type="password"
               className="form-control"
@@ -51,7 +51,7 @@ function SignUp() {
               required
             />
           </div>
-          <div className="form-group mb-3">
+          <div className="form-group">
             <input
               type="password"
               className="form-control"
@@ -61,19 +61,17 @@ function SignUp() {
               required
             />
           </div>
-          <button type="submit" className="signup-btn btn w-100 mb-3">
+          <button type="submit" className="signup-btn">
             Sign Up
           </button>
         </form>
-        <div className="separator d-flex align-items-center my-3">
+        <div className="separator d-flex align-items-center">
           <hr className="flex-grow-1" />
           <span className="mx-2">Already have an account?</span>
           <hr className="flex-grow-1" />
         </div>
-        <Link to="/login">
-          <button className="login-btn btn btn-outline-dark w-100 mb-2">
-            Login
-          </button>
+        <Link to="/login" className="login-link-btn">
+          Login
         </Link>
       </div>
     </div>

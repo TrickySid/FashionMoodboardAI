@@ -26,104 +26,72 @@ function AccountSettings() {
   return (
     <>
       <Navbar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
-      <div style={{ paddingTop: "100px", backgroundColor: "#0d0d0d" }}>
-        <div className="account-settings-page justify-content-center align-items-start vh-100">
-          <div className="container">
-            <form className="settings-form" onSubmit={handleSaveChanges}>
-              <h4 className="title mb-3">Account Settings</h4>
-              {/* Profile Picture */}
-              <div className="mb-3">
-                <label className="form-label">Profile Picture</label>
-                <div className="d-flex align-items-center">
-                  <img
-                    src={
-                      profilePic
-                        ? URL.createObjectURL(profilePic)
-                        : "/assets/default-avatar.jpg"
-                    }
-                    alt="Profile"
-                    className="rounded-circle me-3"
-                    width="60"
-                    height="60"
-                  />
+      <div className="account-settings-page">
+        <div className="settings-card">
+          <form onSubmit={handleSaveChanges}>
+            <h4 className="title">Account Settings</h4>
+            
+            {/* Profile Picture */}
+            <div className="mb-4">
+              <label className="form-label">Profile Picture</label>
+              <div className="profile-pic-container">
+                <img
+                  src={
+                    profilePic
+                      ? URL.createObjectURL(profilePic)
+                      : "/assets/default-avatar.jpg"
+                  }
+                  alt="Profile"
+                  onError={(e) => {
+                     e.target.src = "https://ui-avatars.com/api/?name=User&background=222&color=dcff00"; // fallback if missing
+                  }}
+                />
+                <label className="upload-btn-outline">
+                  Change Photo
                   <input
                     type="file"
-                    className="form-control"
                     onChange={(e) => setProfilePic(e.target.files[0])}
                     accept="image/*"
+                    style={{ display: "none" }}
                   />
-                </div>
+                </label>
               </div>
+            </div>
 
-              {/* Name */}
-              <div className="mb-3">
-                <label htmlFor="name" className="form-label">
-                  Name
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Enter your name"
-                />
-              </div>
+            {/* Name */}
+            <div>
+              <label htmlFor="name" className="form-label">Name</label>
+              <input
+                type="text"
+                className="form-control"
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Enter your name"
+              />
+            </div>
 
-              {/* Email */}
-              <div className="mb-4">
-                <label htmlFor="email" className="form-label">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  className="form-control"
-                  id="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                />
-              </div>
+            {/* Email */}
+            <div>
+              <label htmlFor="email" className="form-label">Email</label>
+              <input
+                type="email"
+                className="form-control"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+              />
+            </div>
 
-              {/* Current Password */}
-              {/* <div className="mb-3">
-                <label htmlFor="currentPassword" className="form-label">
-                  Current Password
-                </label>
-                <input
-                  type="password"
-                  className="form-control"
-                  id="currentPassword"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  placeholder="Enter your current password"
-                />
-              </div> */}
-
-              {/* New Password */}
-              {/* <div className="mb-4">
-                <label htmlFor="newPassword" className="form-label">
-                  New Password
-                </label>
-                <input
-                  type="password"
-                  className="form-control"
-                  id="newPassword"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Enter a new password"
-                />
-              </div> */}
-
-              {/* Save Changes Button */}
-              <button
-                type="submit"
-                className="save-changes-btn btn btn-primary w-100"
-              >
-                Save Changes
-              </button>
-            </form>
-          </div>
+            {/* Save Changes Button */}
+            <button
+              type="submit"
+              className="save-changes-btn"
+            >
+              Save Changes
+            </button>
+          </form>
         </div>
       </div>
     </>
@@ -131,3 +99,4 @@ function AccountSettings() {
 }
 
 export default AccountSettings;
+

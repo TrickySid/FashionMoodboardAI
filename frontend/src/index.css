@@ -1,1 +1,68 @@
 @import url("https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+:root {
+  --bg-color: #131313;
+  --surface-low: #1c1b1b;
+  --surface-high: #2a2a2a;
+  --accent-color: #dcff00;
+  --text-primary: #ffffff;
+  --text-secondary: #aeada4;
+  --glass-bg: rgba(53, 53, 52, 0.6);
+  --glass-blur: blur(20px);
+  --font-main: 'Kanit', sans-serif;
+  --transition-smooth: all 0.4s cubic-bezier(0.2, 0, 0, 1);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  font-family: var(--font-main);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.accent-btn {
+  background-color: var(--accent-color) !important;
+  color: #2c3400 !important;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 12px 30px;
+  border-radius: 8px;
+  border: none;
+  transition: var(--transition-smooth);
+}
+
+.accent-btn:hover {
+  transform: scale(1.02);
+  filter: brightness(1.1);
+}
+
+.accent-btn:disabled {
+  background-color: #353534 !important;
+  color: #797979 !important;
+  cursor: not-allowed;
+}

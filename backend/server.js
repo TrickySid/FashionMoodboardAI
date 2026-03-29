@@ -3,6 +3,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const axios = require("axios");
 const cors = require("cors");
+const { verifyToken } = require("./auth");
 const routes = require("./routes");
 
 const app = express();
@@ -24,7 +25,7 @@ const NVIDIA_BASE_URL = "https://integrate.api.nvidia.com/v1";
 console.log("ENV CHECK: NVOPENAI_API_KEY is", !!NVOPENAI_API_KEY);
 console.log("ENV CHECK: key prefix:", NVOPENAI_API_KEY?.slice(0, 5));
 
-app.post("/analyze-fashion", async (req, res) => {
+app.post("/analyze-fashion", verifyToken, async (req, res) => {
   const { images } = req.body;
 
   if (!images || !Array.isArray(images)) {
@@ -33,7 +34,8 @@ app.post("/analyze-fashion", async (req, res) => {
   }
 
   const prompt = `
-You are a fashion stylist. Analyze the following images based on their labels and confidence scores. Provide recommendations for improving the outfits or looks, including tips for enhancing confidence:
+You are a professional fashion stylist. Analyze the following images based on their labels and confidence scores. Provide specific, actionable fashion recommendations for each image.
+
 ${images
   .map(
     (img, i) =>
@@ -46,7 +48,14 @@ ${images
   )
   .join("\n")}
 
-Respond with clear, actionable fashion tips for the user to look better and improve their looks.
+Respond ONLY with a JSON array in the following format:
+[
+  {
+    "imageNumber": 1,
+    "recommendations": ["Tip 1", "Tip 2", "Tip 3"]
+  },
+  ...
+]
 `;
 
   try {
@@ -73,8 +82,21 @@ Respond with clear, actionable fashion tips for the user to look better and impr
 
     console.log("NVIDIA raw response:", JSON.stringify(response.data, null, 2));
 
-    const recommendations =
-      response?.data?.choices?.[0]?.message?.content?.trim() || "";
+    let recommendations = response?.data?.choices?.[0]?.message?.content?.trim() || "";
+    
+    // Attempt to extract JSON if there's any noise
+    try {
+      const jsonMatch = recommendations.match(/\[[\s\S]*\]/);
+      if (jsonMatch) {
+         recommendations = JSON.parse(jsonMatch[0]);
+      } else if (typeof recommendations === 'string') {
+        // Fallback for simple string if JSON isn't perfect
+        recommendations = JSON.parse(recommendations);
+      }
+    } catch (e) {
+      console.error("Failed to parse LLM JSON:", e);
+      // Fallback if not JSON
+    }
 
     if (!recommendations) {
       console.error("NVIDIA returned empty recommendations.");

@@ -10,31 +10,63 @@ function Recommendations() {
   const [recommendations, setRecommendations] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(true);
 
-  // Function to sanitize and clean up the recommendation text
-  const sanitizeRecommendation = (text) => {
-    // Regex to find "Image 1", "Image 2", etc., and make it bold
-    let sanitizedText = text
-      .replace(/[-*]+/g, "") // Remove stars and hyphens
-      .replace(/\n\s*\n/g, "\n") // Replace multiple empty lines with a single line break
-      .replace(/(Image \d+)/g, "<strong>$1</strong>") // Make "Image 1", "Image 2", etc. bold
-      .trim(); // Remove leading/trailing whitespace
-    return sanitizedText;
+  // Helper to extract the specific recommendation for a given image index (1-based)
+  const getRecommendationForImage = (text, imageNumber) => {
+    if (!text) return [];
+    // Split the text to find the lines for Image X
+    const lines = text.split("\n");
+    const targetPrefix = `Image ${imageNumber}`;
+    
+    for (let line of lines) {
+      if (line.trim().startsWith(targetPrefix)) {
+        // Remove "Image X:" or "Image X :"
+        const content = line.replace(new RegExp(`^${targetPrefix}\\s*[:\\-]\\s*`), "").trim();
+        // Since UploadPhoto joins array with ", ", we can vaguely split by ", " followed by a capital letter or just split by ", "
+        // But to be safe and clean, let's just return it as a list of sentences by splitting smartly or returning as one block.
+        // Let's split by '. ' to get distinct sentences, or just return the block.
+        return content.split(/(?<=\.)\s+/).filter(Boolean); // split by period-space
+      }
+    }
+    return [text]; // Fallback
+  };
+
+  const generateGoogleLinks = (text) => {
+    if (!text) return null;
+    const keywords = text.toLowerCase().match(
+      /\b(?:dress|jewelry|shirt|blazer|shoes|pants|scarf|watch|loafers|sneakers|accessories|outfit|style|jacket|coat|boots)\b/g
+    );
+    const baseGoogleUrl = "https://www.google.com/search?q=shop+";
+    
+    if (!keywords) return null;
+    
+    return [...new Set(keywords)].map((keyword, index) => {
+      const searchUrl = `${baseGoogleUrl}${encodeURIComponent(keyword)}`;
+      return (
+        <a
+          key={index}
+          href={searchUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="shop-keyword-btn"
+        >
+          {`Shop ${keyword}`}
+        </a>
+      );
+    });
   };
 
   useEffect(() => {
     let unsubscribe;
     const fetchRecommendations = async (user) => {
       try {
-        console.log("Fetching for user:", user.uid);
         const recQuery = query(
           collection(db, "userRecommendations"),
           where("userId", "==", user.uid),
           orderBy("timestamp", "desc"),
-          limit(6)
+          limit(10)
         );
         const snapshot = await getDocs(recQuery);
-        const userRecommendations = snapshot.docs.map((doc) => doc.data());
-        console.log("Fetched recommendations:", userRecommendations);
+        const userRecommendations = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
         setRecommendations(userRecommendations);
       } catch (error) {
         console.error("Error fetching recommendations:", error);
@@ -52,57 +84,77 @@ function Recommendations() {
     });
 
     return () => unsubscribe && unsubscribe();
-  }, []); // Empty dependency array means this runs only once
+  }, []);
 
   const handleLogout = () => {
-    setIsLoggedIn(false); // Set isLoggedIn to false on logout
+    setIsLoggedIn(false);
   };
 
   return (
     <>
       <Navbar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
-      <div className="recommendations d-flex justify-content-center align-items-start p-4">
-        <div className="container">
-          <h2 className="title mb-4">Improve Your Style</h2>
-          <p className="sub-title mb-4">
-            AI Recommendations from your past Fashion
-          </p>
+      <div className="recommendations">
+        <div className="container py-5">
+          <div className="header-section text-center mb-5">
+            <h2 className="title">Improve Your Style</h2>
+            <p className="sub-title">AI Curation from Your Fashion Snapshots</p>
+          </div>
 
-          <div className="rec-cards row g-4">
-            {/* Loop through recommendations */}
+          <div className="rec-timeline">
             {recommendations.length > 0 ? (
-              recommendations.map((recommendation, index) => (
-                <div key={index} className="col-12 col-md-4 col-lg-6">
-                  <div className="card p-3">
-                    <div className="text-start">
-                      {/* Display fashion recommendations without list items or numbers */}
-                      {recommendation.recommendations.fashionRecommendations
-                        .split("\n") // Split recommendations by line breaks
-                        .map((reco, idx) => {
-                          // Sanitize each recommendation before displaying
-                          const cleanedReco = sanitizeRecommendation(reco);
-                          if (cleanedReco) {
-                            return (
-                              <React.Fragment key={idx}>
-                                {/* Insert raw HTML (sanitized recommendations) */}
-                                <p
-                                  className="rec-text"
-                                  dangerouslySetInnerHTML={{
-                                    __html: cleanedReco,
-                                  }}
-                                />
-                                {/* Line break between different recommendations */}
-                              </React.Fragment>
-                            );
-                          }
-                          return null; // Skip empty lines
-                        })}
-                    </div>
+              recommendations.map((session) => (
+                <div key={session.id} className="session-group mb-5">
+                  <div className="session-date mb-4">
+                    <span className="badge-date">
+                      {session.timestamp
+                        ? new Date(session.timestamp.toDate()).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })
+                        : "Recent Snapshot"}
+                    </span>
+                  </div>
+
+                  <div className="row g-4">
+                    {session.recommendations.images?.map((img, imgIdx) => {
+                      const imageNumber = imgIdx + 1;
+                      const recSentences = getRecommendationForImage(session.recommendations.fashionRecommendations, imageNumber);
+                      const fullRecString = recSentences.join(" ");
+
+                      return (
+                        <div key={imgIdx} className="col-12">
+                          <div className="editorial-card">
+                            <div className="rec-image-wrapper">
+                              <img 
+                                src={img.imageUrl} 
+                                alt={`Look ${imageNumber}`} 
+                                className="look-img" 
+                              />
+                            </div>
+                            
+                            <div className="content-wrapper">
+                              <h3 className="look-number">Look 0{imageNumber}</h3>
+                              <div className="rec-points mt-3">
+                                {recSentences.map((sentence, sIdx) => (
+                                  <p key={sIdx} className="rec-text">
+                                    <i className="fa-solid fa-angle-right bullet-icon"></i> 
+                                    {sentence}
+                                  </p>
+                                ))}
+                              </div>
+                              
+                              <div className="shop-links mt-4">
+                                {generateGoogleLinks(fullRecString)}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               ))
             ) : (
-              <p className="nothing">No recommendations available yet.</p>
+              <div className="text-center mt-5">
+                <p className="nothing">No fashion records found yet. Upload photos to generate your first report!</p>
+              </div>
             )}
           </div>
         </div>

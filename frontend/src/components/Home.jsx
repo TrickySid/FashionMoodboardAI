@@ -27,25 +27,28 @@ const Home = () => {
     <>
       <Navbar />
       <header className="home-page">
-        <h1>
-          Analyze and Improve <br />
-          <span>Your Fashion</span>
-        </h1>
-        <Link to="/login">
-          <button className="get-started-btn">Get Started</button>
-        </Link>
+        <div id="gallery">
+          {images.map((item, index) => (
+            <div
+              key={index}
+              className="image-wrapper"
+              style={{ top: item.position.top, left: item.position.left }}
+            >
+              <img src={item.path} alt="img" />
+            </div>
+          ))}
+        </div>
+        
+        <div className="home-content">
+          <h1>
+            Analyze and Improve <br />
+            <span>Your Fashion</span>
+          </h1>
+          <Link to="/login">
+            <button className="get-started-btn">Get Started</button>
+          </Link>
+        </div>
       </header>
-      <div id="gallery">
-        {images.map((item, index) => (
-          <div
-            key={index}
-            className="image-wrapper"
-            style={{ top: item.position.top, left: item.position.left }}
-          >
-            <img src={item.path} alt="img" />
-          </div>
-        ))}
-      </div>
     </>
   );
 };

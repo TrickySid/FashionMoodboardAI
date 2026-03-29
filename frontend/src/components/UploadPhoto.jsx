@@ -1,12 +1,15 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { db, auth } from "../firebase.js";
+import { db, auth, storage } from "../firebase.js";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { ref as ref_storage, uploadBytes, getDownloadURL } from "firebase/storage";
 import Navbar from "./Navbar";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/UploadPhoto.css";
 
 function UploadPhoto() {
+  const navigate = useNavigate();
   const [selectedFiles, setSelectedFiles] = useState([]); // Track all selected files
   const [showModal, setShowModal] = useState(false); // State for modal visibility
   const [isLoggedIn, setIsLoggedIn] = useState(true);
@@ -14,7 +17,7 @@ function UploadPhoto() {
   const [showRecommendations, setShowRecommendations] = useState(false); // State for recommendations
   const [loading, setLoading] = useState(false); // Loading state
   const [labelsByImage, setLabelsByImage] = useState([]); // Labels for each uploaded image
-  const [overallRecommendations, setOverallRecommendations] = useState(""); // ChatGPT recommendations
+  const [overallRecommendations, setOverallRecommendations] = useState([]); // Array of structured recommendations
 
   // Convert image to Base64 for API usage
   const convertToBase64 = (file) =>
@@ -24,6 +27,12 @@ function UploadPhoto() {
       reader.onerror = (error) => reject(error);
       reader.readAsDataURL(file);
     });
+
+  const uploadImage = async (file) => {
+    const storageRef = ref_storage(storage, `user-uploads/${auth.currentUser.uid}/${Date.now()}-${file.name}`);
+    const snapshot = await uploadBytes(storageRef, file);
+    return await getDownloadURL(snapshot.ref);
+  };
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
@@ -47,24 +56,33 @@ function UploadPhoto() {
     setLoading(true);
 
     try {
+      // Get the ID token from Firebase auth
+      const idToken = await auth.currentUser.getIdToken();
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || "https://fashion-backend-956137897855.us-central1.run.app";
+
+      const uploadResponses = await Promise.all(
+        selectedFiles.map((file) => uploadImage(file))
+      );
+
       const base64Images = await Promise.all(
         selectedFiles.map((file) => convertToBase64(file))
       );
 
       const responses = await Promise.all(
         base64Images.map((imageBase64) =>
-          axios.post(`https://fashion-backend-956137897855.us-central1.run.app/analyze-image`, { imageBase64 })
+          axios.post(`${backendUrl}/analyze-image`, { imageBase64 }, {
+            headers: { Authorization: `Bearer ${idToken}` }
+          })
         )
       );
 
       const labels = responses.map((response) => response.data.labels);
       setLabelsByImage(labels);
 
-      console.log("Label responses:", labels);
-      
-      // Aggregate data for ChatGPT
+      // Aggregate data for LLM
       const aggregatedData = (labels || []).map((imageLabels, index) => ({
         image: `Image ${index + 1}`,
+        imageUrl: uploadResponses[index], // Store URL
         labels: (imageLabels || []).map((label) => ({
           description: label.description || "Unknown",
           confidence: label.score ? (label.score * 100).toFixed(2) : "0.00",
@@ -78,26 +96,17 @@ function UploadPhoto() {
       }
 
       const chatGPTResponse = await axios.post(
-        `https://fashion-backend-956137897855.us-central1.run.app/analyze-fashion`,
-        { images: aggregatedData }
+        `${backendUrl}/analyze-fashion`,
+        { images: aggregatedData },
+        { headers: { Authorization: `Bearer ${idToken}` } }
       );
 
       let recommendations = chatGPTResponse.data.recommendations;
+      setOverallRecommendations(recommendations || []);
 
-      // Ensure recommendations is a string (convert array if necessary)
-      if (typeof recommendations !== "string") {
-        if (Array.isArray(recommendations)) {
-          recommendations = recommendations.join("\n");
-        } else {
-          console.error(
-            "Recommendations format is not a string or array:",
-            recommendations
-          );
-          recommendations = ""; // Fallback to empty string
-        }
-      }
-
-      setOverallRecommendations(recommendations);
+      const recommendationsString = Array.isArray(recommendations) 
+        ? recommendations.map(r => `Image ${r.imageNumber}: ${r.recommendations.join(", ")}`).join("\n")
+        : recommendations;
 
       // Save recommendations to Firestore (don't store images, only the labels and recommendations)
       if (!auth.currentUser) {
@@ -111,16 +120,17 @@ function UploadPhoto() {
         email: auth.currentUser.email,
         recommendations: {
           images: aggregatedData.map((data) => ({
-            image: data.image, // Store only image name (like Image 1, Image 2)
-            labels: data.labels, // Store the labels (descriptions and confidence)
+            image: data.image,
+            imageUrl: data.imageUrl, // Store actual image URL
+            labels: data.labels,
           })),
-          fashionRecommendations: recommendations, // Already a string
+          fashionRecommendations: recommendationsString,
         },
         timestamp: serverTimestamp(),
       });
 
       setLoading(false);
-      setShowRecommendations(true);
+      navigate("/recommendations");
     } catch (error) {
       console.error("Error analyzing images:", error);
       alert("Error saving recommendations: " + error.message);
@@ -133,7 +143,7 @@ function UploadPhoto() {
     setShowRecommendations(false);
     setLoading(false);
     setLabelsByImage([]);
-    setOverallRecommendations("");
+    setOverallRecommendations([]);
   };
 
   const handleRemovePhoto = (index) => {
@@ -198,87 +208,76 @@ function UploadPhoto() {
       <div className={`${showModal ? "blur-background" : ""}`}>
         <Navbar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
 
-        <div className="upload-page d-flex flex-column justify-content-center align-items-center vh-100">
-          <div className="upload-import-photo-card card p-4 mb-4">
-            <h2 className="title mb-4">Show us your style</h2>
+        <div className="upload-page">
+          <h2 className="brand-header">Build Your Moodboard</h2>
+          <p className="brand-subtitle">Upload 3-6 photos to generate your curated fashion report.</p>
 
-            <div className="d-flex justify-content-around">
-              {/* Upload Photo Button */}
-              <div className="upload-photo-card card p-4 mb-4">
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*" // Only accept image files
-                  onChange={handleFileChange}
-                  id="upload-photo"
-                />
-                <label htmlFor="upload-photo">
-                  <i
-                    className="fa-solid fa-arrow-up-from-bracket"
-                    style={{ marginBottom: "10px", marginTop: "10px" }}
-                  />
-                  <div>
-                    <p>Upload Photo</p>
-                  </div>
-                </label>
+          <div className="moodboard-grid glass-card">
+            {[...Array(6)].map((_, index) => (
+              <div key={index} className={`moodboard-slot ${selectedFiles[index] ? 'filled' : 'empty'}`}>
+                {selectedFiles[index] ? (
+                  <>
+                    <img src={URL.createObjectURL(selectedFiles[index])} alt={`Upload ${index + 1}`} />
+                    <button className="remove-btn" onClick={() => handleRemovePhoto(index)}><i className="fa-solid fa-xmark"></i></button>
+                  </>
+                ) : (
+                  <label htmlFor={`slot-upload-${index}`} className="slot-placeholder">
+                    <i className="fa-solid fa-plus"></i>
+                    <span>ADD IMAGE</span>
+                    <input
+                      type="file"
+                      id={`slot-upload-${index}`}
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      style={{ display: 'none' }}
+                    />
+                  </label>
+                )}
               </div>
+            ))}
+          </div>
 
-              {/* Import from Pinterest Button */}
-              {/* <div className="import-photo-card card p-3 mb-4">
-                <i
-                  className="fa-brands fa-square-pinterest"
-                  style={{ marginBottom: "5px", marginTop: "10px" }}
-                />
-                <div>
-                  <p>Import from Pinterest</p>
-                </div>
-              </div> */}
-            </div>
-
+          <div className="action-area">
             {/* Success Message */}
             {successMessage && (
               <div
                 className="alert alert-success mt-3"
                 role="alert"
-                style={{ width: "100%" }}
               >
-                Images uploaded successfully!
+                Snapshot captured successfully!
               </div>
             )}
 
             {/* Analyze Fashion Button */}
             <button
-              onClick={handleUpload}
-              className="analyze-btn btn btn-block mt-3"
-              disabled={selectedFiles.length < 3} // Disable if fewer than 3 photos
-              style={{
-                backgroundColor: selectedFiles.length < 3 ? "#ccc" : "#000",
-                color: selectedFiles.length < 3 ? "#666" : "#fff",
-              }}
+              onClick={handleAnalyze}
+              className="accent-btn explore-btn mt-3"
+              disabled={selectedFiles.length < 3 || loading}
             >
-              Analyze Fashion
+              {loading ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  Analyzing...
+                </>
+              ) : "Explore Your Style Report"}
             </button>
           </div>
 
-          <div
-            className="upload-note card p-3"
-            style={{
-              width: "400px",
-              borderRadius: "15px",
-            }}
-          >
-            <div className="notes">
-              <h5 style={{ margin: " 0 0 15px 10px" }}>Note :</h5>
-              <ul>
-                <li style={{ marginBottom: "10px" }}>
-                  Please upload photos with only you in it,
-                  <br /> we want to only see you &nbsp; : )
-                </li>
-                <li style={{ marginBottom: "10px" }}>
-                  Upload photos less than 5 MB
-                </li>
-                <li>Upload at least 3 photos for effective analysis</li>
-              </ul>
+          <div className="style-note">
+            <h5>Curator Tips</h5>
+            <div className="tip-grid">
+              <div className="tip-item">
+                <span className="tip-bullet">01</span>
+                <p>Ensure clear, well-lit portraits for high-fidelity analysis.</p>
+              </div>
+              <div className="tip-item">
+                <span className="tip-bullet">02</span>
+                <p>Minimalist backgrounds work best to highlight your silhouette.</p>
+              </div>
+              <div className="tip-item">
+                <span className="tip-bullet">03</span>
+                <p>Upload at least 3 distinct looks for deep personality detection.</p>
+              </div>
             </div>
           </div>
         </div>
@@ -393,9 +392,8 @@ function UploadPhoto() {
 
                 {!showRecommendations && !loading && (
                   <button
-                    className="analyze-btn btn btn-dark w-100 mt-3"
+                    className="accent-btn btn w-100 mt-3"
                     onClick={handleAnalyze}
-                    style={{ fontWeight: "bold" }}
                   >
                     Analyze
                   </button>
@@ -420,43 +418,19 @@ function UploadPhoto() {
                     </div>
 
                     <div>
-                      {overallRecommendations
-                        .split("Image") // Split by "Image" sections
-                        .filter((section) => section.trim() !== "") // Remove empty sections
-                        .slice(1, selectedFiles.length + 1) // Match uploaded images
-                        .map((section, index) => {
-                          const recommendations = section
-                            .split("\n") // Split recommendations into lines
-                            .map((line) => {
-                              return line
-                                .replace(/^\s*[\d#*.-]+\s*/, "") // Remove leading numbers, hashtags, stars, dashes, or dots with spaces
-                                .replace(/^\s*\*\*\s*/, "") // Remove ** (double stars) and their spaces
-                                .replace(/[:.-]+$/, "") // Remove trailing punctuation like colons, dots, or dashes
-                                .replace(/\*\*/g, "") // Remove all instances of **
-                                .trim(); // Trim any remaining whitespace
-                            })
-                            .filter(
-                              (line) => line !== "" && !/^\s*$/.test(line)
-                            ); // Remove empty lines or lines with just spaces
-                          return (
-                            <div key={index} className="mb-4">
-                              <h6 className="fw-bold">{`Image ${
-                                index + 1
-                              }`}</h6>
-                              <ul style={{ listStyleType: "disc" }}>
-                                {recommendations.map(
-                                  (recommendation, recIndex) => (
-                                    <li key={recIndex}>{recommendation}</li>
-                                  )
-                                )}
-                              </ul>
-                              <div>
-                                {generateGoogleLinks(recommendations.join(" "))}{" "}
-                                {/* Generate search links */}
-                              </div>
-                            </div>
-                          );
-                        })}
+                      {overallRecommendations.map((item, index) => (
+                        <div key={index} className="mb-4">
+                          <h6 className="fw-bold">{`Image ${item.imageNumber}`}</h6>
+                          <ul style={{ listStyleType: "disc" }}>
+                            {item.recommendations.map((recommendation, recIndex) => (
+                              <li key={recIndex}>{recommendation}</li>
+                            ))}
+                          </ul>
+                          <div>
+                            {generateGoogleLinks(item.recommendations.join(" "))}
+                          </div>
+                        </div>
+                      ))}
 
                       <p className="text-center">
                         Recommendations may be blank or have noise at times.
@@ -476,7 +450,7 @@ function UploadPhoto() {
                             setLoading(true); // Show loading spinner
                             handleAnalyze(); // Reanalyze
                           }}
-                          className="reanalyze-btn btn btn-dark w-100"
+                          className="accent-btn btn w-100"
                         >
                           Reanalyze
                         </button>

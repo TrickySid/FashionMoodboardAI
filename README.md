@@ -9,7 +9,11 @@
 **Fashion Moodboard AI** is a premium, high-end fashion analysis platform that bridges the gap between raw snapshots and professional curation. Using a custom **"Kinetic Editorial"** design system, the application uses advanced Computer Vision and Large Language Models to decode your style and provide actionable, boutique-level fashion recommendations.
 
 ### Home Page Screenshot
-<img width="1918" height="864" alt="image" src="https://github.com/user-attachments/assets/ee4607ae-e0fa-4386-8bb5-55d2e9d584a7" />
+<img width="1900" height="865" alt="image" src="https://github.com/user-attachments/assets/6abf1092-2036-41d7-bd13-a850714132e7" />
+<img width="1893" height="860" alt="image" src="https://github.com/user-attachments/assets/bee5d3a9-0e56-424e-8c9c-e68339e38207" />
+<img width="1897" height="858" alt="image" src="https://github.com/user-attachments/assets/721c8326-0f0b-4384-9cb3-783f3ca1cb24" />
+<img width="1900" height="224" alt="image" src="https://github.com/user-attachments/assets/5aff21ae-52db-42bb-a1bc-279329561617" />
+
 
 ---
 

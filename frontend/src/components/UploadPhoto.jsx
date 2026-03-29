@@ -2,12 +2,14 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { db, auth, storage } from "../firebase.js";
+import { updateProfile } from "firebase/auth";
 import { onAuthStateChanged } from "firebase/auth";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { ref as ref_storage, uploadBytes, getDownloadURL } from "firebase/storage";
 import Navbar from "./Navbar";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/UploadPhoto.css";
+import { useToast } from "./ToastProvider";
 
 function UploadPhoto() {
   const navigate = useNavigate();
@@ -19,6 +21,7 @@ function UploadPhoto() {
   const [loading, setLoading] = useState(false); // Loading state
   const [labelsByImage, setLabelsByImage] = useState([]); // Labels for each uploaded image
   const [overallRecommendations, setOverallRecommendations] = useState([]); // Array of structured recommendations
+  const { addToast } = useToast();
 
   // Convert image to Base64 for API usage
   const convertToBase64 = (file) =>
@@ -64,6 +67,15 @@ function UploadPhoto() {
       const uploadResponses = await Promise.all(
         selectedFiles.map((file) => uploadImage(file))
       );
+      // Update user avatar to the first uploaded photo
+      if (auth.currentUser && uploadResponses.length > 0) {
+        try {
+          await updateProfile(auth.currentUser, { photoURL: uploadResponses[0] });
+          addToast("Profile avatar updated", "success");
+        } catch (err) {
+          console.error("Failed to update avatar:", err);
+        }
+      }
 
       const base64Images = await Promise.all(
         selectedFiles.map((file) => convertToBase64(file))
@@ -111,7 +123,7 @@ function UploadPhoto() {
 
       // Save recommendations to Firestore (don't store images, only the labels and recommendations)
       if (!auth.currentUser) {
-        alert("You must be logged in to save recommendations.");
+        addToast("You must be logged in to save recommendations.", "error");
         setLoading(false);
         return;
       }
@@ -132,11 +144,11 @@ function UploadPhoto() {
 
       setLoading(false);
       navigate("/recommendations");
-    } catch (error) {
+      } catch (error) {
       console.error("Error analyzing images:", error);
-      alert("Error saving recommendations: " + error.message);
+      addToast("Error saving recommendations: " + error.message, "error");
       setLoading(false);
-    }
+      }
   };
 
   const handleCloseModal = () => {

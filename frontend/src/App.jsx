@@ -8,10 +8,12 @@ import Login from "./components/Login";
 import SignUp from "./components/SignUp";
 import PrivacyPolicy from "./components/PrivacyPolicy";
 import Footer from "./components/Footer";
+import { ToastProvider } from "./components/ToastProvider";
 
 function App() {
   return (
-    <Router>
+    <ToastProvider>
+      <Router>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/upload" element={<UploadPhoto />} />
@@ -22,7 +24,8 @@ function App() {
         <Route path="/privacy" element={<PrivacyPolicy />} />
       </Routes>
       <Footer />
-    </Router>
+      </Router>
+    </ToastProvider>
   );
 }
 

@@ -2,8 +2,10 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/Navbar.css";
 import { useEffect, useState } from "react";
-import { auth } from "../firebase";
-import { onAuthStateChanged, signOut } from "firebase/auth";
+// Reverted to default avatar image; no SVG avatar in navbar
+// import AvatarSVG from "./AvatarSVG";
+import { auth, } from "../firebase";
+import { onAuthStateChanged, signOut, onIdTokenChanged } from "firebase/auth";
 
 function Navbar({ isLoggedIn, onLogout }) {
   const [currentUser, setCurrentUser] = useState(null);
@@ -11,14 +13,17 @@ function Navbar({ isLoggedIn, onLogout }) {
 
   // Sync with Firebase auth state
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsub1 = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
-      // If the user logs out in another tab, ensure we redirect appropriately
-      if (!user) {
-        // If user is not logged in, do not force navigate here; router pages will guard
-      }
     });
-    return () => unsubscribe();
+    // Ensure avatar updates when token changes (e.g., after profile updates)
+    const unsub2 = onIdTokenChanged(auth, (user) => {
+      setCurrentUser(user);
+    });
+    return () => {
+      unsub1();
+      unsub2();
+    };
   }, []);
 
   // Local derived login state (fallback if no observer yet)
@@ -75,7 +80,7 @@ function Navbar({ isLoggedIn, onLogout }) {
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
               >
-                <i className="user-avatar fa-regular fa-circle-user" />
+                <img src={currentUser?.photoURL || "/assets/default-avatar.jpg"} alt="Avatar" style={{ width: 28, height: 28, borderRadius: '50%' }} />
               </button>
               <ul
                 className="dropdown-menu dropdown-menu-end"

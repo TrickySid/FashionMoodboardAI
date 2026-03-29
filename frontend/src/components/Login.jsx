@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { auth } from "../firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
+import { useToast } from "./ToastProvider";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/Login.css";
 
@@ -10,6 +11,7 @@ function Login() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
+  const { addToast } = useToast();
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -19,7 +21,7 @@ function Login() {
       window.dispatchEvent(new Event("storage"));
       navigate("/upload");
     } catch (error) {
-      alert("Login failed: " + error.message);
+      addToast("Login failed: " + error.message, "error");
     }
   };
 

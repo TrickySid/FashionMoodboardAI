@@ -94,6 +94,17 @@
       }
     }
 
+    /* Remove Photo button styling */
+    .remove-photo-btn {
+      background: #ffffff;
+      color: #000;
+      border: 1px solid rgba(0,0,0,0.4);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
     .save-changes-btn {
       background: var(--accent-color);
       color: var(--bg-color);

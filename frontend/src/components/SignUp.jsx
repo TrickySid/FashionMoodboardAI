@@ -2,10 +2,12 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { auth } from "../firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
+import { useToast } from "./ToastProvider";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/SignUp.css";
 
 function SignUp() {
+  const { addToast } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -14,15 +16,15 @@ function SignUp() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      alert("Passwords do not match!");
+      addToast("Passwords do not match!", "error");
       return;
     }
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      alert("Sign up successful!");
+      addToast("Sign up successful!", "success");
       navigate("/login");
     } catch (error) {
-      alert("Sign up failed: " + error.message);
+      addToast("Sign up failed: " + error.message, "error");
     }
   };
 

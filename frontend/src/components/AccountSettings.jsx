@@ -165,9 +165,9 @@ function AccountSettings() {
             {/* Display Picture */}
             <div className="mb-4">
               <label className="form-label">Display Picture</label>
-              <div className="profile-pic-container" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                <img src={currentPhotoUrl || "/assets/default-avatar.jpg"} alt="Profile" style={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover' }} />
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div className="profile-pic-container">
+                <img src={currentPhotoUrl || "/assets/default-avatar.jpg"} alt="Profile" />
+                <div className="profile-actions">
                   <label className="upload-btn-outline">
                     Change Photo
                     <input
@@ -217,8 +217,8 @@ function AccountSettings() {
             </div>
 
             {/* Password Change */}
-            <div className="mt-4">
-              <h6 className="form-label mb-2">Change Password</h6>
+            <div className="change-password-section">
+              <h6>Change Password</h6>
               <div className="mb-3">
                 <label className="form-label">Current Password</label>
                 <input

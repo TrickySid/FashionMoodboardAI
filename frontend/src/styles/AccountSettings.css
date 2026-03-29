@@ -1,128 +1,184 @@
 .account-settings-page {
   background: var(--bg-color);
-  min-height: 100vh;
+  min-height: 110vh;
+  display: flex;
+  align-items: flex-start; /* Asymmetrical top alignment */
+  justify-content: center;
+  padding-top: 50px;
+  padding-bottom: 100px;
+}
+
+.settings-card {
+  background: #1c1b1b; /* surface-container-low */
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  width: 90%;
+  max-width: 550px;
+  padding: 4rem;
+  border-radius: 40px;
+  box-shadow: 0 50px 120px rgba(0, 0, 0, 0.8);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle glass highlight in corner */
+.settings-card::before {
+  content: "";
+  position: absolute;
+  top: -100px;
+  right: -100px;
+  width: 250px;
+  height: 250px;
+  background: radial-gradient(circle, rgba(220, 255, 0, 0.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.settings-card .title {
+  font-family: var(--font-main);
+  font-size: 3rem;
+  font-weight: 950;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: -0.05em;
+  margin-bottom: 3.5rem;
+  line-height: 0.9;
+  text-align: left; /* Shift from center to editorial left */
+}
+
+.settings-card .form-label {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  font-weight: 800;
+  margin-bottom: 0.8rem;
+  display: block;
+}
+
+.settings-card .form-control {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 0 !important;
+  color: var(--text-primary) !important;
+  padding: 12px 0 16px 0 !important;
+  font-size: 1.1rem !important;
+  font-weight: 500;
+  margin-bottom: 2.5rem;
+  transition: all 0.4s cubic-bezier(0.2, 0, 0, 1);
+  box-shadow: none !important;
+}
+
+.settings-card .form-control:focus {
+  border-bottom-color: var(--accent-color) !important;
+}
+
+.settings-card .form-control:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.profile-pic-container {
   display: flex;
   align-items: center;
+  margin-bottom: 3.5rem;
+  gap: 2rem;
+}
+
+.profile-pic-container img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 4px;
+}
+
+.profile-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   justify-content: center;
-  font-family: var(--font-main);
-  padding-top: 60px; /* offset navbar */
+}
 
-  .settings-card {
-    background: var(--glass-bg);
-    backdrop-filter: var(--glass-blur);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    width: 90%;
-    max-width: 500px;
-    padding: 3rem;
-    border-radius: 28px;
-    box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.7);
+.upload-btn-outline {
+  text-transform: uppercase;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  font-size: 0.75rem;
+  color: var(--text-primary);
+  opacity: 0.8;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
 
-    .title {
-      font-size: 2.5rem;
-      font-weight: 900;
-      color: var(--text-primary);
-      text-transform: uppercase;
-      letter-spacing: -0.04em;
-      margin-bottom: 2.5rem;
-      line-height: 1.1;
-      text-align: center;
-    }
+.upload-btn-outline:hover {
+  opacity: 1;
+  color: var(--accent-color);
+  border-bottom-color: var(--accent-color);
+}
 
-    .form-label {
-      color: var(--text-secondary);
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-    }
+.remove-photo-btn {
+  background: transparent;
+  border: none;
+  color: #ff4d4d;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 0;
+  text-align: left;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}
 
-    .form-control {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      color: var(--text-primary);
-      padding: 14px 20px;
-      font-size: 1rem;
-      margin-bottom: 1.5rem;
-      transition: var(--transition-smooth);
+.remove-photo-btn:hover {
+  opacity: 1;
+  filter: saturate(1.5);
+}
 
-      &:focus {
-        background: rgba(255, 255, 255, 0.08);
-        border-color: var(--accent-color);
-        box-shadow: 0 0 0 4px rgba(220, 255, 0, 0.1);
-        outline: none;
-      }
+.settings-card .form-control::placeholder {
+  color: rgba(255, 255, 255, 0.25) !important;
+  font-size: 0.9rem;
+}
 
-      &::placeholder {
-        color: rgba(255, 255, 255, 0.3);
-      }
-    }
+.settings-card .mb-3, .settings-card .mb-4 {
+  margin-bottom: 3rem !important;
+}
 
-    .profile-pic-container {
-      display: flex;
-      align-items: center;
-      margin-bottom: 2rem;
+.change-password-section {
+  margin-top: 1rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
 
-      img {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 2px solid rgba(255, 255, 255, 0.1);
-        margin-right: 1.5rem;
-      }
+.change-password-section h6 {
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 2rem;
+}
 
-      .upload-btn-outline {
-        background: transparent;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        color: var(--text-primary);
-        font-weight: 700;
-        text-transform: uppercase;
-        padding: 10px 20px;
-        border-radius: 8px;
-        font-size: 0.8rem;
-        letter-spacing: 0.1em;
-        cursor: pointer;
-        transition: var(--transition-smooth);
-        display: inline-block;
+.save-changes-btn {
+  background: var(--accent-color);
+  color: #121212;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  padding: 22px;
+  border-radius: 12px;
+  border: none;
+  margin-top: 2rem;
+  transition: all 0.4s cubic-bezier(0.2, 0, 0, 1);
+  width: 100%;
+  font-size: 0.9rem;
+}
 
-        &:hover {
-          border-color: var(--accent-color);
-          color: var(--accent-color);
-        }
-      }
-    }
-
-    /* Remove Photo button styling */
-    .remove-photo-btn {
-      background: #ffffff;
-      color: #000;
-      border: 1px solid rgba(0,0,0,0.4);
-      border-radius: 6px;
-      padding: 8px 12px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .save-changes-btn {
-      background: var(--accent-color);
-      color: var(--bg-color);
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      padding: 16px;
-      border-radius: 12px;
-      border: none;
-      margin-top: 1rem;
-      transition: var(--transition-smooth);
-      width: 100%;
-
-      &:hover {
-        transform: translateY(-2px);
-        filter: brightness(1.1);
-        box-shadow: 0 10px 25px rgba(220, 255, 0, 0.2);
-      }
-    }
-  }
+.save-changes-btn:hover {
+  background: #fff;
+  transform: scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
 }

@@ -1,86 +1,280 @@
-.home-page {
+.home-container {
+  background-color: var(--bg-color);
+  min-height: 100vh;
+  font-family: var(--font-main);
+  overflow-x: hidden;
+}
+
+/* 1. HERO SECTION POLISH */
+.hero-header {
+  height: 120vh; /* Reduced from 140vh to make cards appear sooner */
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 140vh;
-  background-color: var(--bg-color);
-  text-align: center;
   position: relative;
   z-index: 10;
-  overflow: hidden; /* clip animated photos inside */
+  overflow: hidden;
+  background: #000;
 }
 
-.home-content {
+.hero-content {
   position: relative;
   z-index: 20;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: -30vh; /* Adjust vertical center visually */
-  pointer-events: auto;
+  text-align: center;
+  margin-top: -30vh;
 }
 
-.home-page h1 {
-  color: var(--text-primary);
-  font-size: clamp(3rem, 10vw, 6rem);
-  font-weight: 900;
-  line-height: 0.9;
+.hero-label {
+  display: inline-block;
   text-transform: uppercase;
-  letter-spacing: -0.05em;
+  font-weight: 850;
+  font-size: 0.8rem;
+  letter-spacing: 0.25em;
+  color: var(--accent-color);
   margin-bottom: 2rem;
+  opacity: 0.8;
 }
 
-.home-page h1 span {
-  display: block;
+.hero-header h1 {
+  font-size: clamp(3rem, 10vw, 6.5rem);
+  font-weight: 950;
+  line-height: 0.85;
+  text-transform: uppercase;
+  letter-spacing: -0.06em;
+  color: #fff;
+}
+
+.hero-header h1 span {
   background: linear-gradient(135deg, #ffffff 0%, var(--accent-color) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
+#gallery {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* 1. DIGITAL DNA BACKGROUND */
+.digital-dna {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+  display: flex;
+  justify-content: space-around;
+  overflow: hidden;
+  opacity: 0.25;
+}
+
+.dna-column {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.5em;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+
+.dna-content {
+  animation: dna-drift 60s linear infinite;
+  display: flex;
+}
+
+.dna-col-2, .dna-col-4 {
+  color: var(--accent-color);
+  opacity: 0.5;
+}
+
+@keyframes dna-drift {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-50%); }
+}
+
+/* AI ANALYSIS SHOWCASE */
+.showcase-box {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 500px;
+  height: 650px;
+  z-index: 2;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 50px 100px rgba(0,0,0,0.5);
+  pointer-events: none;
+}
+
+.showcase-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.7) contrast(1.1);
+}
+
+.scanner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  background: var(--accent-color);
+  box-shadow: 0 0 30px var(--accent-color), 0 0 10px #fff;
+  z-index: 10;
+  opacity: 0;
+}
+
+.advice-overlay {
+  position: absolute;
+  bottom: 40px;
+  left: 40px;
+  right: 40px;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(15px);
+  padding: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-left: 4px solid var(--accent-color);
+  z-index: 6;
+}
+
+.advice-text {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.4;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+/* 2. PROCESS SECTION */
+.process-section {
+  position: relative;
+  z-index: 30;
+  background: #000;
+  padding: 10rem 0;
+}
+
+.feature-card {
+  background: #1c1b1b; /* Solid background for visibility */
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 4rem 3rem;
+  border-radius: 32px;
+  height: 100%;
+  transition: all 0.5s cubic-bezier(0.2, 0, 0, 1);
+  box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+}
+
+.feature-card .step-num {
+  display: block;
+  font-size: 1.2rem;
+  font-weight: 950;
+  color: var(--accent-color);
+  margin-bottom: 2rem;
+  opacity: 0.5;
+}
+
+.feature-card h3 {
+  font-size: 1.8rem;
+  font-weight: 850;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  color: #fff;
+  margin-bottom: 1.5rem;
+}
+
+.feature-card p {
+  font-size: 1.05rem;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.6;
+}
+
+.feature-card:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(220, 255, 0, 0.3);
+  transform: translateY(-15px);
+}
+
+.marquee-section {
+  background: var(--accent-color);
+  padding: 6rem 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.marquee-inner {
+  display: flex;
+  white-space: nowrap;
+  animation: marquee-loop 20s linear infinite;
+  width: max-content;
+}
+
+.scrolling-text {
+  font-size: 5.5rem;
+  font-weight: 950;
+  color: #000;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  padding-right: 4rem; /* Gap between repeats */
+}
+
+@keyframes marquee-loop {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* 4. CTA SECTION */
+.cta-section {
+  padding: 10rem 0;
+  background: #000;
+}
+
+.cta-content h2 {
+  font-size: 4rem;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: -0.05em;
+  color: #fff;
+  margin-bottom: 2rem;
+}
+
+.cta-content .lead {
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+}
+
 .get-started-btn {
   background: var(--accent-color);
-  color: var(--bg-color);
-  padding: 18px 50px;
-  font-size: 1.1rem;
-  font-weight: 800;
+  color: #000;
+  font-weight: 950;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.15em;
+  padding: 20px 60px;
   border-radius: 100px;
   border: none;
-  transition: var(--transition-smooth);
-  box-shadow: 0 10px 30px rgba(220, 255, 0, 0.2);
+  font-size: 1.1rem;
+  box-shadow: 0 20px 50px rgba(220, 255, 0, 0.2);
+  transition: all 0.5s cubic-bezier(0.2, 0, 0, 1);
 }
 
 .get-started-btn:hover {
   transform: scale(1.05) translateY(-5px);
-  box-shadow: 0 20px 40px rgba(220, 255, 0, 0.4);
-}
-
-#gallery {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 1;
-  pointer-events: none;
-  background-color: transparent;
-}
-
-.image-wrapper {
-  position: absolute;
-  width: 280px;
-  overflow: hidden;
-  border-radius: 12px;
-  filter: saturate(0.5) contrast(1.1);
-  opacity: 0.5; /* Increased opacity */
-  transition: opacity 0.5s ease;
-
-  img {
-    width: 100%;
-    height: auto;
-    object-fit: cover;
-  }
+  box-shadow: 0 30px 60px rgba(220, 255, 0, 0.4);
 }

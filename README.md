@@ -8,7 +8,7 @@
 ## 🖤 THE VISION
 **Fashion Moodboard AI** is a premium, high-end fashion analysis platform that bridges the gap between raw snapshots and professional curation. Using a custom **"Kinetic Editorial"** design system, the application uses advanced Computer Vision and Large Language Models to decode your style and provide actionable, boutique-level fashion recommendations.
 
-###Home Page Screenshot
+### Home Page Screenshot
 <img width="1918" height="864" alt="image" src="https://github.com/user-attachments/assets/ee4607ae-e0fa-4386-8bb5-55d2e9d584a7" />
 
 ---

@@ -4,7 +4,7 @@ import Navbar from "./Navbar";
 import { auth, db, storage } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { updateProfile, EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "firebase/auth";
-import { ref as ref_storage, uploadBytes, getDownloadURL } from "firebase/storage";
+import { ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { doc, setDoc } from "firebase/firestore";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/AccountSettings.css";
@@ -34,19 +34,71 @@ function AccountSettings() {
   
 
   const { addToast } = useToast();
-  const uploadAndSetProfile = async (file) => {
+  
+  const deleteOldPhoto = async (photoUrl) => {
+    if (!photoUrl) return;
+    try {
+      // Only delete if it's a Firebase Storage URL (not the default avatar)
+      if (photoUrl.includes('firebasestorage')) {
+        const oldRef = storageRef(storage, photoUrl);
+        await deleteObject(oldRef);
+      }
+    } catch (err) {
+      console.error("Failed to delete old photo:", err);
+    }
+  };
+
+  const uploadProfilePhoto = async (file) => {
     if (!auth.currentUser) return;
     try {
-      const storageRef = ref_storage(storage, `user-uploads/${auth.currentUser.uid}/${Date.now()}-${file.name}`);
-      const snapshot = await uploadBytes(storageRef, file);
+      // Capture the old URL before uploading
+      const oldUrl = auth.currentUser.photoURL;
+      
+      const storagePath = storageRef(storage, `user-uploads/${auth.currentUser.uid}/profile-${Date.now()}`);
+      const snapshot = await uploadBytes(storagePath, file);
       const url = await getDownloadURL(snapshot.ref);
+      
       await updateProfile(auth.currentUser, { photoURL: url });
+      
+      // Delete old photo after successful upload to avoid data loss on failure
+      if (oldUrl && oldUrl.includes('firebasestorage')) {
+        await deleteOldPhoto(oldUrl);
+      }
+      
       setCurrentPhotoUrl(url);
       addToast("Profile photo updated", "success");
     } catch (err) {
       addToast("Failed to update photo: " + err.message, "error");
     }
   };
+
+  const handleRemovePhoto = async () => {
+    if (!auth.currentUser) return;
+    
+    // Check if there is even a photo to remove
+    const photoUrl = auth.currentUser.photoURL;
+    if (!photoUrl || photoUrl === "/assets/default-avatar.jpg") {
+      addToast("Already using default avatar", "info");
+      return;
+    }
+
+    try {
+      // 1. Delete from Storage if it's a dynamic upload
+      if (photoUrl.includes('firebasestorage')) {
+        await deleteOldPhoto(photoUrl);
+      }
+
+      // 2. Clear from Firebase Auth
+      await updateProfile(auth.currentUser, { photoURL: "/assets/default-avatar.jpg" });
+      
+      // 3. Update local state
+      setCurrentPhotoUrl("/assets/default-avatar.jpg");
+      addToast("Profile photo removed", "success");
+    } catch (err) {
+      addToast("Failed to remove photo: " + err.message, "error");
+    }
+  };
+
   const handleLogout = () => {
     setIsLoggedIn(false);
   };
@@ -56,7 +108,6 @@ function AccountSettings() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
-  const [profilePic, setProfilePic] = useState(null);
 
   const handleSaveChanges = async (e) => {
     e.preventDefault();
@@ -73,8 +124,8 @@ function AccountSettings() {
           email: auth.currentUser.email,
         }, { merge: true });
       }
-  // Password change flow
-  if (newPassword && newPassword.trim().length > 0) {
+      // Password change flow
+      if (newPassword && newPassword.trim().length > 0) {
         if (newPassword !== (confirmNewPassword || "")) {
           addToast("New passwords do not match", "error");
           return;
@@ -111,47 +162,27 @@ function AccountSettings() {
           <form onSubmit={handleSaveChanges}>
             <h4 className="title">Account Settings</h4>
             
-            {/* Profile Picture */}
+            {/* Display Picture */}
             <div className="mb-4">
-              <label className="form-label">Profile Picture</label>
+              <label className="form-label">Display Picture</label>
               <div className="profile-pic-container" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                {profilePic ? (
-                  <img
-                    src={URL.createObjectURL(profilePic)}
-                    alt="Profile"
-                    onError={(e) => {
-                      e.target.src = "/assets/default-avatar.jpg";
-                    }}
-                    style={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover' }}
-                  />
-                ) : (
-                  <img src="/assets/default-avatar.jpg" alt="Profile" style={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover' }} />
-                )}
+                <img src={currentPhotoUrl || "/assets/default-avatar.jpg"} alt="Profile" style={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover' }} />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   <label className="upload-btn-outline">
-                  Change Photo
-                  <input
-                    type="file"
-                    onChange={(e) => setProfilePic(e.target.files[0])}
-                    accept="image/*"
-                    style={{ display: "none" }}
-                  />
+                    Change Photo
+                    <input
+                      type="file"
+                      onChange={async (e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          await uploadProfilePhoto(file);
+                        }
+                      }}
+                      accept="image/*"
+                      style={{ display: "none" }}
+                    />
                   </label>
-                  <button type="button" className="remove-photo-btn" onClick={async () => {
-                    if (profilePic) {
-                      setProfilePic(null);
-                    } else if (currentPhotoUrl) {
-                      try {
-                        await updateProfile(auth.currentUser, { photoURL: null });
-                        setCurrentPhotoUrl(null);
-                        addToast("Profile photo removed", "success");
-                      } catch (err) {
-                        addToast("Failed to remove photo: " + err.message, "error");
-                      }
-                    } else {
-                      addToast("No profile photo to remove", "info");
-                    }
-                  }}>
+                  <button type="button" className="remove-photo-btn" onClick={handleRemovePhoto}>
                     Remove Photo
                   </button>
                 </div>

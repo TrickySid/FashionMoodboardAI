@@ -28,6 +28,9 @@ function Login() {
   return (
     <div className="login-page">
       <div className="login-card">
+        <Link to="/" className="back-to-home">
+          ← Back to Explore
+        </Link>
         <h1 className="brand-title">Fashion Moodboard AI</h1>
         <h2 className="title">Login</h2>
         <form className="login-form" onSubmit={handleSubmit}>

@@ -31,6 +31,9 @@ function SignUp() {
   return (
     <div className="signup-page">
       <div className="signup-card">
+        <Link to="/" className="back-to-home">
+          ← Back to Explore
+        </Link>
         <h1 className="title">Fashion Moodboard AI</h1>
         <form className="signup-form" onSubmit={handleSubmit}>
           <div className="form-group">

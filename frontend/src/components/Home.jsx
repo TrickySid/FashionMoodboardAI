@@ -24,11 +24,11 @@ const Home = () => {
   useEffect(() => {
     // AI Showcase Timeline
     const analysisData = [
-      { img: "/assets/img1.jpg", advice: "VIBRANT TEXTURE DETECTED. COMPLEMENT MUSTARD TONES WITH COOL METALLICS." },
-      { img: "/assets/img2.jpg", advice: "LAYERING PATTERN ANALYZED. EXCELLENT CONTRAST WITH PASTEL UNDERTONES." },
-      { img: "/assets/img3.jpg", advice: "ATHLEISURE SILHOUETTE IDENTIFIED. OPTIMIZE FOR URBAN TRANSIT." },
-      { img: "/assets/img4.jpg", advice: "SPORT-CHIC FOUNDATION. ENHANCE COHESION WITH BOLD ACCESSORIES." },
-      { img: "/assets/img5.jpg", advice: "CLASSIC MINIMALISM. ELEVATE LOOK WITH ARCHITECTURAL EYEWEAR." }
+      { img: "/assets/sample_yellow.jpg", advice: "VIBRANT TEXTURE DETECTED. COMPLEMENT MUSTARD TONES WITH COOL METALLICS." },
+      { img: "/assets/sample_turtleneck.jpg", advice: "LAYERING PATTERN ANALYZED. EXCELLENT CONTRAST WITH PASTEL UNDERTONES." },
+      { img: "/assets/sample_subway.jpg", advice: "ATHLEISURE SILHOUETTE IDENTIFIED. OPTIMIZE FOR URBAN TRANSIT." },
+      { img: "/assets/sample_sport.jpg", advice: "SPORT-CHIC FOUNDATION. ENHANCE COHESION WITH BOLD ACCESSORIES." },
+      { img: "/assets/sample_paris.jpg", advice: "CLASSIC MINIMALISM. ELEVATE LOOK WITH ARCHITECTURAL EYEWEAR." }
     ];
 
     let currentSample = 0;
@@ -107,7 +107,7 @@ const Home = () => {
 
         {/* AI ANALYSIS SHOWCASE */}
         <div className="showcase-box">
-          <img src="/assets/img1.jpg" alt="analysis-sample" />
+          <img src="/assets/sample_yellow.jpg" alt="analysis-sample" />
           <div className="scanner"></div>
           <div className="advice-overlay">
             <p className="advice-text">VIBRANT TEXTURE DETECTED. COMPLEMENT MUSTARD TONES WITH COOL METALLICS.</p>

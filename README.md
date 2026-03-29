@@ -18,7 +18,7 @@
 -   **🎬 Kinetic Landing Experience**: A high-performance, GSAP-powered floating gallery that reacts to your presence.
 -   **🧠 Multi-Stage AI Analysis**:
     *   **Vision Engine**: Powered by **Google Cloud Vision API**, the app extracts deep labels and confidence scores from your fashion snapshots.
-    *   **Style Architect**: An **NVIDIA-powered LLM (GPT-OSS-120B)** acts as your personal stylist, turning raw data labels into professional fashion advice.
+    *   **Style Architect**: The **OpenAI LLM** acts as your personal stylist, turning raw data labels into professional fashion advice.
 -   **📑 Editorial Style Reports**: Individualized, horizontal "Look Cards" that pair your photos with parsed, bulleted AI recommendations.
 -   **🏷️ Smart Search Integration**: Automatic keyword extraction that generates instant "Shop" links for recommended items.
 -   **☁️ Persistent Fashion Vault**: Securely stored analysis history using **Firebase** and **GCP**, allowing you to track your style evolution over time.

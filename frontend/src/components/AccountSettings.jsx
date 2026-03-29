@@ -9,7 +9,6 @@ import { doc, setDoc } from "firebase/firestore";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/AccountSettings.css";
 import { useToast } from "./ToastProvider";
-// default avatar image will be used when no custom photo is provided
 
 function AccountSettings() {
   const navigate = useNavigate();

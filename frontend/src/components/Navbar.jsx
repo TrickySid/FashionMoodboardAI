@@ -2,8 +2,6 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/Navbar.css";
 import { useEffect, useState } from "react";
-// Reverted to default avatar image; no SVG avatar in navbar
-// import AvatarSVG from "./AvatarSVG";
 import { auth, } from "../firebase";
 import { onAuthStateChanged, signOut, onIdTokenChanged } from "firebase/auth";
 
@@ -36,7 +34,7 @@ function Navbar({ isLoggedIn, onLogout }) {
       if (typeof onLogout === "function") {
         onLogout();
       }
-      navigate("/login");
+      navigate("/");
     } catch (e) {
       console.error("Logout failed", e);
     }

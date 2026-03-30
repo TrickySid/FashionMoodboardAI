@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { db, auth, storage } from "../firebase.js";
-import { updateProfile } from "firebase/auth";
 import { onAuthStateChanged } from "firebase/auth";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { ref as ref_storage, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -67,15 +66,6 @@ function UploadPhoto() {
       const uploadResponses = await Promise.all(
         selectedFiles.map((file) => uploadImage(file))
       );
-      // Update user avatar to the first uploaded photo
-      if (auth.currentUser && uploadResponses.length > 0) {
-        try {
-          await updateProfile(auth.currentUser, { photoURL: uploadResponses[0] });
-          addToast("Profile avatar updated", "success");
-        } catch (err) {
-          console.error("Failed to update avatar:", err);
-        }
-      }
 
       const base64Images = await Promise.all(
         selectedFiles.map((file) => convertToBase64(file))

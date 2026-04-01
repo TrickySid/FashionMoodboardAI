@@ -1,6 +1,8 @@
 # ⚡ FASHION MOODBOARD AI
 ### *Elevating Style through Kinetic Editorial AI Analysis*
 
+Live: https://fashion-moodboard-ai-a955c.web.app
+
 **Developed & Engineered by [Siddhesh Bakre](https://github.com/TrickySid)**
 
 ---

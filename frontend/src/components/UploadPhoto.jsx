@@ -3,23 +3,34 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { db, auth, storage } from "../firebase.js";
 import { onAuthStateChanged } from "firebase/auth";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  getDocs,
+  limit,
+  orderBy,
+  query,
+  setDoc,
+  doc,
+  where,
+} from "firebase/firestore";
 import { ref as ref_storage, uploadBytes, getDownloadURL } from "firebase/storage";
 import Navbar from "./Navbar";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/UploadPhoto.css";
 import { useToast } from "./ToastProvider";
+import { buildStyleProfileMemory } from "../utils/styleProfile";
 
 function UploadPhoto() {
   const navigate = useNavigate();
   const [selectedFiles, setSelectedFiles] = useState([]); // Track all selected files
   const [showModal, setShowModal] = useState(false); // State for modal visibility
   const [isLoggedIn, setIsLoggedIn] = useState(true);
-  const [successMessage, setSuccessMessage] = useState(false); // State for success message
-  const [showRecommendations, setShowRecommendations] = useState(false); // State for recommendations
   const [loading, setLoading] = useState(false); // Loading state
   const [labelsByImage, setLabelsByImage] = useState([]); // Labels for each uploaded image
   const [overallRecommendations, setOverallRecommendations] = useState([]); // Array of structured recommendations
+  const [styleProfileMemory, setStyleProfileMemory] = useState(null);
   const { addToast } = useToast();
 
   // Convert image to Base64 for API usage
@@ -47,21 +58,32 @@ function UploadPhoto() {
     }
 
     setSelectedFiles((prevFiles) => [...prevFiles, ...validFiles]);
-    setSuccessMessage(true);
-    setTimeout(() => setSuccessMessage(false), 3000);
-  };
-
-  const handleUpload = () => {
-    setShowModal(true);
+    addToast("Snapshot captured successfully!", "success");
   };
 
   const handleAnalyze = async () => {
     setLoading(true);
 
     try {
+      if (!auth.currentUser) {
+        addToast("You must be logged in to analyze looks.", "error");
+        setLoading(false);
+        return;
+      }
+
       // Get the ID token from Firebase auth
       const idToken = await auth.currentUser.getIdToken();
       const backendUrl = import.meta.env.VITE_BACKEND_URL || "https://fashion-backend-956137897855.us-central1.run.app";
+      const historyQuery = query(
+        collection(db, "userRecommendations"),
+        where("userId", "==", auth.currentUser.uid),
+        orderBy("timestamp", "desc"),
+        limit(8)
+      );
+      const historySnapshot = await getDocs(historyQuery);
+      const previousSessions = historySnapshot.docs.map((historyDoc) => historyDoc.data());
+      const currentStyleProfile = buildStyleProfileMemory(previousSessions);
+      setStyleProfileMemory(currentStyleProfile);
 
       const uploadResponses = await Promise.all(
         selectedFiles.map((file) => uploadImage(file))
@@ -100,24 +122,42 @@ function UploadPhoto() {
 
       const chatGPTResponse = await axios.post(
         `${backendUrl}/analyze-fashion`,
-        { images: aggregatedData },
+        {
+          images: aggregatedData,
+          styleProfile: currentStyleProfile,
+        },
         { headers: { Authorization: `Bearer ${idToken}` } }
       );
 
       let recommendations = chatGPTResponse.data.recommendations;
       setOverallRecommendations(recommendations || []);
 
+      const normalizedRecommendations = Array.isArray(recommendations)
+        ? recommendations
+        : [];
+
       const recommendationsString = Array.isArray(recommendations) 
         ? recommendations.map(r => `Image ${r.imageNumber}: ${r.recommendations.join(", ")}`).join("\n")
         : recommendations;
 
-      // Save recommendations to Firestore (don't store images, only the labels and recommendations)
-      if (!auth.currentUser) {
-        addToast("You must be logged in to save recommendations.", "error");
-        setLoading(false);
-        return;
-      }
+      const currentSessionDraft = {
+        recommendations: {
+          images: aggregatedData.map((data) => ({
+            image: data.image,
+            imageUrl: data.imageUrl,
+            labels: data.labels,
+          })),
+          fashionRecommendations: recommendationsString,
+          recommendationItems: normalizedRecommendations,
+        },
+      };
+      const refreshedStyleProfile = buildStyleProfileMemory([
+        currentSessionDraft,
+        ...previousSessions,
+      ]);
+      setStyleProfileMemory(refreshedStyleProfile);
 
+      // Save recommendations to Firestore (don't store images, only the labels and recommendations)
       await addDoc(collection(db, "userRecommendations"), {
         userId: auth.currentUser.uid, // Use the actual logged-in user's UID
         email: auth.currentUser.email,
@@ -128,22 +168,33 @@ function UploadPhoto() {
             labels: data.labels,
           })),
           fashionRecommendations: recommendationsString,
+          recommendationItems: normalizedRecommendations,
         },
+        styleProfileSnapshot: refreshedStyleProfile,
         timestamp: serverTimestamp(),
       });
 
+      await setDoc(
+        doc(db, "users", auth.currentUser.uid),
+        {
+          email: auth.currentUser.email,
+          styleProfileMemory: refreshedStyleProfile,
+          styleProfileUpdatedAt: serverTimestamp(),
+        },
+        { merge: true }
+      );
+
       setLoading(false);
       navigate("/recommendations");
-      } catch (error) {
+    } catch (error) {
       console.error("Error analyzing images:", error);
       addToast("Error saving recommendations: " + error.message, "error");
       setLoading(false);
-      }
+    }
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
-    setShowRecommendations(false);
     setLoading(false);
     setLabelsByImage([]);
     setOverallRecommendations([]);
@@ -186,6 +237,23 @@ function UploadPhoto() {
         navigate("/login");
       } else {
         setIsLoggedIn(true);
+        const historyQuery = query(
+          collection(db, "userRecommendations"),
+          where("userId", "==", user.uid),
+          orderBy("timestamp", "desc"),
+          limit(8)
+        );
+
+        getDocs(historyQuery)
+          .then((historySnapshot) => {
+            const previousSessions = historySnapshot.docs.map((historyDoc) =>
+              historyDoc.data()
+            );
+            setStyleProfileMemory(buildStyleProfileMemory(previousSessions));
+          })
+          .catch((error) => {
+            console.error("Error loading style profile memory:", error);
+          });
       }
     });
     return unsubscribe;
@@ -227,7 +295,24 @@ function UploadPhoto() {
           <h2 className="brand-header">Build Your Moodboard</h2>
           <p className="brand-subtitle">Upload 3-6 photos to generate your curated fashion report.</p>
 
-          <div className="moodboard-grid glass-card">
+          <div className="style-memory-banner glass-card">
+            <div className="style-memory-copy">
+              <span className="style-memory-label">
+                <i className="fa-solid fa-microchip me-2"></i>
+                Style Profile Memory
+              </span>
+              <p>
+                {styleProfileMemory?.summary ||
+                  "Your long-term style signal will appear here after a few reports."}
+              </p>
+            </div>
+            <div className="style-memory-meta">
+              <span>{styleProfileMemory?.sourceLooks || 0} looks indexed</span>
+              <span>{styleProfileMemory?.confidence || "low"} confidence</span>
+            </div>
+          </div>
+
+          <div className="moodboard-grid">
             {[...Array(6)].map((_, index) => (
               <div key={index} className={`moodboard-slot ${selectedFiles[index] ? 'filled' : 'empty'}`}>
                 {selectedFiles[index] ? (
@@ -253,20 +338,9 @@ function UploadPhoto() {
           </div>
 
           <div className="action-area">
-            {/* Success Message */}
-            {successMessage && (
-              <div
-                className="alert alert-success mt-3"
-                role="alert"
-              >
-                Snapshot captured successfully!
-              </div>
-            )}
-
-            {/* Analyze Fashion Button */}
             <button
               onClick={handleAnalyze}
-              className="accent-btn explore-btn mt-3"
+              className="accent-btn explore-btn"
               disabled={selectedFiles.length < 3 || loading}
             >
               {loading ? (
@@ -298,7 +372,6 @@ function UploadPhoto() {
         </div>
       </div>
 
-      {/* Modal for displaying Fashion Moodboard */}
       {showModal && (
         <div
           className="analysis-modal modal fade show d-block"
@@ -320,159 +393,11 @@ function UploadPhoto() {
                   aria-label="Close"
                 ></button>
               </div>
-              <div className="modal-body">
-                {/* Moodboard Photo Grid */}
-                <div className="row row-cols-3 g-2 mb-4">
-                  {selectedFiles.map((file, index) => (
-                    <div className="col" key={index}>
-                      <div
-                        className="bg-light position-relative"
-                        style={{
-                          width: "100%",
-                          paddingTop: "100%",
-                          borderRadius: "10px",
-                        }}
-                      >
-                        <img
-                          src={URL.createObjectURL(file)}
-                          alt={`Uploaded Img ${index + 1}`}
-                          className="position-absolute top-0 start-0 w-100 h-100"
-                          style={{ objectFit: "cover", borderRadius: "10px" }}
-                        />
-                        {!showRecommendations && (
-                          <button
-                            className="btn btn-danger btn-sm position-absolute top-0 end-0"
-                            onClick={() => handleRemovePhoto(index)}
-                            style={{
-                              borderRadius: "50%",
-                              width: "25px",
-                              height: "25px",
-                            }}
-                          >
-                            <i
-                              className="fa-solid fa-xmark"
-                              style={{ marginTop: "-20px" }}
-                            />
-                          </button>
-                        )}
-                      </div>
-                      {/* Display Labels */}
-                      {showRecommendations && labelsByImage[index] && (
-                        <div className="labels mt-2">
-                          <h6>Detected Labels:</h6>
-                          <ul>
-                            {labelsByImage[index].map((label, labelIndex) => (
-                              <li key={labelIndex}>
-                                {label.description} -{" "}
-                                {(label.score * 100).toFixed(2)}%
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-
-                  {!showRecommendations &&
-                    selectedFiles.length < 6 &&
-                    !loading && (
-                      <div className="col">
-                        <div
-                          className="d-flex justify-content-center align-items-center bg-light"
-                          style={{
-                            width: "100%",
-                            paddingTop: "100%",
-                            borderRadius: "10px",
-                            cursor: "pointer",
-                          }}
-                        >
-                          <label htmlFor="add-more-images">
-                            <i
-                              className="fa-solid fa-plus"
-                              style={{ fontSize: "24px" }}
-                            />
-                          </label>
-                          <input
-                            type="file"
-                            multiple
-                            accept="image/*"
-                            id="add-more-images"
-                            style={{ display: "none" }}
-                            onChange={handleAddImagesInModal}
-                          />
-                        </div>
-                      </div>
-                    )}
+              <div className="modal-body text-center">
+                <p>Processing your editorial report...</p>
+                <div className="spinner-border text-primary" role="status">
+                  <span className="visually-hidden">Loading...</span>
                 </div>
-
-                {!showRecommendations && !loading && (
-                  <button
-                    className="accent-btn btn w-100 mt-3"
-                    onClick={handleAnalyze}
-                  >
-                    Analyze
-                  </button>
-                )}
-
-                {loading && (
-                  <div className="d-flex justify-content-center align-items-center mt-3">
-                    <div
-                      className="spinner-border"
-                      style={{ width: "3rem", height: "3rem" }}
-                      role="status"
-                    >
-                      <span className="visually-hidden">Loading...</span>
-                    </div>
-                  </div>
-                )}
-
-                {showRecommendations && (
-                  <>
-                    <div className="ai-recom">
-                      <h5>AI Fashion Recommendations</h5>
-                    </div>
-
-                    <div>
-                      {overallRecommendations.map((item, index) => (
-                        <div key={index} className="mb-4">
-                          <h6 className="fw-bold">{`Image ${item.imageNumber}`}</h6>
-                          <ul style={{ listStyleType: "disc" }}>
-                            {item.recommendations.map((recommendation, recIndex) => (
-                              <li key={recIndex}>{recommendation}</li>
-                            ))}
-                          </ul>
-                          <div>
-                            {generateGoogleLinks(item.recommendations.join(" "))}
-                          </div>
-                        </div>
-                      ))}
-
-                      <p className="text-center">
-                        Recommendations may be blank or have noise at times.
-                        <br />
-                        You can re-analyze the images to get more accurate
-                        results.
-                      </p>
-
-                      {/* Add a Reanalyze Button */}
-                      <div className="d-flex justify-content-center mt-3">
-                        <button
-                          onClick={() => {
-                            // Clear output and show loading animation
-                            setShowRecommendations(false);
-                            setOverallRecommendations(""); // Clear recommendations
-                            setLabelsByImage([]); // Clear labels
-                            setLoading(true); // Show loading spinner
-                            handleAnalyze(); // Reanalyze
-                          }}
-                          className="accent-btn btn w-100"
-                        >
-                          Reanalyze
-                        </button>
-                      </div>
-                    </div>
-                  </>
-                )}
               </div>
             </div>
           </div>

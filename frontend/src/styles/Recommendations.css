@@ -10,7 +10,7 @@
 }
 
 .recommendations .header-section .title {
-  font-size: 3.5rem;
+  font-size: clamp(2.2rem, 6vw, 3rem);
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: -0.04em;
@@ -26,6 +26,133 @@
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.1em;
+}
+
+.style-memory-panel {
+  margin-bottom: 5rem;
+  padding: 4rem;
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 40px;
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(220, 255, 0, 0.05) 0%, transparent 70%);
+    z-index: 0;
+    pointer-events: none;
+  }
+}
+
+.style-memory-panel .memory-kicker {
+  color: var(--accent-color);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  font-weight: 900;
+  margin-bottom: 2rem;
+  font-family: var(--font-accent);
+  opacity: 0.8;
+  position: relative;
+  z-index: 1;
+}
+
+.style-memory-panel .memory-layout {
+  display: flex;
+  justify-content: space-between;
+  gap: 60px;
+  align-items: flex-start;
+  position: relative;
+  z-index: 1;
+}
+
+.style-memory-panel h3 {
+  margin: 0 0 1.5rem;
+  font-size: clamp(2rem, 4.5vw, 3.2rem);
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: -0.05em;
+  line-height: 0.95;
+  font-family: var(--font-display);
+  color: #fff;
+}
+
+.style-memory-panel p {
+  margin: 0;
+  max-width: 650px;
+  color: var(--text-primary);
+  line-height: 1.6;
+  font-size: 1.2rem;
+  font-weight: 400;
+  font-family: var(--font-main);
+  opacity: 0.9;
+}
+
+.style-memory-panel .memory-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  white-space: nowrap;
+  padding-left: 40px;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  font-family: var(--font-accent);
+
+  span {
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    &::before {
+      content: '';
+      width: 8px;
+      height: 2px;
+      background: var(--accent-color);
+      display: inline-block;
+    }
+  }
+}
+
+.style-memory-panel .memory-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 3.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.style-memory-panel .memory-tag {
+  padding: 10px 22px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-weight: 800;
+  font-family: var(--font-main);
+  transition: var(--transition-smooth);
+  cursor: default;
+
+  &:hover {
+    background: var(--accent-color);
+    color: #000;
+    border-color: var(--accent-color);
+    transform: translateY(-3px);
+  }
 }
 
 /* Timeline/Journal Aesthetic */
@@ -203,4 +330,10 @@
   color: var(--text-secondary);
   font-style: italic;
   font-size: 1.2rem;
+}
+
+@media (max-width: 768px) {
+  .style-memory-panel .memory-layout {
+    flex-direction: column;
+  }
 }

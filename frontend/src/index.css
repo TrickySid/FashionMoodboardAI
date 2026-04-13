@@ -1,15 +1,18 @@
-@import url("https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Epilogue:wght@300;400;500;600;700;800;900&family=Manrope:wght@300;400;500;600;700;800&family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 
 :root {
   --bg-color: #131313;
   --surface-low: #1c1b1b;
   --surface-high: #2a2a2a;
+  --surface-highest: #353534;
   --accent-color: #dcff00;
   --text-primary: #ffffff;
   --text-secondary: #aeada4;
   --glass-bg: rgba(53, 53, 52, 0.6);
   --glass-blur: blur(20px);
-  --font-main: 'Kanit', sans-serif;
+  --font-display: 'Epilogue', sans-serif;
+  --font-main: 'Manrope', sans-serif;
+  --font-accent: 'Kanit', sans-serif;
   --transition-smooth: all 0.4s cubic-bezier(0.2, 0, 0, 1);
 }
 

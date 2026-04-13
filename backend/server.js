@@ -1,10 +1,10 @@
 require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
-const axios = require("axios");
 const cors = require("cors");
 const { verifyToken } = require("./auth");
 const routes = require("./routes");
+const { generateFashionRecommendations, getLlmConfig } = require("./llmClient");
 
 const app = express();
 
@@ -19,22 +19,42 @@ app.use(
 // Use routes from routes.js
 app.use("/", routes);
 
-const NVOPENAI_API_KEY = process.env.NVOPENAI_API_KEY;
-const NVIDIA_BASE_URL = "https://integrate.api.nvidia.com/v1";
-
-console.log("ENV CHECK: NVOPENAI_API_KEY is", !!NVOPENAI_API_KEY);
-console.log("ENV CHECK: key prefix:", NVOPENAI_API_KEY?.slice(0, 5));
+try {
+  const llmConfig = getLlmConfig();
+  console.log("ENV CHECK: LLM provider is", llmConfig.providerName);
+  console.log("ENV CHECK: LLM model is", llmConfig.model);
+  console.log("ENV CHECK: API key present:", !!llmConfig.apiKey);
+} catch (error) {
+  console.warn("ENV CHECK: LLM config issue:", error.message);
+}
 
 app.post("/analyze-fashion", verifyToken, async (req, res) => {
-  const { images } = req.body;
+  const { images, styleProfile } = req.body;
 
   if (!images || !Array.isArray(images)) {
     console.warn("Invalid input for /analyze-fashion:", req.body);
     return res.status(400).json({ error: "Invalid input data" });
   }
 
+  const styleProfileContext =
+    styleProfile && styleProfile.sourceLooks
+      ? `
+Known user style memory:
+- Summary: ${styleProfile.summary}
+- Preferred colors: ${(styleProfile.preferredColors || []).map((entry) => entry.name).join(", ") || "None yet"}
+- Recurring pieces: ${(styleProfile.recurringPieces || []).map((entry) => entry.name).join(", ") || "None yet"}
+- Styling themes: ${(styleProfile.stylingThemes || []).map((entry) => entry.name).join(", ") || "None yet"}
+
+Use this memory to personalize recommendations when it fits the uploaded looks. Keep the advice fresh, but grounded in the user's established taste.
+`
+      : `
+No prior style memory is available yet. Infer taste only from the current upload set.
+`;
+
   const prompt = `
 You are a professional fashion stylist. Analyze the following images based on their labels and confidence scores. Provide specific, actionable fashion recommendations for each image.
+
+${styleProfileContext}
 
 ${images
   .map(
@@ -59,51 +79,18 @@ Respond ONLY with a JSON array in the following format:
 `;
 
   try {
-    const response = await axios.post(
-      `${NVIDIA_BASE_URL}/chat/completions`,
-      {
-        model: "openai/gpt-oss-120b",
-        messages: [
-          { role: "system", content: "You are a helpful fashion stylist." },
-          { role: "user", content: prompt },
-        ],
-        temperature: 0.7,
-        top_p: 1,
-        max_tokens: 1024,
-        stream: false,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${NVOPENAI_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-      }
+    const llmResult = await generateFashionRecommendations(prompt);
+
+    console.log(
+      `LLM raw response from ${llmResult.provider}/${llmResult.model}:`,
+      JSON.stringify(llmResult.raw, null, 2)
     );
 
-    console.log("NVIDIA raw response:", JSON.stringify(response.data, null, 2));
-
-    let recommendations = response?.data?.choices?.[0]?.message?.content?.trim() || "";
-    
-    // Attempt to extract JSON if there's any noise
-    try {
-      const jsonMatch = recommendations.match(/\[[\s\S]*\]/);
-      if (jsonMatch) {
-         recommendations = JSON.parse(jsonMatch[0]);
-      } else if (typeof recommendations === 'string') {
-        // Fallback for simple string if JSON isn't perfect
-        recommendations = JSON.parse(recommendations);
-      }
-    } catch (e) {
-      console.error("Failed to parse LLM JSON:", e);
-      // Fallback if not JSON
-    }
-
-    if (!recommendations) {
-      console.error("NVIDIA returned empty recommendations.");
-      return res.status(500).json({ error: "NVIDIA returned no content" });
-    }
-
-    res.status(200).json({ recommendations });
+    res.status(200).json({
+      recommendations: llmResult.recommendations,
+      provider: llmResult.provider,
+      model: llmResult.model,
+    });
   } catch (error) {
     console.error(
       "Error generating recommendations:",

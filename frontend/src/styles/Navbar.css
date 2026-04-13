@@ -15,6 +15,7 @@ nav {
 }
 
 .navbar-brand {
+  font-family: var(--font-display);
   font-weight: 900;
   color: var(--text-primary) !important;
   font-size: 1.4rem;
@@ -37,10 +38,11 @@ nav {
 }
 
 .nav-link {
+  font-family: var(--font-display);
   color: rgba(255, 255, 255, 0.5) !important;
   font-weight: 800;
   text-transform: uppercase;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   letter-spacing: 0.2em;
   transition: all 0.3s ease;
   margin: 0 1.25rem;

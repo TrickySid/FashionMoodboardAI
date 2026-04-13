@@ -2,32 +2,32 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 import { db, auth } from "../firebase";
-import { collection, query, getDocs, orderBy, limit, where } from "firebase/firestore";
+import {
+  collection,
+  query,
+  getDocs,
+  orderBy,
+  limit,
+  where,
+  doc,
+  getDoc,
+} from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/Recommendations.css";
+import { buildStyleProfileMemory, getRecommendationTextForImage } from "../utils/styleProfile";
 
 function Recommendations() {
   const navigate = useNavigate();
   const [recommendations, setRecommendations] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [styleProfileMemory, setStyleProfileMemory] = useState(null);
 
   // Helper to extract the specific recommendation for a given image index (1-based)
-  const getRecommendationForImage = (text, imageNumber) => {
+  const getRecommendationForImage = (session, imageNumber) => {
+    const text = getRecommendationTextForImage(session, imageNumber);
     if (!text) return [];
-    // Split the text to find the lines for Image X
-    const lines = text.split("\n");
-    const targetPrefix = `Image ${imageNumber}`;
-    
-    for (let line of lines) {
-      if (line.trim().startsWith(targetPrefix)) {
-        // Remove "Image X:" or "Image X :"
-        const content = line.replace(new RegExp(`^${targetPrefix}\\s*[:\\-]\\s*`), "").trim();
-        // Return content as a list of sentences by splitting smartly
-        return content.split(/(?<=\.)\s+/).filter(Boolean);
-      }
-    }
-    return [text]; // Fallback
+    return text.split(/(?<=\.)\s+|,\s+(?=[A-Z])/).filter(Boolean);
   };
 
   const renderEditorialSelection = (text) => {
@@ -89,6 +89,7 @@ function Recommendations() {
     let unsubscribe;
     const fetchRecommendations = async (user) => {
       try {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
         const recQuery = query(
           collection(db, "userRecommendations"),
           where("userId", "==", user.uid),
@@ -98,6 +99,11 @@ function Recommendations() {
         const snapshot = await getDocs(recQuery);
         const userRecommendations = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
         setRecommendations(userRecommendations);
+        setStyleProfileMemory(
+          userDoc.data()?.styleProfileMemory ||
+            userRecommendations[0]?.styleProfileSnapshot ||
+            buildStyleProfileMemory(userRecommendations)
+        );
       } catch (error) {
         console.error("Error fetching recommendations:", error);
       }
@@ -131,6 +137,55 @@ function Recommendations() {
             <p className="sub-title">AI Curation from Your Fashion Snapshots</p>
           </div>
 
+          {styleProfileMemory && (
+            <div className="style-memory-panel">
+              <div className="memory-kicker">
+                <i className="fa-solid fa-dna me-2"></i>
+                Persistent Style Memory
+              </div>
+              <div className="memory-layout">
+                <div>
+                  <h3>Editorial profile</h3>
+                  <p>{styleProfileMemory.summary}</p>
+                </div>
+                <div className="memory-metrics">
+                  <span>
+                    <i className="fa-solid fa-layer-group me-2"></i>
+                    {styleProfileMemory.sourceLooks || 0} looks learned
+                  </span>
+                  <span>
+                    <i className="fa-solid fa-chart-line me-2"></i>
+                    {styleProfileMemory.memoryStatus || "new"} profile
+                  </span>
+                  <span>
+                    <i className="fa-solid fa-gauge-high me-2"></i>
+                    {styleProfileMemory.confidence || "low"} confidence
+                  </span>
+                </div>
+              </div>
+              <div className="memory-tags">
+                {styleProfileMemory.preferredColors?.map((entry) => (
+                  <span key={`color-${entry.name}`} className="memory-tag">
+                    <i className="fa-solid fa-palette me-2"></i>
+                    {entry.name}
+                  </span>
+                ))}
+                {styleProfileMemory.recurringPieces?.map((entry) => (
+                  <span key={`piece-${entry.name}`} className="memory-tag">
+                    <i className="fa-solid fa-shirt me-2"></i>
+                    {entry.name}
+                  </span>
+                ))}
+                {styleProfileMemory.stylingThemes?.map((entry) => (
+                  <span key={`theme-${entry.name}`} className="memory-tag">
+                    <i className="fa-solid fa-wand-magic-sparkles me-2"></i>
+                    {entry.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="rec-timeline">
             {recommendations.length > 0 ? (
               recommendations.map((session) => (
@@ -146,7 +201,7 @@ function Recommendations() {
                   <div className="row g-4">
                     {session.recommendations.images?.map((img, imgIdx) => {
                       const imageNumber = imgIdx + 1;
-                      const recSentences = getRecommendationForImage(session.recommendations.fashionRecommendations, imageNumber);
+                      const recSentences = getRecommendationForImage(session, imageNumber);
                       const fullRecString = recSentences.join(" ");
 
                       return (

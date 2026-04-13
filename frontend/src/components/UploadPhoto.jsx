@@ -356,15 +356,15 @@ function UploadPhoto() {
             <h5>Curator Tips</h5>
             <div className="tip-grid">
               <div className="tip-item">
-                <span className="tip-bullet">01</span>
+                <span className="tip-bullet"><i>01</i></span>
                 <p>Ensure clear, well-lit portraits for high-fidelity analysis.</p>
               </div>
               <div className="tip-item">
-                <span className="tip-bullet">02</span>
+                <span className="tip-bullet"><i>02</i></span>
                 <p>Minimalist backgrounds work best to highlight your silhouette.</p>
               </div>
               <div className="tip-item">
-                <span className="tip-bullet">03</span>
+                <span className="tip-bullet"><i>03</i></span>
                 <p>Upload at least 3 distinct looks for deep personality detection.</p>
               </div>
             </div>

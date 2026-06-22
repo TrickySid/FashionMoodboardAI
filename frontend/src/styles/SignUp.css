@@ -89,6 +89,23 @@
       }
     }
 
+    .legal-consent {
+      color: var(--text-secondary);
+      font-size: 0.76rem;
+      line-height: 1.55;
+      margin: 1.25rem 0 0;
+
+      a {
+        color: var(--accent-color);
+        font-weight: 800;
+        text-decoration: none;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+
     .separator {
       margin: 2rem 0;
       span {

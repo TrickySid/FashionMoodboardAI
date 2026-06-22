@@ -70,6 +70,11 @@ function SignUp() {
             Sign Up
           </button>
         </form>
+        <p className="legal-consent">
+          By creating an account, you agree to the{" "}
+          <Link to="/terms">Terms</Link> and acknowledge the{" "}
+          <Link to="/privacy">Privacy Policy</Link>.
+        </p>
         <div className="separator d-flex align-items-center">
           <hr className="flex-grow-1" />
           <span className="mx-2">Already have an account?</span>

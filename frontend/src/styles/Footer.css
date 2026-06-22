@@ -50,6 +50,26 @@
   text-align: right;
 }
 
+.footer-links {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.footer-links a {
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: var(--transition-smooth);
+}
+
+.footer-links a:hover {
+  color: var(--accent-color);
+}
+
 .designed-by {
   color: var(--text-secondary);
   font-size: 0.65rem;
@@ -91,5 +111,9 @@
   .footer-credits {
     align-items: center;
     text-align: center;
+  }
+
+  .footer-links {
+    justify-content: center;
   }
 }

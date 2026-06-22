@@ -7,6 +7,7 @@ import AccountSettings from "./components/AccountSettings";
 import Login from "./components/Login";
 import SignUp from "./components/SignUp";
 import PrivacyPolicy from "./components/PrivacyPolicy";
+import TermsOfUse from "./components/TermsOfUse";
 import Footer from "./components/Footer";
 import { ToastProvider } from "./components/ToastProvider";
 
@@ -22,6 +23,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsOfUse />} />
       </Routes>
       <Footer />
       </Router>

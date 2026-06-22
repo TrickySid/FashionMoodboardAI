@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import '../styles/Footer.css';
 
 function Footer() {
@@ -11,9 +12,14 @@ function Footer() {
         </div>
         
         <div className="footer-credits">
-          <span className="designed-by">ENGINEERED & CURATED BY</span>
+          <span className="designed-by">DEVELOPED BY</span>
           <span className="creator-name">SIDDHESH BAKRE</span>
         </div>
+
+        <nav className="footer-links" aria-label="Legal links">
+          <Link to="/privacy">Privacy</Link>
+          <Link to="/terms">Terms</Link>
+        </nav>
       </div>
     </footer>
   );

@@ -1,18 +1,14 @@
-# Use Node.js LTS version
-FROM node:18
+FROM node:22-slim
 
-# Set working directory
+ENV NODE_ENV=production
 WORKDIR /app
 
-# Copy dependencies
-COPY package*.json ./
-RUN npm install
+COPY --chown=node:node package*.json ./
+RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
 
-# Copy rest of the app
-COPY . .
+COPY --chown=node:node . .
 
-# Expose the default Cloud Run port
+USER node
 EXPOSE 8080
 
-# Start the server
 CMD ["node", "server.js"]

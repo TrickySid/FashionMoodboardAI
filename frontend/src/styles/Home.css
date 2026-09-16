@@ -261,6 +261,7 @@
 }
 
 .get-started-btn {
+  display: inline-block;
   background: var(--accent-color);
   color: #000;
   font-weight: 950;
@@ -272,9 +273,16 @@
   font-size: 1.1rem;
   box-shadow: 0 20px 50px rgba(220, 255, 0, 0.2);
   transition: all 0.5s cubic-bezier(0.2, 0, 0, 1);
+  text-decoration: none;
 }
 
 .get-started-btn:hover {
   transform: scale(1.05) translateY(-5px);
   box-shadow: 0 30px 60px rgba(220, 255, 0, 0.4);
+}
+
+.get-started-btn:disabled {
+  cursor: wait;
+  opacity: 0.55;
+  transform: none;
 }

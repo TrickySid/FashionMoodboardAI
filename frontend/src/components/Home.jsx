@@ -1,27 +1,21 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "./Navbar";
-import { auth } from "../firebase";
-import { onAuthStateChanged } from "firebase/auth";
-import { images } from "./images";
+import { useAuth } from "../auth/AuthContext";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/Home.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const Home = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setIsLoggedIn(!!user);
-    });
-    return unsubscribe;
-  }, []);
+  const { user, loading } = useAuth();
 
   useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return undefined;
+    }
+
     // AI Showcase Timeline
     const analysisData = [
       { img: "/assets/sample_yellow.jpg", advice: "VIBRANT TEXTURE DETECTED. COMPLEMENT MUSTARD TONES WITH COOL METALLICS." },
@@ -36,11 +30,13 @@ const Home = () => {
 
     const runAnalysis = () => {
       const showcase = document.querySelector(".showcase-box");
+      if (!showcase) return;
+
       const img = showcase.querySelector("img");
       const advice = showcase.querySelector(".advice-text");
       const scan = showcase.querySelector(".scanner");
 
-      if (!showcase || !img || !advice || !scan) return;
+      if (!img || !advice || !scan) return;
 
       tl.set([showcase, advice, scan], { opacity: 0 })
         .set(scan, { top: "0%" })
@@ -86,6 +82,7 @@ const Home = () => {
 
     return () => {
       tl.kill();
+      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
     };
   }, []);
 
@@ -120,9 +117,11 @@ const Home = () => {
             Analyze and Improve <br />
             <span>Your Fashion</span>
           </h1>
-          <Link to={isLoggedIn ? "/upload" : "/login"}>
-            <button className="get-started-btn">Get Started</button>
-          </Link>
+          {loading ? (
+            <button className="get-started-btn" disabled>Checking session...</button>
+          ) : (
+            <Link className="get-started-btn" to={user ? "/upload" : "/login"}>Get Started</Link>
+          )}
         </div>
       </header>
 
@@ -141,14 +140,14 @@ const Home = () => {
               <div className="feature-card">
                 <span className="step-num">02</span>
                 <h3>LLM Insight</h3>
-                <p>The OpenAI model translates pixels into high-end editorial advice, ensuring every recommendation feels curated by a top-tier stylist.</p>
+                <p>A configurable language model translates structured vision labels into clear, editorial-style recommendations.</p>
               </div>
             </div>
             <div className="col-lg-4">
               <div className="feature-card">
                 <span className="step-num">03</span>
-                <h3>Market Sourcing</h3>
-                <p>Automatically hunt for the pieces mentioned in your report. We bridge the gap between AI advice and your actual wardrobe.</p>
+                <h3>Searchable Edit</h3>
+                <p>Fashion keywords become safe search shortcuts, connecting each recommendation to practical wardrobe research.</p>
               </div>
             </div>
           </div>
@@ -170,9 +169,11 @@ const Home = () => {
         <div className="cta-content container text-center">
           <h2 className="display-4">Ready to evolve?</h2>
           <p className="lead mb-5">Your personal digital curator is waiting to analyze your first look.</p>
-          <Link to={isLoggedIn ? "/upload" : "/login"}>
-            <button className="get-started-btn">Start My Analysis</button>
-          </Link>
+          {loading ? (
+            <button className="get-started-btn" disabled>Checking session...</button>
+          ) : (
+            <Link className="get-started-btn" to={user ? "/upload" : "/login"}>Start My Analysis</Link>
+          )}
         </div>
       </section>
     </div>

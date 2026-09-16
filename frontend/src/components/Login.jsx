@@ -1,29 +1,45 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { auth } from "../firebase";
+import { useEffect, useState } from "react";
+import { useNavigate, Link, useLocation } from "react-router-dom";
+import { auth } from "../firebaseAuth";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useToast } from "./ToastProvider";
-import "bootstrap/dist/css/bootstrap.min.css";
+import { useAuth } from "../auth/AuthContext";
+import { getAuthErrorMessage } from "../utils/errors";
 import "../styles/Login.css";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const { user, loading } = useAuth();
+  const destination = location.state?.from || "/upload";
 
   const { addToast } = useToast();
+
+  useEffect(() => {
+    if (user) navigate(destination, { replace: true });
+  }, [destination, navigate, user]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (submitting) return;
+
+    setSubmitting(true);
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      localStorage.setItem("authToken", await userCredential.user.getIdToken());
-      localStorage.setItem("userEmail", userCredential.user.email);
-      window.dispatchEvent(new Event("storage"));
-      navigate("/upload");
+      await signInWithEmailAndPassword(auth, email.trim(), password);
+      navigate(destination, { replace: true });
     } catch (error) {
-      addToast("Login failed: " + error.message, "error");
+      addToast(getAuthErrorMessage(error, "Login failed. Please try again."), "error");
+    } finally {
+      setSubmitting(false);
     }
   };
+
+  if (loading) {
+    return <main className="auth-loading" aria-live="polite">Checking your session...</main>;
+  }
 
   return (
     <div className="login-page">
@@ -35,27 +51,33 @@ function Login() {
         <h2 className="title">Login</h2>
         <form className="login-form" onSubmit={handleSubmit}>
           <div className="form-group">
+            <label className="visually-hidden" htmlFor="login-email">Email</label>
             <input
+              id="login-email"
               type="email"
               className="form-control"
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              autoComplete="email"
             />
           </div>
           <div className="form-group">
+            <label className="visually-hidden" htmlFor="login-password">Password</label>
             <input
+              id="login-password"
               type="password"
               className="form-control"
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              autoComplete="current-password"
             />
           </div>
-          <button type="submit" className="login-btn btn w-100">
-            Login
+          <button type="submit" className="login-btn btn w-100" disabled={submitting}>
+            {submitting ? "Signing in..." : "Login"}
           </button>
         </form>
         <div className="separator d-flex align-items-center">

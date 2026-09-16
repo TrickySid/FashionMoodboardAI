@@ -1,25 +1,53 @@
-const admin = require("firebase-admin");
+const {
+  applicationDefault,
+  getApps,
+  initializeApp,
+} = require("firebase-admin/app");
+const { getAuth } = require("firebase-admin/auth");
 
-admin.initializeApp({
-  credential: admin.credential.applicationDefault(),
-  databaseURL: process.env.FIREBASE_DATABASE_URL,
-});
+let firebaseAuth;
 
-async function verifyToken(req, res, next) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ error: "Missing or invalid token" });
-  }
+function getFirebaseAuth() {
+  if (firebaseAuth) return firebaseAuth;
 
-  const idToken = authHeader.split(" ")[1];
-  try {
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
-    req.user = decodedToken;
-    next();
-  } catch (error) {
-    console.error("Token verification failed:", error);
-    res.status(403).json({ error: "Access denied" });
-  }
+  const firebaseApp = getApps()[0] || initializeApp({
+    credential: applicationDefault(),
+    ...(process.env.FIREBASE_DATABASE_URL
+      ? { databaseURL: process.env.FIREBASE_DATABASE_URL }
+      : {}),
+  });
+  firebaseAuth = getAuth(firebaseApp);
+  return firebaseAuth;
 }
 
-module.exports = { admin, verifyToken };
+function extractBearerToken(authHeader) {
+  if (typeof authHeader !== "string") return null;
+  const match = authHeader.match(/^Bearer ([^\s]+)$/);
+  return match?.[1] || null;
+}
+
+function createVerifyToken(verifyIdToken) {
+  return async function verifyTokenMiddleware(req, res, next) {
+    const idToken = extractBearerToken(req.headers.authorization);
+    if (!idToken) {
+      return res.status(401).json({ error: "Missing or invalid token" });
+    }
+
+    try {
+      const decodedToken = await verifyIdToken(idToken, true);
+      req.user = decodedToken;
+      return next();
+    } catch (error) {
+      console.warn("Firebase token verification failed", {
+        code: error?.code,
+      });
+      return res.status(401).json({ error: "Authentication required" });
+    }
+  };
+}
+
+const verifyToken = createVerifyToken((token, checkRevoked) =>
+  getFirebaseAuth().verifyIdToken(token, checkRevoked)
+);
+
+module.exports = { createVerifyToken, extractBearerToken, verifyToken };

@@ -1,13 +1,13 @@
 {
-  "dependencies": {
-    "@popperjs/core": "^2.11.8",
-    "axios": "^1.20.0",
-    "bootstrap": "^5.3.8",
-    "bootstrap-icons": "^1.13.1",
-    "gsap": "^3.15.0",
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8",
-    "react-toastify": "^11.1.0",
-    "start": "^5.1.0"
+  "name": "fashion-moodboard-ai",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "npm --prefix frontend run build",
+    "test": "npm --prefix backend test && npm --prefix frontend test",
+    "lint": "npm --prefix frontend run lint",
+    "check": "npm --prefix backend run check && npm run lint && npm test && npm run build"
   }
 }

@@ -156,14 +156,21 @@
   border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.change-password-section h6 {
+.change-password-section h2 {
   color: var(--text-primary);
   font-family: var(--font-display);
   font-size: 1.2rem;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin-bottom: 2.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.password-note {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  margin-bottom: 2rem;
 }
 
 .save-changes-btn {
@@ -186,4 +193,27 @@
   background: #fff;
   transform: scale(1.02);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.save-changes-btn:disabled,
+.remove-photo-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  transform: none;
+}
+
+@media (max-width: 640px) {
+  .account-settings-page {
+    padding: 30px 0 70px;
+  }
+
+  .settings-card {
+    width: calc(100% - 24px);
+    padding: 2.25rem 1.5rem;
+  }
+
+  .profile-pic-container {
+    align-items: flex-start;
+    flex-direction: column;
+  }
 }

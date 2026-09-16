@@ -1,22 +1,29 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "main": "index.js",
+  "private": true,
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "test": "node --test app.test.js auth.test.js llmClient.test.js validation.test.js",
+    "test:vision": "node vision-smoke.js",
+    "check": "node --check server.js && node --check app.js && node --check routes.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
+  "engines": {
+    "node": ">=22"
+  },
   "dependencies": {
-    "@google-cloud/vision": "^6.0.0",
+    "@google-cloud/vision": "^6.1.0",
     "axios": "^1.20.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "firebase-admin": "^14.3.0",
-    "googleapis": "^178.0.0",
-    "multer": "^2.3.0"
+    "express-rate-limit": "^8.2.1",
+    "firebase-admin": "^14.4.0",
+    "helmet": "^8.1.0"
   }
 }

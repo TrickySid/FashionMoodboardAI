@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import Navbar from "./Navbar";
-import { db, auth } from "../firebase";
+import { db } from "../firebaseData";
 import {
   collection,
   query,
@@ -12,16 +12,18 @@ import {
   doc,
   getDoc,
 } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
-import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/Recommendations.css";
 import { buildStyleProfileMemory, getRecommendationTextForImage } from "../utils/styleProfile";
+import { useAuth } from "../auth/AuthContext";
+import { safeImageUrl } from "../utils/urls";
 
 function Recommendations() {
-  const navigate = useNavigate();
+  const { user } = useAuth();
   const [recommendations, setRecommendations] = useState([]);
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [styleProfileMemory, setStyleProfileMemory] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [reloadKey, setReloadKey] = useState(0);
 
   // Helper to extract the specific recommendation for a given image index (1-based)
   const getRecommendationForImage = (session, imageNumber) => {
@@ -86,8 +88,11 @@ function Recommendations() {
   };
 
   useEffect(() => {
-    let unsubscribe;
-    const fetchRecommendations = async (user) => {
+    let cancelled = false;
+
+    const fetchRecommendations = async () => {
+      setLoading(true);
+      setError("");
       try {
         const userDoc = await getDoc(doc(db, "users", user.uid));
         const recQuery = query(
@@ -98,39 +103,33 @@ function Recommendations() {
         );
         const snapshot = await getDocs(recQuery);
         const userRecommendations = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        setRecommendations(userRecommendations);
-        setStyleProfileMemory(
-          userDoc.data()?.styleProfileMemory ||
-            userRecommendations[0]?.styleProfileSnapshot ||
-            buildStyleProfileMemory(userRecommendations)
-        );
+        if (!cancelled) {
+          setRecommendations(userRecommendations);
+          setStyleProfileMemory(
+            userDoc.data()?.styleProfileMemory ||
+              userRecommendations[0]?.styleProfileSnapshot ||
+              buildStyleProfileMemory(userRecommendations)
+          );
+        }
       } catch (error) {
-        console.error("Error fetching recommendations:", error);
+        console.error("Recommendation history load failed", { code: error?.code });
+        if (!cancelled) setError("Your fashion vault could not be loaded. Please try again.");
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     };
 
-    unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setIsLoggedIn(true);
-        fetchRecommendations(user);
-      } else {
-        setIsLoggedIn(false);
-        setRecommendations([]);
-        navigate("/login");
-      }
-    });
+    fetchRecommendations();
 
-    return () => unsubscribe && unsubscribe();
-  }, []);
-
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-  };
+    return () => {
+      cancelled = true;
+    };
+  }, [reloadKey, user.uid]);
 
   return (
     <>
-      <Navbar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
-      <div className="recommendations">
+      <Navbar />
+      <main className="recommendations">
         <div className="container py-5">
           <div className="header-section text-center mb-5">
             <h2 className="title">Improve Your Style</h2>
@@ -187,19 +186,31 @@ function Recommendations() {
           )}
 
           <div className="rec-timeline">
-            {recommendations.length > 0 ? (
+            {loading ? (
+              <div className="vault-state" aria-live="polite" aria-busy="true">
+                <span className="spinner-border" aria-hidden="true" />
+                <p>Opening your fashion vault...</p>
+              </div>
+            ) : error ? (
+              <div className="vault-state" role="alert">
+                <p>{error}</p>
+                <button type="button" className="accent-btn" onClick={() => setReloadKey((value) => value + 1)}>
+                  Try Again
+                </button>
+              </div>
+            ) : recommendations.length > 0 ? (
               recommendations.map((session) => (
                 <div key={session.id} className="session-group mb-5">
                   <div className="session-date mb-4">
                     <span className="badge-date">
-                      {session.timestamp
-                        ? new Date(session.timestamp.toDate()).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })
+                      {session.timestamp?.toDate
+                        ? session.timestamp.toDate().toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })
                         : "Recent Snapshot"}
                     </span>
                   </div>
 
                   <div className="row g-4">
-                    {session.recommendations.images?.map((img, imgIdx) => {
+                    {session.recommendations?.images?.map((img, imgIdx) => {
                       const imageNumber = imgIdx + 1;
                       const recSentences = getRecommendationForImage(session, imageNumber);
                       const fullRecString = recSentences.join(" ");
@@ -209,21 +220,23 @@ function Recommendations() {
                           <div className="editorial-card">
                             <div className="rec-image-wrapper">
                               <img 
-                                src={img.imageUrl} 
+                                src={safeImageUrl(img.imageUrl)}
                                 alt={`Look ${imageNumber}`} 
-                                className="look-img" 
+                                className="look-img"
+                                loading="lazy"
+                                decoding="async"
                               />
                             </div>
                             
                             <div className="content-wrapper">
                               <h3 className="look-number">Look 0{imageNumber}</h3>
                               <div className="rec-points mt-3">
-                                {recSentences.map((sentence, sIdx) => (
+                                {recSentences.length ? recSentences.map((sentence, sIdx) => (
                                   <p key={sIdx} className="rec-text">
-                                    <i className="fa-solid fa-angle-right bullet-icon"></i> 
+                                    <i className="fa-solid fa-angle-right bullet-icon" aria-hidden="true"></i>
                                     {sentence}
                                   </p>
-                                ))}
+                                )) : <p className="rec-text">No recommendation text was saved for this look.</p>}
                               </div>
                               
                               <div className="curated-section mt-4">
@@ -240,11 +253,12 @@ function Recommendations() {
             ) : (
               <div className="text-center mt-5">
                 <p className="nothing">No fashion records found yet. Upload photos to generate your first report!</p>
+                <Link to="/upload" className="accent-btn d-inline-block text-decoration-none mt-3">Build a Moodboard</Link>
               </div>
             )}
           </div>
         </div>
-      </div>
+      </main>
     </>
   );
 }

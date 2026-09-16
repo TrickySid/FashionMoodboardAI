@@ -1,194 +1,213 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import Navbar from "./Navbar";
-import { auth, db, storage } from "../firebase";
-import { onAuthStateChanged } from "firebase/auth";
-import { updateProfile, EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "firebase/auth";
-import { ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
+import { auth } from "../firebaseAuth";
+import { db, storage } from "../firebaseData";
+import {
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+  updatePassword,
+  updateProfile,
+} from "firebase/auth";
+import {
+  deleteObject,
+  getDownloadURL,
+  ref as storageRef,
+  uploadBytes,
+} from "firebase/storage";
 import { doc, setDoc } from "firebase/firestore";
-import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/AccountSettings.css";
 import { useToast } from "./ToastProvider";
+import { useAuth } from "../auth/AuthContext";
+import { getAuthErrorMessage } from "../utils/errors";
+import {
+  ACCEPTED_IMAGE_TYPES,
+  imageExtension,
+  validateImageFile,
+} from "../utils/imageFiles";
+import { safeImageUrl } from "../utils/urls";
 
 function AccountSettings() {
-  const navigate = useNavigate();
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
-  const [currentPhotoUrl, setCurrentPhotoUrl] = useState(null);
-
-  // Route guard: redirect to login if not authenticated
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        navigate("/login");
-      } else {
-        setIsLoggedIn(true);
-        setEmail(user.email || "");
-        setName(user.displayName || "");
-        setCurrentPhotoUrl(user.photoURL || null);
-      }
-    });
-    // Note: onAuthStateChanged is imported from firebase/auth, ensure it's available
-    return unsubscribe;
-  }, [navigate]);
-  
-
+  const { user, refreshUser } = useAuth();
   const { addToast } = useToast();
-  
-  const deleteOldPhoto = async (photoUrl) => {
-    if (!photoUrl) return;
+  const [name, setName] = useState(user.displayName || "");
+  const [currentPhotoUrl, setCurrentPhotoUrl] = useState(user.photoURL || null);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [photoBusy, setPhotoBusy] = useState(false);
+
+  const deleteStoredPhoto = async (photoUrl) => {
+    if (!photoUrl || !photoUrl.includes("firebasestorage")) return;
+
     try {
-      // Only delete if it's a Firebase Storage URL (not the default avatar)
-      if (photoUrl.includes('firebasestorage')) {
-        const oldRef = storageRef(storage, photoUrl);
-        await deleteObject(oldRef);
-      }
-    } catch (err) {
-      console.error("Failed to delete old photo:", err);
+      await deleteObject(storageRef(storage, photoUrl));
+    } catch {
+      console.warn("Old profile photo cleanup failed", { code: error?.code });
     }
   };
 
   const uploadProfilePhoto = async (file) => {
-    if (!auth.currentUser) return;
+    const validationError = validateImageFile(file);
+    if (validationError) {
+      addToast(validationError, "error");
+      return;
+    }
+
+    setPhotoBusy(true);
+    const oldUrl = user.photoURL;
+    let newReference;
+
     try {
-      // Capture the old URL before uploading
-      const oldUrl = auth.currentUser.photoURL;
-      
-      const storagePath = storageRef(storage, `user-uploads/${auth.currentUser.uid}/profile-${Date.now()}`);
-      const snapshot = await uploadBytes(storagePath, file);
+      const path = `user-uploads/${user.uid}/profile/avatar-${crypto.randomUUID()}.${imageExtension(file)}`;
+      newReference = storageRef(storage, path);
+      const snapshot = await uploadBytes(newReference, file, {
+        contentType: file.type,
+        cacheControl: "private,max-age=3600",
+      });
       const url = await getDownloadURL(snapshot.ref);
-      
+
       await updateProfile(auth.currentUser, { photoURL: url });
-      
-      // Delete old photo after successful upload to avoid data loss on failure
-      if (oldUrl && oldUrl.includes('firebasestorage')) {
-        await deleteOldPhoto(oldUrl);
-      }
-      
+      await refreshUser();
       setCurrentPhotoUrl(url);
-      addToast("Profile photo updated", "success");
-    } catch (err) {
-      addToast("Failed to update photo: " + err.message, "error");
+      await deleteStoredPhoto(oldUrl);
+      addToast("Profile photo updated.", "success");
+    } catch {
+      if (newReference) await deleteObject(newReference).catch(() => {});
+      addToast("Profile photo could not be updated. Please try again.", "error");
+    } finally {
+      setPhotoBusy(false);
     }
   };
 
   const handleRemovePhoto = async () => {
-    if (!auth.currentUser) return;
-    
-    // Check if there is even a photo to remove
-    const photoUrl = auth.currentUser.photoURL;
-    if (!photoUrl || photoUrl === "/assets/default-avatar.jpg") {
-      addToast("Already using default avatar", "info");
+    const oldUrl = user.photoURL;
+    if (!oldUrl) {
+      addToast("You are already using the default avatar.", "info");
       return;
     }
 
+    setPhotoBusy(true);
     try {
-      // 1. Delete from Storage if it's a dynamic upload
-      if (photoUrl.includes('firebasestorage')) {
-        await deleteOldPhoto(photoUrl);
-      }
-
-      // 2. Clear from Firebase Auth
-      await updateProfile(auth.currentUser, { photoURL: "/assets/default-avatar.jpg" });
-      
-      // 3. Update local state
-      setCurrentPhotoUrl("/assets/default-avatar.jpg");
-      addToast("Profile photo removed", "success");
-    } catch (err) {
-      addToast("Failed to remove photo: " + err.message, "error");
-    }
-  };
-
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-  };
-
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmNewPassword, setConfirmNewPassword] = useState("");
-
-  const handleSaveChanges = async (e) => {
-    e.preventDefault();
-    try {
-      // Update display name in Firebase Auth if provided
-      const trimmedName = name?.trim();
-      if (trimmedName) {
-        await updateProfile(auth.currentUser, { displayName: trimmedName });
-      }
-      // Persist to Firestore if available
-      if (auth.currentUser?.uid) {
-        await setDoc(doc(db, "users", auth.currentUser.uid), {
-          name: trimmedName ?? name,
-          email: auth.currentUser.email,
-        }, { merge: true });
-      }
-      // Password change flow
-      if (newPassword && newPassword.trim().length > 0) {
-        if (newPassword !== (confirmNewPassword || "")) {
-          addToast("New passwords do not match", "error");
-          return;
-        }
-        if (!currentPassword) {
-          addToast("Please enter your current password to change password", "error");
-          return;
-        }
-        try {
-          const user = auth.currentUser;
-          const credential = EmailAuthProvider.credential(user.email, currentPassword);
-          await reauthenticateWithCredential(user, credential);
-          await updatePassword(user, newPassword);
-          addToast("Password updated successfully", "success");
-          setCurrentPassword("");
-          setNewPassword("");
-          setConfirmNewPassword("");
-        } catch (err) {
-          addToast("Password update failed: " + err.message, "error");
-        }
-    } else {
-      addToast("Account settings updated successfully!", "success");
-    }
+      await updateProfile(auth.currentUser, { photoURL: null });
+      await refreshUser();
+      setCurrentPhotoUrl(null);
+      await deleteStoredPhoto(oldUrl);
+      addToast("Profile photo removed.", "success");
     } catch (error) {
-      addToast("Account settings update failed: " + error.message, "error");
+      addToast(getAuthErrorMessage(error, "Profile photo could not be removed."), "error");
+    } finally {
+      setPhotoBusy(false);
+    }
+  };
+
+  const handleSaveChanges = async (event) => {
+    event.preventDefault();
+    if (saving) return;
+
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      addToast("Enter a display name.", "error");
+      return;
+    }
+
+    const changingPassword = Boolean(newPassword || confirmNewPassword || currentPassword);
+    if (changingPassword) {
+      if (!currentPassword) {
+        addToast("Enter your current password to change it.", "error");
+        return;
+      }
+      if (newPassword.length < 6) {
+        addToast("Use a new password with at least 6 characters.", "error");
+        return;
+      }
+      if (newPassword !== confirmNewPassword) {
+        addToast("New passwords do not match.", "error");
+        return;
+      }
+    }
+
+    setSaving(true);
+    try {
+      if (changingPassword) {
+        const credential = EmailAuthProvider.credential(user.email, currentPassword);
+        await reauthenticateWithCredential(auth.currentUser, credential);
+        await updatePassword(auth.currentUser, newPassword);
+      }
+
+      await updateProfile(auth.currentUser, { displayName: trimmedName });
+      await setDoc(
+        doc(db, "users", user.uid),
+        { name: trimmedName, email: user.email },
+        { merge: true }
+      );
+      await refreshUser();
+      setName(trimmedName);
+
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmNewPassword("");
+      addToast(
+        changingPassword
+          ? "Profile and password updated."
+          : "Account settings updated.",
+        "success"
+      );
+    } catch (error) {
+      addToast(
+        getAuthErrorMessage(error, "Account settings could not be updated."),
+        "error"
+      );
+    } finally {
+      setSaving(false);
     }
   };
 
   return (
     <>
-      <Navbar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
-      <div className="account-settings-page">
+      <Navbar />
+      <main className="account-settings-page">
         <div className="settings-card">
           <form onSubmit={handleSaveChanges}>
-            <h4 className="title">Account Settings</h4>
-            
-            {/* Display Picture */}
+            <h1 className="title">Account Settings</h1>
+
             <div className="mb-4">
-              <label className="form-label">Display Picture</label>
+              <span className="form-label">Display Picture</span>
               <div className="profile-pic-container">
-                <img src={currentPhotoUrl || "/assets/default-avatar.jpg"} alt="Profile" />
+                <img
+                  src={safeImageUrl(currentPhotoUrl)}
+                  alt="Current profile"
+                  width="120"
+                  height="120"
+                />
                 <div className="profile-actions">
-                  <label className="upload-btn-outline">
-                    Change Photo
-                    <input
-                      type="file"
-                      onChange={async (e) => {
-                        const file = e.target.files[0];
-                        if (file) {
-                          await uploadProfilePhoto(file);
-                        }
-                      }}
-                      accept="image/*"
-                      style={{ display: "none" }}
-                    />
+                  <label className="upload-btn-outline" htmlFor="profile-photo">
+                    {photoBusy ? "Updating..." : "Change Photo"}
                   </label>
-                  <button type="button" className="remove-photo-btn" onClick={handleRemovePhoto}>
+                  <input
+                    id="profile-photo"
+                    className="visually-hidden"
+                    type="file"
+                    onChange={(event) => {
+                      const file = event.target.files?.[0];
+                      event.target.value = "";
+                      if (file) uploadProfilePhoto(file);
+                    }}
+                    accept={ACCEPTED_IMAGE_TYPES.join(",")}
+                    disabled={photoBusy}
+                  />
+                  <button
+                    type="button"
+                    className="remove-photo-btn"
+                    onClick={handleRemovePhoto}
+                    disabled={photoBusy || !currentPhotoUrl}
+                  >
                     Remove Photo
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Name */}
             <div>
               <label htmlFor="name" className="form-label">Name</label>
               <input
@@ -196,73 +215,72 @@ function AccountSettings() {
                 className="form-control"
                 id="name"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Enter your name"
+                onChange={(event) => setName(event.target.value)}
+                maxLength="100"
+                autoComplete="name"
+                required
               />
             </div>
 
-            {/* Email */}
             <div>
               <label htmlFor="email" className="form-label">Email</label>
               <input
                 type="email"
                 className="form-control"
                 id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={user.email || ""}
                 disabled
-                placeholder="Enter your email"
               />
             </div>
 
-            {/* Password Change */}
-            <div className="change-password-section">
-              <h6>Change Password</h6>
+            <section className="change-password-section" aria-labelledby="change-password-title">
+              <h2 id="change-password-title">Change Password</h2>
+              <p className="password-note">Leave these fields blank to keep your current password.</p>
               <div className="mb-3">
-                <label className="form-label">Current Password</label>
+                <label htmlFor="current-password" className="form-label">Current Password</label>
                 <input
+                  id="current-password"
                   type="password"
                   className="form-control"
                   value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  placeholder="Current password"
+                  onChange={(event) => setCurrentPassword(event.target.value)}
+                  autoComplete="current-password"
                 />
               </div>
               <div className="mb-3">
-                <label className="form-label">New Password</label>
+                <label htmlFor="new-password" className="form-label">New Password</label>
                 <input
+                  id="new-password"
                   type="password"
                   className="form-control"
                   value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="New password"
+                  onChange={(event) => setNewPassword(event.target.value)}
+                  minLength="6"
+                  autoComplete="new-password"
                 />
               </div>
               <div className="mb-3">
-                <label className="form-label">Confirm New Password</label>
+                <label htmlFor="confirm-password" className="form-label">Confirm New Password</label>
                 <input
+                  id="confirm-password"
                   type="password"
                   className="form-control"
                   value={confirmNewPassword}
-                  onChange={(e) => setConfirmNewPassword(e.target.value)}
-                  placeholder="Confirm new password"
+                  onChange={(event) => setConfirmNewPassword(event.target.value)}
+                  minLength="6"
+                  autoComplete="new-password"
                 />
               </div>
-            </div>
+            </section>
 
-            {/* Save Changes Button */}
-            <button
-              type="submit"
-              className="save-changes-btn"
-            >
-              Save Changes
+            <button type="submit" className="save-changes-btn" disabled={saving}>
+              {saving ? "Saving..." : "Save Changes"}
             </button>
           </form>
         </div>
-      </div>
+      </main>
     </>
   );
 }
 
 export default AccountSettings;
-

@@ -1,113 +1,81 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import "bootstrap/dist/css/bootstrap.min.css";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebaseAuth";
+import { useAuth } from "../auth/AuthContext";
+import { useToast } from "./ToastProvider";
 import "../styles/Navbar.css";
-import { useEffect, useState } from "react";
-import { auth, } from "../firebase";
-import { onAuthStateChanged, signOut, onIdTokenChanged } from "firebase/auth";
 
-function Navbar({ isLoggedIn, onLogout }) {
-  const [currentUser, setCurrentUser] = useState(null);
+function Navbar() {
+  const { user, loading } = useAuth();
+  const { addToast } = useToast();
   const navigate = useNavigate();
-
-  // Sync with Firebase auth state
-  useEffect(() => {
-    const unsub1 = onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user);
-    });
-    // Ensure avatar updates when token changes (e.g., after profile updates)
-    const unsub2 = onIdTokenChanged(auth, (user) => {
-      setCurrentUser(user);
-    });
-    return () => {
-      unsub1();
-      unsub2();
-    };
-  }, []);
-
-  // Local derived login state (fallback if no observer yet)
-  const isUserLoggedIn = !!currentUser;
 
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      // Let the onAuthStateChanged listener propagate login state change
-      if (typeof onLogout === "function") {
-        onLogout();
-      }
       navigate("/");
-    } catch (e) {
-      console.error("Logout failed", e);
+    } catch {
+      addToast("Sign out failed. Please try again.", "error");
     }
   };
 
   return (
-    <nav className="navbar navbar-expand-lg">
+    <nav className="navbar navbar-expand-lg" aria-label="Primary navigation">
       <div className="container-fluid d-flex justify-content-between align-items-center px-4">
-        {/* Left: Brand */}
         <Link className="navbar-brand" to="/">
           FASHION MOODBOARD <span className="ai-text">AI</span>
         </Link>
 
-        {/* Right: Nav links and buttons */}
-        <div className="d-flex align-items-center">
-          {isUserLoggedIn && (
+        <div className="navbar-actions d-flex align-items-center">
+          {!loading && user && (
             <>
-              <NavLink className="nav-link" to="/upload">
-                Upload
-              </NavLink>
-              <NavLink className="nav-link" to="/recommendations">
-                AI Recommendations
-              </NavLink>
+              <NavLink className="nav-link" to="/upload">Upload</NavLink>
+              <NavLink className="nav-link" to="/recommendations">AI Recommendations</NavLink>
             </>
           )}
-          {!isUserLoggedIn ? (
+          {!loading && !user ? (
             <>
-              <Link to="/login" className="login-btn btn btn-outline-primary ms-2">
-                Login
-              </Link>
-              <Link to="/signup" className="signup-btn btn btn-primary ms-2">
-                Sign Up
-              </Link>
+              <Link to="/login" className="login-btn btn btn-outline-primary ms-2">Login</Link>
+              <Link to="/signup" className="signup-btn btn btn-primary ms-2">Sign Up</Link>
             </>
-          ) : (
+          ) : !loading ? (
             <div className="dropdown ms-2">
               <button
                 className="avatar-btn dropdown-toggle"
                 type="button"
-                id="dropdownMenuButton"
+                id="account-menu"
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
+                aria-label="Open account menu"
               >
-                <img src={currentUser?.photoURL || "/assets/default-avatar.jpg"} alt="Avatar" style={{ width: 28, height: 28, borderRadius: '50%' }} />
+                <img
+                  src={user.photoURL || "/assets/default-avatar.jpg"}
+                  alt=""
+                  width="28"
+                  height="28"
+                />
               </button>
-              <ul
-                className="dropdown-menu dropdown-menu-end"
-                aria-labelledby="dropdownMenuButton"
-              >
+              <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="account-menu">
                 <li>
                   <Link className="dropdown-item d-flex align-items-center menu-item" to="/account-settings">
-                    <i className="fa-solid fa-gear" />
+                    <i className="fa-solid fa-gear" aria-hidden="true" />
                     <span>Account Settings</span>
                   </Link>
                 </li>
-                <li>
-                  <hr className="dropdown-divider" />
-                </li>
+                <li><hr className="dropdown-divider" /></li>
                 <li>
                   <button
+                    type="button"
                     className="dropdown-item d-flex align-items-center menu-item text-danger"
-                    onClick={async (e) => {
-                      e.preventDefault();
-                      await handleLogout();
-                    }}
+                    onClick={handleLogout}
                   >
-                    <i className="fa-solid fa-right-from-bracket" />
+                    <i className="fa-solid fa-right-from-bracket" aria-hidden="true" />
                     <span>Sign Out</span>
                   </button>
                 </li>
               </ul>
             </div>
-          )}
+          ) : null}
         </div>
       </div>
     </nav>

@@ -1,48 +1,55 @@
 const vision = require("@google-cloud/vision");
-const axios = require("axios");
+const { validateImageRequest } = require("./validation");
 
-const client = new vision.ImageAnnotatorClient();
+let client;
+
+function getVisionClient() {
+  if (!client) client = new vision.ImageAnnotatorClient();
+  return client;
+}
 
 async function analyzeImage(req, res) {
-  const { imageBase64 } = req.body;
-  if (!imageBase64) {
-    return res.status(400).json({ error: "Image data is required" });
+  const validation = validateImageRequest(req.body);
+  if (!validation.ok) {
+    return res.status(400).json({ error: validation.error });
   }
 
   try {
-    const [result] = await client.annotateImage({
-      image: { content: imageBase64 },
-      features: [
-        { type: "LABEL_DETECTION", maxResults: 10 },
-        { type: "IMAGE_PROPERTIES" },
-      ],
+    const [result] = await getVisionClient().annotateImage(
+      {
+        image: { content: validation.value.buffer },
+        features: [
+          { type: "LABEL_DETECTION", maxResults: 10 },
+          { type: "IMAGE_PROPERTIES" },
+        ],
+      },
+      { timeout: 30_000 }
+    );
+
+    const labels = (result.labelAnnotations || []).map((label) => ({
+      description: label.description || "Unknown",
+      score: Number(label.score || 0),
+    }));
+    const colors = (
+      result.imagePropertiesAnnotation?.dominantColors?.colors || []
+    )
+      .slice(0, 10)
+      .map((entry) => ({
+        color: entry.color,
+        score: Number(entry.score || 0),
+        pixelFraction: Number(entry.pixelFraction || 0),
+      }));
+
+    return res.status(200).json({ labels, colors });
+  } catch (error) {
+    console.error("Vision analysis failed", {
+      code: error?.code,
+      message: error?.message,
     });
-
-    const labels = result.labelAnnotations || [];
-    const colors =
-      result.imagePropertiesAnnotation?.dominantColors?.colors || [];
-    res.status(200).json({ labels, colors });
-  } catch (error) {
-    console.error("Error analyzing image:", error.message);
-    res.status(500).json({ error: "Failed to analyze image" });
+    return res.status(502).json({
+      error: "Image analysis is temporarily unavailable. Please try again.",
+    });
   }
 }
 
-async function getUserPhotos(req, res) {
-  const userId = req.query.userId;
-  const token = req.headers.authorization;
-  if (!userId || !token) {
-    return res.status(400).json({ error: "Missing userId or token" });
-  }
-
-  try {
-    const url = `https://graph.facebook.com/${userId}/photos?access_token=${token}`;
-    const { data } = await axios.get(url);
-    res.json({ photos: data });
-  } catch (error) {
-    console.error("Error fetching user photos:", error.message);
-    res.status(500).json({ error: "Failed to fetch user photos" });
-  }
-}
-
-module.exports = { analyzeImage, getUserPhotos };
+module.exports = { analyzeImage };

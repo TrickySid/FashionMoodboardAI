@@ -48,13 +48,53 @@ function extractJsonArray(content = "") {
 
     return JSON.parse(content);
   } catch (error) {
-    console.error("Failed to parse LLM JSON:", error);
     return [];
   }
 }
 
-async function generateFashionRecommendations(prompt) {
+function validateRecommendations(value, expectedImageCount) {
+  if (!Array.isArray(value) || value.length !== expectedImageCount) {
+    return [];
+  }
+
+  const imageNumbers = new Set();
+  const recommendations = [];
+
+  for (const item of value) {
+    if (
+      !item ||
+      !Number.isInteger(item.imageNumber) ||
+      item.imageNumber < 1 ||
+      item.imageNumber > expectedImageCount ||
+      imageNumbers.has(item.imageNumber) ||
+      !Array.isArray(item.recommendations) ||
+      item.recommendations.length !== 3
+    ) {
+      return [];
+    }
+
+    const tips = item.recommendations.map((tip) =>
+      typeof tip === "string" ? tip.replace(/[\u0000-\u001f\u007f]/g, " ").trim() : ""
+    );
+
+    if (tips.some((tip) => !tip || tip.length > 600)) {
+      return [];
+    }
+
+    imageNumbers.add(item.imageNumber);
+    recommendations.push({ imageNumber: item.imageNumber, recommendations: tips });
+  }
+
+  return recommendations.sort((a, b) => a.imageNumber - b.imageNumber);
+}
+
+async function generateFashionRecommendations(prompt, expectedImageCount) {
   const config = getLlmConfig();
+
+  const tokenLimit =
+    config.providerName === "openai"
+      ? { max_completion_tokens: 1200 }
+      : { max_tokens: 1200 };
 
   const response = await axios.post(
     `${config.baseUrl}/chat/completions`,
@@ -68,9 +108,10 @@ async function generateFashionRecommendations(prompt) {
         },
         { role: "user", content: prompt },
       ],
-      temperature: 0.7,
-      top_p: 1,
-      max_tokens: 1024,
+      ...(config.providerName === "nvidia"
+        ? { temperature: 0.7, top_p: 1 }
+        : {}),
+      ...tokenLimit,
       stream: false,
     },
     {
@@ -78,11 +119,17 @@ async function generateFashionRecommendations(prompt) {
         Authorization: `Bearer ${config.apiKey}`,
         "Content-Type": "application/json",
       },
+      timeout: 45_000,
+      maxBodyLength: 256 * 1024,
+      maxContentLength: 2 * 1024 * 1024,
     }
   );
 
   const rawContent = response?.data?.choices?.[0]?.message?.content?.trim() || "";
-  const recommendations = extractJsonArray(rawContent);
+  const recommendations = validateRecommendations(
+    extractJsonArray(rawContent),
+    expectedImageCount
+  );
 
   if (!recommendations.length) {
     throw new Error(
@@ -94,8 +141,12 @@ async function generateFashionRecommendations(prompt) {
     provider: config.providerName,
     model: config.model,
     recommendations,
-    raw: response.data,
   };
 }
 
-module.exports = { generateFashionRecommendations, getLlmConfig };
+module.exports = {
+  extractJsonArray,
+  generateFashionRecommendations,
+  getLlmConfig,
+  validateRecommendations,
+};

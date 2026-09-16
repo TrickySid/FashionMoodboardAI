@@ -184,3 +184,38 @@
   border-color: rgba(255, 255, 255, 0.05);
   margin: 4px 0;
 }
+
+.avatar-btn img {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+@media (max-width: 768px) {
+  .navbar .container-fluid {
+    padding-left: 0.8rem !important;
+    padding-right: 0.8rem !important;
+  }
+
+  .navbar-brand {
+    font-size: 0.82rem;
+    letter-spacing: -0.04em;
+  }
+
+  .nav-link {
+    margin: 0 0.4rem;
+    font-size: 0.58rem;
+    letter-spacing: 0.08em;
+  }
+
+  .login-btn,
+  .signup-btn {
+    padding: 7px 10px;
+    font-size: 0.65rem;
+    letter-spacing: 0.05em;
+  }
+
+  .signup-btn,
+  .avatar-btn {
+    margin-left: 0.4rem;
+  }
+}

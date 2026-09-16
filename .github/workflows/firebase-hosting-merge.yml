@@ -16,9 +16,21 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: |
+            frontend/package-lock.json
+            backend/package-lock.json
+
+      - name: Install backend dependencies
+        run: npm ci
+        working-directory: backend
+
+      - name: Check and test backend
+        run: npm run check && npm test && npm audit --omit=dev --audit-level=high
+        working-directory: backend
 
       - name: Install frontend dependencies
         run: npm ci
@@ -26,6 +38,10 @@ jobs:
 
       - name: Build frontend
         run: npm run build
+        working-directory: frontend
+
+      - name: Test and lint frontend
+        run: npm test && npm run lint && npm audit --omit=dev --audit-level=high
         working-directory: frontend
 
       - name: Deploy to Firebase

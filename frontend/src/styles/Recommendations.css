@@ -332,8 +332,38 @@
   font-size: 1.2rem;
 }
 
+.vault-state {
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.vault-state p {
+  margin: 0;
+}
+
 @media (max-width: 768px) {
+  .style-memory-panel {
+    padding: 2rem 1.5rem;
+    border-radius: 24px;
+  }
+
   .style-memory-panel .memory-layout {
     flex-direction: column;
+  }
+
+  .style-memory-panel .memory-metrics {
+    border-left: 0;
+    padding-left: 0;
+    white-space: normal;
+  }
+
+  .content-wrapper {
+    padding: 2rem 1.5rem;
   }
 }

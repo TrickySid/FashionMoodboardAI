@@ -1,0 +1,12 @@
+node_modules
+npm-debug.log*
+.env
+.env.*
+google-credentials.json
+*credentials*.json
+coverage
+*.test.js
+vision-smoke.js
+set-cors.js
+.git
+.gitignore

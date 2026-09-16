@@ -1,31 +1,26 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
-import { getAnalytics } from "firebase/analytics";
-import { getAuth } from "firebase/auth";
-import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyB4gtotkzc4Jr-JxoK1HmWsFHnAwLQR3q8",
-  authDomain: "fashion-moodboard-ai-a955c.firebaseapp.com",
-  databaseURL: "https://fashion-moodboard-ai-a955c-default-rtdb.firebaseio.com",
-  projectId: "fashion-moodboard-ai-a955c",
-  storageBucket: "fashion-moodboard-ai-a955c.firebasestorage.app",
-  messagingSenderId: "306572635431",
-  appId: "1:306572635431:web:f677c5055e4ca8f83d8d02",
-  measurementId: "G-L1NNFQ69VE",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyB4gtotkzc4Jr-JxoK1HmWsFHnAwLQR3q8",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "fashion-moodboard-ai-a955c.firebaseapp.com",
+  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL || "https://fashion-moodboard-ai-a955c-default-rtdb.firebaseio.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "fashion-moodboard-ai-a955c",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "fashion-moodboard-ai-a955c.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "306572635431",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:306572635431:web:f677c5055e4ca8f83d8d02",
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-L1NNFQ69VE",
 };
 
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
 
-let analytics;
-try {
-  analytics = getAnalytics(app);
-} catch (e) {
-  console.warn("Analytics blocked by browser extension");
+if (import.meta.env.PROD) {
+  import("firebase/analytics")
+    .then(async ({ getAnalytics, isSupported }) => {
+      if (await isSupported()) getAnalytics(app);
+    })
+    .catch(() => {
+      // Analytics is optional and may be blocked by browser privacy controls.
+    });
 }
 
-const auth = getAuth(app);
-const storage = getStorage(app);
-
-export { db, analytics, auth, storage };
+export { app };

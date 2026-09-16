@@ -116,8 +116,8 @@ const PrivacyPolicy = () => {
         <h2>10. Contact</h2>
         <p>
           Questions or deletion requests can be sent to{" "}
-          <a href="mailto:sbakre@horizon.csueastbay.edu">
-            sbakre@horizon.csueastbay.edu
+          <a href="mailto:siddheshbakre46@gmail.com">
+            siddheshbakre46@gmail.com
           </a>
           .
         </p>

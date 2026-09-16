@@ -107,8 +107,8 @@ const TermsOfUse = () => {
         <h2>11. Contact</h2>
         <p>
           Questions about these Terms of Use can be sent to{" "}
-          <a href="mailto:sbakre@horizon.csueastbay.edu">
-            sbakre@horizon.csueastbay.edu
+          <a href="mailto:siddheshbakre46@gmail.com">
+            siddheshbakre46@gmail.com
           </a>
           .
         </p>

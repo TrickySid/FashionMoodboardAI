@@ -31,6 +31,7 @@ import {
   imageExtension,
   validateImageFile,
 } from "../utils/imageFiles";
+import { normalizeAnalyzedLabels } from "../utils/visionLabels";
 
 const BACKEND_URL =
   import.meta.env.VITE_BACKEND_URL ||
@@ -181,10 +182,7 @@ function UploadPhoto() {
 
       const analyzedImages = visionResponses.map((response, index) => ({
         image: `Image ${index + 1}`,
-        labels: (response.data.labels || []).map((label) => ({
-          description: label.description || "Unknown",
-          confidence: Number(label.score || 0) * 100,
-        })),
+        labels: normalizeAnalyzedLabels(response.data.labels),
       }));
 
       if (analyzedImages.some((image) => !image.labels.length)) {

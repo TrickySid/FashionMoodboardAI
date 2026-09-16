@@ -1,6 +1,6 @@
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const MAX_LABELS_PER_IMAGE = 10;
-const SAFE_TEXT = /^[\p{L}\p{N} .,'&()\-/]+$/u;
+const CONTROL_CHARACTERS = /[\u0000-\u001f\u007f]/u;
 
 function detectImageType(buffer) {
   if (buffer.length >= 3 && buffer.subarray(0, 3).equals(Buffer.from([0xff, 0xd8, 0xff]))) {
@@ -58,7 +58,7 @@ function sanitizeShortText(value, maxLength) {
   }
 
   const trimmed = value.trim();
-  if (!trimmed || trimmed.length > maxLength || !SAFE_TEXT.test(trimmed)) {
+  if (!trimmed || trimmed.length > maxLength || CONTROL_CHARACTERS.test(trimmed)) {
     return null;
   }
 

@@ -8,6 +8,13 @@ function getVisionClient() {
   return client;
 }
 
+function normalizeVisionLabels(labelAnnotations = []) {
+  return labelAnnotations.map((label) => ({
+    description: label.description || "Unknown",
+    confidence: Number(label.score || 0) * 100,
+  }));
+}
+
 async function analyzeImage(req, res) {
   const validation = validateImageRequest(req.body);
   if (!validation.ok) {
@@ -26,10 +33,7 @@ async function analyzeImage(req, res) {
       { timeout: 30_000 }
     );
 
-    const labels = (result.labelAnnotations || []).map((label) => ({
-      description: label.description || "Unknown",
-      score: Number(label.score || 0),
-    }));
+    const labels = normalizeVisionLabels(result.labelAnnotations);
     const colors = (
       result.imagePropertiesAnnotation?.dominantColors?.colors || []
     )
@@ -52,4 +56,4 @@ async function analyzeImage(req, res) {
   }
 }
 
-module.exports = { analyzeImage };
+module.exports = { analyzeImage, normalizeVisionLabels };

@@ -73,7 +73,7 @@ The LLM receives structured labels and style context, not the original image byt
 
 ## Security controls
 
-- Firebase ID-token verification, including revoked-token checks, on both billable AI endpoints
+- Firebase ID-token verification pinned to the frontend Firebase project on both billable AI endpoints
 - Firestore and Storage rules scoped to `request.auth.uid`
 - JPEG/PNG/WebP signature checks and a 5 MB image limit on both client and server
 - Strict 3-6 look and label-schema validation before LLM use
@@ -96,6 +96,7 @@ Create `backend/.env` locally. It is ignored by Git:
 PORT=5000
 GOOGLE_APPLICATION_CREDENTIALS=./google-credentials.json
 FIREBASE_DATABASE_URL=https://your-project-default-rtdb.firebaseio.com
+FIREBASE_PROJECT_ID=fashion-moodboard-ai-a955c
 
 LLM_PROVIDER=nvidia
 NVOPENAI_API_KEY=your_nvidia_key
@@ -156,6 +157,7 @@ npm --prefix frontend run build
 - GitHub Actions deploys only Firebase Hosting. It does not deploy the Cloud Run backend or Firebase rules.
 - Before relying on the new access controls in production, review and manually deploy `firestore.rules`, `storage.rules`, and `firestore.indexes.json` with the Firebase CLI.
 - Configure `ALLOWED_ORIGINS` on Cloud Run with every real frontend origin, including any custom domain.
+- Configure `FIREBASE_PROJECT_ID=fashion-moodboard-ai-a955c` on Cloud Run. This must identify the Firebase Authentication project even when Cloud Run runs in another Google Cloud project.
 - Store backend keys as Cloud Run secrets/environment configuration. Do not bake `.env` or service-account JSON into the image.
 - Prefer a dedicated least-privilege Cloud Run service account with Vision access and Firebase token-verification capability.
 - The in-memory rate limiter is per Cloud Run instance. Set conservative Cloud Run maximum instances and billing alerts for stronger cost containment.

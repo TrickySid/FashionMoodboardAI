@@ -42,7 +42,7 @@ function AccountSettings() {
 
     try {
       await deleteObject(storageRef(storage, photoUrl));
-    } catch {
+    } catch (error) {
       console.warn("Old profile photo cleanup failed", { code: error?.code });
     }
   };

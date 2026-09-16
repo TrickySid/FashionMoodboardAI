@@ -6,16 +6,31 @@ const {
 const { getAuth } = require("firebase-admin/auth");
 
 let firebaseAuth;
+const FIREBASE_APP_NAME = "fashion-moodboard-backend";
+
+function getFirebaseProjectId(env = process.env) {
+  const projectId = env.FIREBASE_PROJECT_ID?.trim();
+  if (!projectId) {
+    throw new Error("FIREBASE_PROJECT_ID is required for Firebase token verification");
+  }
+
+  return projectId;
+}
 
 function getFirebaseAuth() {
   if (firebaseAuth) return firebaseAuth;
 
-  const firebaseApp = getApps()[0] || initializeApp({
-    credential: applicationDefault(),
-    ...(process.env.FIREBASE_DATABASE_URL
-      ? { databaseURL: process.env.FIREBASE_DATABASE_URL }
-      : {}),
-  });
+  const firebaseApp = getApps().find((app) => app.name === FIREBASE_APP_NAME)
+    || initializeApp(
+      {
+        credential: applicationDefault(),
+        projectId: getFirebaseProjectId(),
+        ...(process.env.FIREBASE_DATABASE_URL
+          ? { databaseURL: process.env.FIREBASE_DATABASE_URL }
+          : {}),
+      },
+      FIREBASE_APP_NAME
+    );
   firebaseAuth = getAuth(firebaseApp);
   return firebaseAuth;
 }
@@ -34,7 +49,7 @@ function createVerifyToken(verifyIdToken) {
     }
 
     try {
-      const decodedToken = await verifyIdToken(idToken, true);
+      const decodedToken = await verifyIdToken(idToken);
       req.user = decodedToken;
       return next();
     } catch (error) {
@@ -46,8 +61,13 @@ function createVerifyToken(verifyIdToken) {
   };
 }
 
-const verifyToken = createVerifyToken((token, checkRevoked) =>
-  getFirebaseAuth().verifyIdToken(token, checkRevoked)
+const verifyToken = createVerifyToken((token) =>
+  getFirebaseAuth().verifyIdToken(token)
 );
 
-module.exports = { createVerifyToken, extractBearerToken, verifyToken };
+module.exports = {
+  createVerifyToken,
+  extractBearerToken,
+  getFirebaseProjectId,
+  verifyToken,
+};

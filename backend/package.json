@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "node --test app.test.js auth.test.js llmClient.test.js validation.test.js",
+    "test": "node --test app.test.js auth.test.js llmClient.test.js middleware.test.js validation.test.js",
     "test:vision": "node vision-smoke.js",
     "check": "node --check server.js && node --check app.js && node --check routes.js"
   },

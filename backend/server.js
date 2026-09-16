@@ -1,12 +1,20 @@
 require("dotenv").config();
 
 const { createApp } = require("./app");
+const { getFirebaseProjectId } = require("./auth");
 const { getLlmConfig } = require("./llmClient");
 
 const app = createApp();
 const port = Number.parseInt(process.env.PORT || "5000", 10);
 
 if (require.main === module) {
+  try {
+    getFirebaseProjectId();
+  } catch (error) {
+    console.error(`Firebase configuration error: ${error.message}`);
+    process.exit(1);
+  }
+
   try {
     const llmConfig = getLlmConfig();
     console.log(

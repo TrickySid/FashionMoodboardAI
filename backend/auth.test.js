@@ -1,6 +1,10 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { createVerifyToken, extractBearerToken } = require("./auth");
+const {
+  createVerifyToken,
+  extractBearerToken,
+  getFirebaseProjectId,
+} = require("./auth");
 
 function createResponse() {
   return {
@@ -24,6 +28,14 @@ test("extractBearerToken accepts exactly one bearer token", () => {
   assert.equal(extractBearerToken(undefined), null);
 });
 
+test("getFirebaseProjectId requires an explicit Firebase Auth project", () => {
+  assert.equal(
+    getFirebaseProjectId({ FIREBASE_PROJECT_ID: " fashion-moodboard-ai-a955c " }),
+    "fashion-moodboard-ai-a955c"
+  );
+  assert.throws(() => getFirebaseProjectId({}), /FIREBASE_PROJECT_ID is required/);
+});
+
 test("verifyToken rejects a missing token", async () => {
   const middleware = createVerifyToken(async () => ({ uid: "unused" }));
   const req = { headers: {} };
@@ -39,10 +51,10 @@ test("verifyToken rejects a missing token", async () => {
 });
 
 test("verifyToken attaches only verified identity", async () => {
-  let checkRevokedValue = false;
-  const middleware = createVerifyToken(async (token, checkRevoked) => {
+  let argumentCount = 0;
+  const middleware = createVerifyToken(async function verify(token) {
     assert.equal(token, "valid-token");
-    checkRevokedValue = checkRevoked;
+    argumentCount = arguments.length;
     return { uid: "verified-user" };
   });
   const req = { headers: { authorization: "Bearer valid-token" } };
@@ -54,7 +66,7 @@ test("verifyToken attaches only verified identity", async () => {
   });
 
   assert.equal(req.user.uid, "verified-user");
-  assert.equal(checkRevokedValue, true);
+  assert.equal(argumentCount, 1);
   assert.equal(calledNext, true);
 });
 

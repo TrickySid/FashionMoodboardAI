@@ -63,7 +63,7 @@ test("recommendation client bounds provider requests and validates the response"
 
   const result = await generator("bounded prompt", 1);
   assert.equal(result.recommendations.length, 1);
-  assert.equal(requestConfig.timeout, 45_000);
+  assert.equal(requestConfig.timeout, 90_000);
   assert.equal(requestConfig.maxBodyLength, 256 * 1024);
   assert.equal(requestConfig.maxContentLength, 2 * 1024 * 1024);
 });

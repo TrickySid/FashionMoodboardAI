@@ -1,10 +1,15 @@
 const axios = require("axios");
 
+const LLM_TIMEOUT_MS = Math.min(
+  Math.max(Number(process.env.LLM_TIMEOUT_MS) || 90_000, 10_000),
+  180_000
+);
+
 const PROVIDERS = {
   nvidia: {
     baseUrl: process.env.NVIDIA_BASE_URL || "https://integrate.api.nvidia.com/v1",
     apiKey: process.env.NVOPENAI_API_KEY,
-    model: process.env.NVIDIA_MODEL || "openai/gpt-oss-120b",
+    model: process.env.NVIDIA_MODEL || "openai/gpt-oss-20b",
   },
   openai: {
     baseUrl: process.env.OPENAI_BASE_URL || "https://api.openai.com/v1",
@@ -120,7 +125,7 @@ function createRecommendationGenerator(httpClient = axios) {
           Authorization: `Bearer ${config.apiKey}`,
           "Content-Type": "application/json",
         },
-        timeout: 45_000,
+        timeout: LLM_TIMEOUT_MS,
         maxBodyLength: 256 * 1024,
         maxContentLength: 2 * 1024 * 1024,
       }

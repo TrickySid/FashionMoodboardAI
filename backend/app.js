@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const { rateLimit } = require("express-rate-limit");
-const { router } = require("./routes");
+const { createRouter } = require("./routes");
 
 const DEFAULT_ALLOWED_ORIGINS = [
   "https://fashion-moodboard-ai-a955c.web.app",
@@ -19,7 +19,7 @@ function getAllowedOrigins() {
   return new Set(configured?.length ? configured : DEFAULT_ALLOWED_ORIGINS);
 }
 
-function createApp() {
+function createApp(routeDependencies) {
   const app = express();
   const allowedOrigins = getAllowedOrigins();
 
@@ -63,7 +63,7 @@ function createApp() {
     res.status(200).json({ status: "ok" });
   });
 
-  app.use(router);
+  app.use(createRouter(routeDependencies));
 
   app.use((_req, res) => {
     res.status(404).json({ error: "Route not found" });

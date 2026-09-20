@@ -88,63 +88,68 @@ function validateRecommendations(value, expectedImageCount) {
   return recommendations.sort((a, b) => a.imageNumber - b.imageNumber);
 }
 
-async function generateFashionRecommendations(prompt, expectedImageCount) {
-  const config = getLlmConfig();
+function createRecommendationGenerator(httpClient = axios) {
+  return async function generateRecommendations(prompt, expectedImageCount) {
+    const config = getLlmConfig();
 
-  const tokenLimit =
-    config.providerName === "openai"
-      ? { max_completion_tokens: 1200 }
-      : { max_tokens: 1200 };
+    const tokenLimit =
+      config.providerName === "openai"
+        ? { max_completion_tokens: 1200 }
+        : { max_tokens: 1200 };
 
-  const response = await axios.post(
-    `${config.baseUrl}/chat/completions`,
-    {
-      model: config.model,
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are a helpful fashion stylist. Return clean JSON when requested.",
-        },
-        { role: "user", content: prompt },
-      ],
-      ...(config.providerName === "nvidia"
-        ? { temperature: 0.7, top_p: 1 }
-        : {}),
-      ...tokenLimit,
-      stream: false,
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${config.apiKey}`,
-        "Content-Type": "application/json",
+    const response = await httpClient.post(
+      `${config.baseUrl}/chat/completions`,
+      {
+        model: config.model,
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are a helpful fashion stylist. Return clean JSON when requested.",
+          },
+          { role: "user", content: prompt },
+        ],
+        ...(config.providerName === "nvidia"
+          ? { temperature: 0.7, top_p: 1 }
+          : {}),
+        ...tokenLimit,
+        stream: false,
       },
-      timeout: 45_000,
-      maxBodyLength: 256 * 1024,
-      maxContentLength: 2 * 1024 * 1024,
-    }
-  );
-
-  const rawContent = response?.data?.choices?.[0]?.message?.content?.trim() || "";
-  const recommendations = validateRecommendations(
-    extractJsonArray(rawContent),
-    expectedImageCount
-  );
-
-  if (!recommendations.length) {
-    throw new Error(
-      `${config.providerName} returned no parseable recommendation content.`
+      {
+        headers: {
+          Authorization: `Bearer ${config.apiKey}`,
+          "Content-Type": "application/json",
+        },
+        timeout: 45_000,
+        maxBodyLength: 256 * 1024,
+        maxContentLength: 2 * 1024 * 1024,
+      }
     );
-  }
 
-  return {
-    provider: config.providerName,
-    model: config.model,
-    recommendations,
+    const rawContent = response?.data?.choices?.[0]?.message?.content?.trim() || "";
+    const recommendations = validateRecommendations(
+      extractJsonArray(rawContent),
+      expectedImageCount
+    );
+
+    if (!recommendations.length) {
+      throw new Error(
+        `${config.providerName} returned no parseable recommendation content.`
+      );
+    }
+
+    return {
+      provider: config.providerName,
+      model: config.model,
+      recommendations,
+    };
   };
 }
 
+const generateFashionRecommendations = createRecommendationGenerator();
+
 module.exports = {
+  createRecommendationGenerator,
   extractJsonArray,
   generateFashionRecommendations,
   getLlmConfig,

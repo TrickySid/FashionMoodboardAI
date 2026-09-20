@@ -38,13 +38,20 @@ const BACKEND_URL =
   "https://fashion-backend-956137897855.us-central1.run.app";
 
 function ImagePreview({ file, index }) {
-  const [url] = useState(() => URL.createObjectURL(file));
+  const [url, setUrl] = useState("");
 
   useEffect(() => {
-    return () => URL.revokeObjectURL(url);
-  }, [url]);
+    const reader = new FileReader();
+    reader.onload = () => setUrl(String(reader.result));
+    reader.readAsDataURL(file);
 
-  return <img src={url} alt={`Selected look ${index + 1}`} />;
+    return () => {
+      reader.onload = null;
+      if (reader.readyState === FileReader.LOADING) reader.abort();
+    };
+  }, [file]);
+
+  return url ? <img src={url} alt={`Selected look ${index + 1}`} /> : null;
 }
 
 function fileIdentity(file) {

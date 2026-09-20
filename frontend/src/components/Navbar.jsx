@@ -12,8 +12,8 @@ function Navbar() {
 
   const handleLogout = async () => {
     try {
+      navigate("/", { replace: true });
       await signOut(auth);
-      navigate("/");
     } catch {
       addToast("Sign out failed. Please try again.", "error");
     }

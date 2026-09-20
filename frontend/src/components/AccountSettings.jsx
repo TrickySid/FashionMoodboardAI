@@ -24,7 +24,7 @@ import {
   imageExtension,
   validateImageFile,
 } from "../utils/imageFiles";
-import { safeImageUrl } from "../utils/urls";
+import { isManagedStorageUrl, safeImageUrl } from "../utils/urls";
 
 function AccountSettings() {
   const { user, refreshUser } = useAuth();
@@ -38,7 +38,7 @@ function AccountSettings() {
   const [photoBusy, setPhotoBusy] = useState(false);
 
   const deleteStoredPhoto = async (photoUrl) => {
-    if (!photoUrl || !photoUrl.includes("firebasestorage")) return;
+    if (!isManagedStorageUrl(photoUrl)) return;
 
     try {
       await deleteObject(storageRef(storage, photoUrl));
@@ -55,7 +55,8 @@ function AccountSettings() {
     }
 
     setPhotoBusy(true);
-    const oldUrl = user.photoURL;
+    const currentUser = auth.currentUser;
+    const oldUrl = currentUser?.photoURL || currentPhotoUrl;
     let newReference;
 
     try {
@@ -67,7 +68,7 @@ function AccountSettings() {
       });
       const url = await getDownloadURL(snapshot.ref);
 
-      await updateProfile(auth.currentUser, { photoURL: url });
+      await updateProfile(currentUser, { photoURL: url });
       await refreshUser();
       setCurrentPhotoUrl(url);
       await deleteStoredPhoto(oldUrl);
@@ -81,7 +82,8 @@ function AccountSettings() {
   };
 
   const handleRemovePhoto = async () => {
-    const oldUrl = user.photoURL;
+    const currentUser = auth.currentUser;
+    const oldUrl = currentUser?.photoURL || currentPhotoUrl;
     if (!oldUrl) {
       addToast("You are already using the default avatar.", "info");
       return;
@@ -89,7 +91,7 @@ function AccountSettings() {
 
     setPhotoBusy(true);
     try {
-      await updateProfile(auth.currentUser, { photoURL: null });
+      await updateProfile(currentUser, { photoURL: "" });
       await refreshUser();
       setCurrentPhotoUrl(null);
       await deleteStoredPhoto(oldUrl);

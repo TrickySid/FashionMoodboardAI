@@ -18,8 +18,16 @@ backend/build/
 .DS_Store
 .env
 .env.*
+!frontend/.env.test
 google-credentials.json
 
+# local release-test artifacts
+.test-artifacts/
+playwright-report/
+test-results/
+
 npm-debug.log*
+firebase-debug.log*
+debug.log
 yarn-debug.log*
 yarn-error.log*

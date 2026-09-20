@@ -7,7 +7,17 @@
   "scripts": {
     "build": "npm --prefix frontend run build",
     "test": "npm --prefix backend test && npm --prefix frontend test",
+    "test:rules": "firebase emulators:exec --project demo-fashion-moodboard --only firestore,storage \"node --test tests/rules/firestore.rules.test.mjs tests/rules/storage.rules.test.mjs\"",
+    "test:e2e": "playwright test tests/e2e/release.spec.mjs",
+    "test:visual": "cross-env VISUAL_TEST=1 playwright test tests/e2e/screenshots.spec.mjs",
     "lint": "npm --prefix frontend run lint",
     "check": "npm --prefix backend run check && npm run lint && npm test && npm run build"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@firebase/rules-unit-testing": "^5.0.2",
+    "@playwright/test": "^1.63.0",
+    "cross-env": "^10.1.0",
+    "firebase-tools": "^15.30.1"
   }
 }

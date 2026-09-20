@@ -89,7 +89,8 @@ service cloud.firestore {
         ])
         && request.resource.data.userId == request.auth.uid
         && validRecommendationPayload(request.resource.data.recommendations)
-        && validStyleProfile(request.resource.data.styleProfileSnapshot)
+        && (!('styleProfileSnapshot' in request.resource.data)
+          || validStyleProfile(request.resource.data.styleProfileSnapshot))
         && request.resource.data.timestamp == request.time;
       allow update, delete: if false;
     }

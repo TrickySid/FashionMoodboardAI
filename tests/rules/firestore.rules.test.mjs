@@ -107,9 +107,41 @@ describe("Firestore recommendation ownership", () => {
   });
 
   test("first recommendation succeeds without a pre-existing user document", async () => {
-    const dbA = testEnv.authenticatedContext(USER_A, { email: "a@example.test" }).firestore();
+    const dbA = testEnv.authenticatedContext(USER_A, {
+      email: "a@example.test",
+    }).firestore();
+
     await assertSucceeds(
-      setDoc(doc(dbA, "userRecommendations", "first-rec"), recommendation())
+      setDoc(
+        doc(dbA, "userRecommendations", "first-rec"),
+        recommendation()
+      )
+    );
+  });
+
+  test("legacy recommendation email must match the authenticated user", async () => {
+    const dbA = testEnv.authenticatedContext(USER_A, {
+      email: "a@example.test",
+    }).firestore();
+
+    const validLegacyRecommendation = recommendation(USER_A);
+    validLegacyRecommendation.email = "a@example.test";
+
+    await assertSucceeds(
+      setDoc(
+        doc(dbA, "userRecommendations", "legacy-email-valid"),
+        validLegacyRecommendation
+      )
+    );
+
+    const forgedLegacyRecommendation = recommendation(USER_A);
+    forgedLegacyRecommendation.email = "b@example.test";
+
+    await assertFails(
+      setDoc(
+        doc(dbA, "userRecommendations", "legacy-email-forged"),
+        forgedLegacyRecommendation
+      )
     );
   });
 

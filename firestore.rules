@@ -21,7 +21,10 @@ service cloud.firestore {
           || (request.resource.data.name is string
             && request.resource.data.name.size() <= 100))
         && (!('email' in request.resource.data)
-          || request.resource.data.email == request.auth.token.email)
+          || (
+            'email' in request.auth.token
+            && request.resource.data.email == request.auth.token.email
+          ))
         && (!('styleProfileMemory' in request.resource.data)
           || validStyleProfile(request.resource.data.styleProfileMemory))
         && (!('styleProfileUpdatedAt' in request.resource.data)
@@ -83,11 +86,17 @@ service cloud.firestore {
       allow create: if signedIn()
         && request.resource.data.keys().hasOnly([
           'userId',
+          'email',
           'recommendations',
           'styleProfileSnapshot',
           'timestamp'
         ])
         && request.resource.data.userId == request.auth.uid
+        && (!('email' in request.resource.data)
+          || (
+            'email' in request.auth.token
+            && request.resource.data.email == request.auth.token.email
+          ))
         && validRecommendationPayload(request.resource.data.recommendations)
         && (!('styleProfileSnapshot' in request.resource.data)
           || validStyleProfile(request.resource.data.styleProfileSnapshot))
